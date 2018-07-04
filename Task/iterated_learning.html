@@ -4,9 +4,8 @@
 <!-- load important things like jquery and mturk and style sheet, setup -->
 <head>
 	<title>Iterated Learning Template</title>
-	<script src="jquery-1.11.2.min.js"></script>
 	<script src="mmturkey-0.6.js"></script>
-	<link rel="stylesheet" href="style.css"/>
+	<link rel="stylesheet" href="style.css" />
 </head>
 
 <!--start of code -->
@@ -38,30 +37,41 @@
 			<input type="text" id="generation" name="generation" size="30">
 		</p>
 
-	</div>
-	<!--I don't know what this line does** -->
-	<div id="checkMessage"></div>
+	
+	<!--displays the results if someone included the necessary info or not -->
+	<div id="checkMessage"></div> 
 
 	<!--Button to check if information has been inputted, proceed to next slide if yes-->
-	<div style="text-align: center">
 		<button type="button" onclick="this.blur(); experiment.checkInput()">Start</button>
+
 	</div>
 
 </div>
 
 <!-- TRAINING SECTION -->
 <div class="slide" id="training">
-	<!--instructions-->
+	<!--instructions -->
 	<p class="block-text">In this study, you will be asked to re-create the patterns you see.</p> <br>
-	<p class="block-text">Let's start with some training. Your job is to place the shapes in the grid on the right just as they appear on the left. Let's try a few! </p>
+	<p class="block-text">Let's start with some training. Your job is to place the shapes in the grid on the right just as they appear on the left. Let's try a few! </p> 
+<img src="images/seed_sample_2.png" height = 550 alt="sample training seed" style="float:left"/>  
+<table class="grid" style="float;left" id="training1">
+    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</table> 
 
-	<!--grids: CURRENTLY IMAGES, CHANGE TO BE BUTTONS AND STUFF**** -->
+	<!--grids: CURRENTLY IMAGES, CHANGE TO BE BUTTONS AND STUFF**** 
 	<img src="images/seed_sample_2.png" height = 550 alt="sample training seed"/>
-	<img src="images/grid.png" height=550 alt="blank grid"/>
+	<img src="images/grid.png" height=550 alt="blank grid"/> -->
 
 	<!--proceed to last ending slide** THIS IS NOT THE WAY U WANNA DO THIS. TRASH AND REWRITE WHEN U HAVE THE SKILLS -->
 	<div style="text-align: center">
-		<button type="button" onclick="this.blur(); experiment.end()">Next</button>
+		<button type="button" onclick="this.blur(); experiment.end()">Check My Answer</button>
 	</div>
 
 </div>
@@ -75,6 +85,7 @@
 
 
 <!--connects to javascript file which has actual experiment code on it. This line of info is very important and without it none of your functions will run. They are all written in a separate file for clarity and stuff. -->
+<script src="jquery-1.11.2.min.js"></script>
 <script src="ill.js"></script>
 
 </body>

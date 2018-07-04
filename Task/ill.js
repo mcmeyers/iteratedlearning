@@ -9,8 +9,18 @@ function showSlide(id) {
 	$("#"+id).show();
 }
 
+getCurrentDate = function() {
+  var currentDate = new Date();
+  var day = currentDate.getDate();
+  var month = currentDate.getMonth() + 1;
+  var year = currentDate.getFullYear();
+  return (month + "/" + day + "/" + year);
+}
+
+
 // Show the instructions slide -- this is what we want subjects to see first.
 showSlide("intro");
+
 
 //MAIN EXPERIMENT
 var experiment = {
@@ -21,6 +31,7 @@ var experiment = {
   subage:0,
   generation:0,
   condition:0,
+  date: getCurrentDate(),
 
   //data collected during training
 
@@ -33,7 +44,13 @@ var experiment = {
   next: function() {
     // Show the next slide.
     showSlide("training");
+    $("td").bind("click", function(){
+    // change style here
+    $(this).addClass("clicked1");
+    
+  });
   },
+  
 
   //shows ending slide when the experiment is done; SHOULD SUBMIT DATA OR STORE **
   end: function(){
