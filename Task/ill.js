@@ -1,4 +1,4 @@
-//This is the javascript file for the iterated learning study. It is missing many things and there is a lot that needs to be done. 
+//This is the javascript file for the iterated learning study
 //A lot of this code was taken from Claire Bergy and Long Ouyang
 
 // Shows slides. We're using jQuery here - the **$** is the jQuery selector function, which takes as input either a DOM element or a CSS selector string.
@@ -9,30 +9,6 @@ function showSlide(id) {
 	$("#"+id).show();
 }
 
-/*creates blank tables DOESNT WORK YET--LOOK AT THIS LATER
-function addTable() {
-    var myTableDiv = document.getElementById("newTable");
-
-    var table = document.createElement('TABLE');
-    table.border = '1';
-
-    var tableBody = document.createElement('TBODY');
-    table.appendChild(tableBody);
-
-    for (var i = 0; i < 8; i++) {
-        var tr = document.createElement('TR');
-        tableBody.appendChild(tr);
-
-        for (var j = 0; j < 8; j++) {
-            var td = document.createElement('TD');
-            td.width = '75';
-            td.appendChild(document.createTextNode("Cell " + i + "," + j));
-            tr.appendChild(td);
-        }
-    }
-    myTableDiv.appendChild(table);
-} */
-
 getCurrentDate = function() {
   var currentDate = new Date();
   var day = currentDate.getDate();
@@ -40,7 +16,6 @@ getCurrentDate = function() {
   var year = currentDate.getFullYear();
   return (month + "/" + day + "/" + year);
 }
-
 
 // Show the instructions slide -- this is what we want subjects to see first.
 showSlide("intro");
@@ -72,6 +47,22 @@ var experiment = {
     $(this).toggleClass("clicked");
   });
   },
+
+  startTrain2: function(){
+    showSlide("training2");
+    $("#t2Input td").bind("click", function(){
+    // change style here
+    $(this).toggleClass("clicked");
+  });
+  },
+
+  startTrain3: function(){
+    showSlide("training3");
+    $("#t3Input td").bind("click", function(){
+    // change style here
+    $(this).toggleClass("clicked");
+  });
+  },
   
 
     //shows ending slide when the experiment is done; SHOULD SUBMIT DATA OR STORE **
@@ -81,12 +72,12 @@ var experiment = {
     //setTimeout(function() { turk.submit(experiment) }, 1500);
   },
 
-  checkGrid: function(input, target){
+  //checks whether the person matched the two training grids correctly 
+  checkGrid: function(input, target, error, nexttrain){
     var rowIndex= 0;
     var cellIndex= 0;
     var i;
     for(i=0; i<64; i++) {
-      console.log('looping')
       var inputElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
       var targetElement = document.getElementById(target).rows[rowIndex].cells[cellIndex];
 
@@ -98,7 +89,7 @@ var experiment = {
            cellIndex++;
           //if no, display error message
         } else {
-          $("#checkInput").html('<font color="red">The two grids should be the same. Please try again</font>');
+          $(error).html('<font color="red"><strong>The two grids should be the same. Please try again<strong></font>');
           return;
         }
      //if the target cell is NOT clicked
@@ -106,7 +97,7 @@ var experiment = {
       //and the input cell IS clicked [WRONG]
       if(inputElement.className =='clicked'){
       //display error message
-          $("#checkInput").html('<font color="red">The two grids should be the same. Please try again</font>');
+          $(error).html('<font color="red"><strong>The two grids should be the same. Please try again<strong></font>');
          return;
         } else {
       //move on!
@@ -118,12 +109,16 @@ var experiment = {
       if(cellIndex == 8) {
         rowIndex++;
         if(rowIndex == 8){
+          if(nexttrain === 2){
+            experiment.startTrain2();
+          } 
+          if(nexttrain ===3){
+            experiment.startTrain3();
+          } if(nexttrain != 2 && nexttrain != 3){
           experiment.end();
-        } else{
+        }} else{
           cellIndex = 0;
         }
-      //  cellIndex = 0;
-        //console.log(rowIndex, cellIndex);
       }
 
     }

@@ -1,3 +1,10 @@
+<!-- TO DO:
+	-make function to create grids automatically !!!!!!
+	-change grid colors with each trial 
+	-add images instead of just colors???
+	-create actual study trials 
+	-have it so it only lets you color in 10 things
+-->
 <!DOCTYPE html>
 <html>
 
@@ -49,10 +56,12 @@
 </div>
 
 <!-- TRAINING SECTION -->
+
+<!-- TRAINING TRIAL 1-->
 <div class="slide" id="training1">
 	<!--instructions -->
 	<p class="block-text">In this study, you will be asked to re-create the patterns you see.</p> <br>
-	<p class="block-text">Let's start with some training. Your job is to place the shapes in the grid on the right just as they appear on the left. Let's try a few! </p> 
+	<p class="block-text">Let's start with some training. Your job is to place the colors in the grid on the right just as they appear on the left. Let's try a few! </p> 
 <!--<img src="images/seed_sample_2.png" height = 550 alt="sample training seed" style="float:left"/>  -->
 	<br>
 		<table class="grid" style="float:left" id="t1Target">
@@ -76,15 +85,82 @@
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 		</table> 
 
-	<!--grids: CURRENTLY IMAGES, CHANGE TO BE BUTTONS AND STUFF**** 
-	<img src="images/seed_sample_2.png" height = 550 alt="sample training seed"/>
-	<img src="images/grid.png" height=550 alt="blank grid"/> -->
-
-	<!--proceed to last ending slide** THIS IS NOT THE WAY U WANNA DO THIS. TRASH AND REWRITE WHEN U HAVE THE SKILLS -->
 	<div id="checkInput"></div> 
 
 	<div style="text-align: center">
-		<button type="button" onclick="this.blur(); experiment.checkGrid('t1Input', 't1Target')">Check My Answer</button>
+		<button type="button" onclick="this.blur(); experiment.checkGrid('t1Input', 't1Target', '#checkInput', 2)">Check My Answer</button>
+
+	</div>
+
+</div>
+
+<!-- TRAINING TRIAL 2 -->
+<div class="slide" id="training2">
+	<!--instructions -->
+	<p class="block-text">Great job! Let's try a few more. Remember, your job is to click the cells in the grid on the right so that they match the grid on the left. Make sure to ask the experimenter if you have any questions.</p> 
+
+	<br>
+		<table class="grid" style="float:left" id="t2Target">
+   			<tr><td></td><td class="clicked"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td class="clicked"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td class="clicked"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td class="clicked"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="clicked"></td></tr>
+    		<tr><td></td><td class="clicked"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td class="clicked"></td><td></td>></td><td></td><td></td><td></td><td></td><td></td><td class="clicked"></td></tr>
+    		<tr><td></td><td class="clicked"></td><td></td><td class="clicked"></td><td></td><td></td><td></td><td></td></tr>
+		</table>
+		<table class="grid"  style="float:right" id="t2Input">
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+		</table> 
+
+	<div id="checkInput2"></div> 
+
+	<div style="text-align: center">
+		<button type="button" onclick="this.blur(); experiment.checkGrid('t2Input', 't2Target', '#checkInput2', 3)">Check My Answer</button>
+
+	</div>
+
+</div>
+
+<!-- TRAINING TRIAL 3 -->
+<div class="slide" id="training3">
+	<!--instructions -->
+	<p class="block-text">Just one more practice before we start!</p> <br>
+
+
+		<table class="grid" style="float:left" id="t3Target">
+   			<tr><td></td><td></td><td class="clicked"></td><td></td><td class="clicked"></td><td class="clicked"></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td class="clicked"></td><td></td><td></td><td class="clicked"></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td class="clicked"></td><td></td><td></td><td class="clicked"></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td class="clicked"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td class="clicked"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td class="clicked"></td><td></td></tr>
+		</table>
+		<table class="grid"  style="float:right" id="t3Input">
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+		</table> 
+
+	<div id="checkInput3"></div> 
+
+	<div style="text-align: center">
+		<button type="button" onclick="this.blur(); experiment.checkGrid('t3Input', 't3Target', '#checkInput3')">Check My Answer</button>
 
 	</div>
 

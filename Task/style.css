@@ -95,6 +95,8 @@ button[disabled] {
     float:left;
     padding:1px;
 }
-.grid td.clicked {
+
+.grid td.clicked{
     background-color:yellow;
 }
+
