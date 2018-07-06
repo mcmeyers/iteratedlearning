@@ -49,29 +49,43 @@
 </div>
 
 <!-- TRAINING SECTION -->
-<div class="slide" id="training">
+<div class="slide" id="training1">
 	<!--instructions -->
 	<p class="block-text">In this study, you will be asked to re-create the patterns you see.</p> <br>
 	<p class="block-text">Let's start with some training. Your job is to place the shapes in the grid on the right just as they appear on the left. Let's try a few! </p> 
-<img src="images/seed_sample_2.png" height = 550 alt="sample training seed" style="float:left"/>  
-<table class="grid" style="float;left" id="training1">
-    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-</table> 
+<!--<img src="images/seed_sample_2.png" height = 550 alt="sample training seed" style="float:left"/>  -->
+	<br>
+		<table class="grid" style="float:left" id="t1Target">
+   			<tr><td></td><td></td><td class="clicked"></td><td></td><td></td><td class="clicked"></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td class="clicked"></td><td class="clicked"></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td class="clicked"></td><td></td><td></td><td></td><td></td><td class="clicked"></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td class="clicked"></td><td></td><td class="clicked"></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td class="clicked"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td class="clicked"></td><td></td><td></td></tr>
+		</table>
+		<table class="grid"  style="float:right" id="t1Input">
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+		</table> 
 
 	<!--grids: CURRENTLY IMAGES, CHANGE TO BE BUTTONS AND STUFF**** 
 	<img src="images/seed_sample_2.png" height = 550 alt="sample training seed"/>
 	<img src="images/grid.png" height=550 alt="blank grid"/> -->
 
 	<!--proceed to last ending slide** THIS IS NOT THE WAY U WANNA DO THIS. TRASH AND REWRITE WHEN U HAVE THE SKILLS -->
+	<div id="checkInput"></div> 
+
 	<div style="text-align: center">
-		<button type="button" onclick="this.blur(); experiment.end()">Check My Answer</button>
+		<button type="button" onclick="this.blur(); experiment.checkGrid('t1Input', 't1Target')">Check My Answer</button>
+
 	</div>
 
 </div>

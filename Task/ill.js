@@ -9,6 +9,30 @@ function showSlide(id) {
 	$("#"+id).show();
 }
 
+/*creates blank tables DOESNT WORK YET--LOOK AT THIS LATER
+function addTable() {
+    var myTableDiv = document.getElementById("newTable");
+
+    var table = document.createElement('TABLE');
+    table.border = '1';
+
+    var tableBody = document.createElement('TBODY');
+    table.appendChild(tableBody);
+
+    for (var i = 0; i < 8; i++) {
+        var tr = document.createElement('TR');
+        tableBody.appendChild(tr);
+
+        for (var j = 0; j < 8; j++) {
+            var td = document.createElement('TD');
+            td.width = '75';
+            td.appendChild(document.createTextNode("Cell " + i + "," + j));
+            tr.appendChild(td);
+        }
+    }
+    myTableDiv.appendChild(table);
+} */
+
 getCurrentDate = function() {
   var currentDate = new Date();
   var day = currentDate.getDate();
@@ -20,7 +44,6 @@ getCurrentDate = function() {
 
 // Show the instructions slide -- this is what we want subjects to see first.
 showSlide("intro");
-
 
 //MAIN EXPERIMENT
 var experiment = {
@@ -41,23 +64,72 @@ var experiment = {
   data: [],
 
   // The function that gets called when the sequence is finished.*** NOT REAL
-  next: function() {
+  startTrain: function() {
     // Show the next slide.
-    showSlide("training");
-    $("td").bind("click", function(){
+    showSlide("training1");
+    $("#t1Input td").bind("click", function(){
     // change style here
-    $(this).addClass("clicked1");
-    
+    $(this).toggleClass("clicked");
   });
   },
   
 
-  //shows ending slide when the experiment is done; SHOULD SUBMIT DATA OR STORE **
+    //shows ending slide when the experiment is done; SHOULD SUBMIT DATA OR STORE **
   end: function(){
     showSlide("end");
     // Wait 1.5 seconds and then submit the whole experiment object to Mechanical Turk (mmturkey filters out the functions so we know we're just submitting properties [i.e. data])
     //setTimeout(function() { turk.submit(experiment) }, 1500);
   },
+
+  checkGrid: function(input, target){
+    var rowIndex= 0;
+    var cellIndex= 0;
+    var i;
+    for(i=0; i<64; i++) {
+      console.log('looping')
+      var inputElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
+      var targetElement = document.getElementById(target).rows[rowIndex].cells[cellIndex];
+
+     //checks if the target cell is clicked or not
+       if(targetElement.className == 'clicked'){
+        //if target cell clicked, check if input cell is also clicked [RIGHT]
+          if(inputElement.className == 'clicked'){
+            //if yes, increase cell index by 1 (search next cell)
+           cellIndex++;
+          //if no, display error message
+        } else {
+          $("#checkInput").html('<font color="red">The two grids should be the same. Please try again</font>');
+          return;
+        }
+     //if the target cell is NOT clicked
+    } else {
+      //and the input cell IS clicked [WRONG]
+      if(inputElement.className =='clicked'){
+      //display error message
+          $("#checkInput").html('<font color="red">The two grids should be the same. Please try again</font>');
+         return;
+        } else {
+      //move on!
+          cellIndex++;
+        } 
+      }
+
+      //move onto next row if you need to
+      if(cellIndex == 8) {
+        rowIndex++;
+        if(rowIndex == 8){
+          experiment.end();
+        } else{
+          cellIndex = 0;
+        }
+      //  cellIndex = 0;
+        //console.log(rowIndex, cellIndex);
+      }
+
+    }
+  },
+
+
 
   //checks whether the experimenter has filled in the correct subject info in the first slide
   checkInput: function() {
@@ -90,7 +162,10 @@ var experiment = {
     experiment.generation = parseInt(document.getElementById("generation").value);
 
     //goes to training slide(SOON TO BE SEQUENCE**)
-    experiment.next();
+    experiment.startTrain();
   }
 
 }
+
+// for debugging, jump around with the line below
+//experiment.startTrain()
