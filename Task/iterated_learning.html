@@ -1,9 +1,16 @@
 <!-- TO DO:
-	-make function to create grids automatically !!!!!!
-	-change grid colors with each trial 
-	-add images instead of just colors???
-	-create actual study trials 
+	-make function to create grids automatically & integrate it into the html code, make code to fill in correct cells for target tables
+	-add images instead of just colors??? probably not necessary FOR NOW 
+	-***create actual study trials 
+		**-target image appears for X seconds
+		**-visual mask
+		**-input grid appears and person makes target with 10 buttons, presses button to continue (put time limit here?)
 	-have it so it only lets you color in 10 things
+	-consolidate codes with colors
+	-figure out how to actually store and save all data 
+	-figure out how to feed input (produced) grids into next iteration of study trial (will be difficult but is most important) depending on study condition and generation number 
+	-put in timeout for grid creation
+	-get rid of that little arrow thingy on the next trials
 -->
 <!DOCTYPE html>
 <html>
@@ -64,7 +71,7 @@
 	<p class="block-text">Let's start with some training. Your job is to place the colors in the grid on the right just as they appear on the left. Let's try a few! </p> 
 <!--<img src="images/seed_sample_2.png" height = 550 alt="sample training seed" style="float:left"/>  -->
 	<br>
-		<table class="grid" style="float:left" id="t1Target">
+		<table class="grid yellow" style="float:left" id="t1Target">
    			<tr><td></td><td></td><td class="clicked"></td><td></td><td></td><td class="clicked"></td><td></td><td></td></tr>
     		<tr><td></td><td></td><td></td><td class="clicked"></td><td class="clicked"></td><td></td><td></td><td></td></tr>
     		<tr><td></td><td class="clicked"></td><td></td><td></td><td></td><td></td><td class="clicked"></td><td></td></tr>
@@ -74,7 +81,7 @@
     		<tr><td></td><td class="clicked"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     		<tr><td></td><td></td><td></td><td></td><td></td><td class="clicked"></td><td></td><td></td></tr>
 		</table>
-		<table class="grid"  style="float:right" id="t1Input">
+		<table class="grid yellow"  style="float:right" id="t1Input">
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
@@ -100,7 +107,7 @@
 	<p class="block-text">Great job! Let's try a few more. Remember, your job is to click the cells in the grid on the right so that they match the grid on the left. Make sure to ask the experimenter if you have any questions.</p> 
 
 	<br>
-		<table class="grid" style="float:left" id="t2Target">
+		<table class="grid green" style="float:left" id="t2Target">
    			<tr><td></td><td class="clicked"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     		<tr><td></td><td class="clicked"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     		<tr><td class="clicked"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
@@ -110,7 +117,7 @@
     		<tr><td class="clicked"></td><td></td>></td><td></td><td></td><td></td><td></td><td></td><td class="clicked"></td></tr>
     		<tr><td></td><td class="clicked"></td><td></td><td class="clicked"></td><td></td><td></td><td></td><td></td></tr>
 		</table>
-		<table class="grid"  style="float:right" id="t2Input">
+		<table class="grid green"  style="float:right" id="t2Input">
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
@@ -136,7 +143,7 @@
 	<p class="block-text">Just one more practice before we start!</p> <br>
 
 
-		<table class="grid" style="float:left" id="t3Target">
+		<table class="grid purple" style="float:left" id="t3Target">
    			<tr><td></td><td></td><td class="clicked"></td><td></td><td class="clicked"></td><td class="clicked"></td><td></td><td></td></tr>
     		<tr><td></td><td></td><td></td><td></td><td class="clicked"></td><td></td><td></td><td class="clicked"></td></tr>
     		<tr><td></td><td></td><td></td><td></td><td class="clicked"></td><td></td><td></td><td class="clicked"></td></tr>
@@ -146,7 +153,7 @@
     		<tr><td></td><td class="clicked"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td class="clicked"></td><td></td></tr>
 		</table>
-		<table class="grid"  style="float:right" id="t3Input">
+		<table class="grid purple"  style="float:right" id="t3Input">
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
@@ -163,6 +170,54 @@
 		<button type="button" onclick="this.blur(); experiment.checkGrid('t3Input', 't3Target', '#checkInput3')">Check My Answer</button>
 
 	</div>
+</div>
+
+<!--EXPERIMENT INTRO-->
+<center>
+<div class="slide" id="expIntro">
+	<p class="block-text" style="text-align:center; margin-top:100px ">Now we are going to begin the study. The next screen will display a target grid for 10 seconds. Try your best to remember where each color is located on the grid. After a short break, you will have to fill in the colors on an empty grid by clicking where you would like to place each color. Just like in the training session, try to make your pattern on this grid the same as the target grid you saw before. When you have finished your pattern re-creation, click next to see a new pattern. There will be 10 trials.</p>
+	<button type="button" onclick="this.blur(); experiment.begin()">I'm Ready to Start!</button>
+</div>
+</center>
+
+<!--TRIAL DISPLAY-->
+<div class="slide" id="trial">
+	<center>
+	<table class="grid" id="trialGrid">
+   			<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+	</table>
+	</center>
+</div>
+
+<!--VISUAL MASK-->
+<div class="slide" id="mask">
+	<center>
+	<img src="images/penguin_mask.png" height=550 alt="visual mask">
+	</center>
+</div>
+
+<!--TRIAL INPUT-->
+<div class="slide" id="input">
+	<center>
+	<table class="grid" id="trialInput">
+   			<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+	</table>
+		<button type="button" onclick="this.blur(); experiment.begin()">Ready for the Next Trial!</button>
+	</center>
 
 </div>
 

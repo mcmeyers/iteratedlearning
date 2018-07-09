@@ -96,7 +96,18 @@ button[disabled] {
     padding:1px;
 }
 
-.grid td.clicked{
+.grid.yellow td.clicked{
     background-color:yellow;
 }
 
+.grid.green td.clicked{
+    background-color:green;
+}
+
+.grid.purple td.clicked{
+    background-color:purple;
+}
+
+.clicked{
+    background-color:purple;
+}
