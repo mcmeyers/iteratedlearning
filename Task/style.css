@@ -108,6 +108,31 @@ button[disabled] {
     background-color:purple;
 }
 
+.grid.pink td.clicked{
+    background-color:pink;
+}
+
+.grid.blue td.clicked{
+    background-color:blue;
+}
+
+.grid.orange td.clicked{
+    background-color:orange;
+}
+.grid.lime td.clicked{
+    background-color:lime;
+}
+.grid.teal td.clicked{
+    background-color:teal;
+}
+.grid.navy td.clicked{
+    background-color:navy;
+}
+.grid.maroon td.clicked{
+    background-color:maroon;
+}
+
+
 .clicked{
     background-color:yellow;
 }
