@@ -152,47 +152,55 @@ var experiment = {
     //setTimeout(function() { turk.submit(experiment) }, 1500);
   },
 
-  //** BROKEN ** function that fills the target grid with array coordinates 
- fillGrid: function(array){
-  //var target = document.getElementById('trialGrid').rows[1].cells[2];
- //target.addClass('clicked');
- //var rowIndex= 0;
- // var cellIndex= 0;
- // var i;
-   // var grid = document.getElementById("trialGrid");
-  //for(i=1; i<11; i++) {
- //   var target = document.getElementById('trialGrid').rows[1].cells[2];
-  // target.addClass("clicked"); 
-  //$('#trialGrid'.rows[1].cells[2]).addClass("clicked");
- //$(("#trialGrid tr").eq(2).find('td').eq(2)).addClass("clicked");
- /* $("#trialGrid tr").eq(r3).find('td').eq(c3).addClass("clicked");
-  $("#trialGrid tr").eq(r4).find('td').eq(c4).addClass("clicked");
-  $("#trialGrid tr").eq(r5).find('td').eq(c5).addClass("clicked");
-  $("#trialGrid tr").eq(r6).find('td').eq(c6).addClass("clicked");
-  $("#trialGrid tr").eq(r7).find('td').eq(c7).addClass("clicked");
-  $("#trialGrid tr").eq(r8).find('td').eq(c8).addClass("clicked");
-  $("#trialGrid tr").eq(r9).find('td').eq(c9).addClass("clicked");
-  $("#trialGrid tr").eq(r10).find('td').eq(c10).addClass("clicked"); */
-  //}
+  //function that fills the target grid with array coordinates 
+ fillGrid: function(r1, c1, r2, c2, r3, c3, r4, c4, r5, c5, r6, c6, r7, c7, r8, c8, r9, c9, r10, c10){
+  document.getElementById("trialGrid").rows[r1].cells[c1].classList.add("clicked");
+  document.getElementById("trialGrid").rows[r2].cells[c2].classList.add("clicked");
+  document.getElementById("trialGrid").rows[r3].cells[c3].classList.add("clicked");
+  document.getElementById("trialGrid").rows[r4].cells[c4].classList.add("clicked");
+  document.getElementById("trialGrid").rows[r5].cells[c5].classList.add("clicked");
+  document.getElementById("trialGrid").rows[r6].cells[c6].classList.add("clicked");
+  document.getElementById("trialGrid").rows[r7].cells[c7].classList.add("clicked");
+  document.getElementById("trialGrid").rows[r8].cells[c8].classList.add("clicked");
+  document.getElementById("trialGrid").rows[r9].cells[c9].classList.add("clicked");
+  document.getElementById("trialGrid").rows[r10].cells[c10].classList.add("clicked");
   },
 
-  //**BROKEN** function to clear input grid each trial 
-  clear: function(){
-    if($("#trialInput td").className == "clicked"){
-      $("#trialInput td").toggleClass("clicked");
+  //function to clear input grid AND TARGET GRID before each trial 
+  clear: function(grid){ 
+    console.log("running");
+    var i; 
+    var rowIndex = 0; 
+    var cellIndex = 0; 
+    for(i=0; i<64; i++){
+    var gridElement = document.getElementById(grid).rows[rowIndex].cells[cellIndex];
+    if (gridElement.classList == "clicked"){
+      gridElement.classList.toggle("clicked");
+    }
+    cellIndex++; 
+    if(cellIndex == 8) {
+        rowIndex++;
+        if(rowIndex == 8){
+          return; 
+        } else{
+          cellIndex = 0; //otherwise move onto next row in the grid (not at end of grid)
+        }
     } 
+    }
   },
 
   //** NEED TO ADD STORING OF CHOSEN COORDINATES IN AN ARRAY ** function that creates input grid for trials
   input: function(){
     //displays the trial number that you are on [should store it somewhere? corresponds to what array the data should be stored in]
     console.log(trialCount);
-   // experiment.clear(); BROKEN 
+    experiment.clear("trialInput"); 
     showSlide("input");
     //creates clickable array 
-    $("#trialInput td").bind("click", function(){
-      $(this).toggleClass("clicked");
-    });
+    if(trialCount == 1){
+      $("#trialInput td").bind("click", function(){
+        $(this).toggleClass("clicked");
+      });
+    }
   },
 
   //displays visual mask for X seconds 
@@ -205,14 +213,36 @@ var experiment = {
   begin: function(){
     //increases trial #
     trialCount++;
+    experiment.clear("trialGrid");
     //ends experiment when 10 trials have been completed 
     if(trialCount == 11){
       experiment.end();
     } else{                                                   //experiment not completed
       showSlide("trial");                                     //show target slide
-       setTimeout(function(){ experiment.mask() }, 5000);     //for X seconds
-        //experiment.fillGrid("trial"+i);                       //**BROKEN** fill the grid with the correct seed pattern
-      } 
+      setTimeout(function(){ experiment.mask() }, 5000);
+      //**TRY TO GET THIS IN SOME BETTER WAY? like stored in an array** trial 1
+      if(trialCount == 1){
+        experiment.fillGrid(5,4,0,0,3,5,0,1,4,0,0,3,4,5,6,6,1,3,2,3);
+      } if (trialCount == 2){
+        experiment.fillGrid(5,2,4,2,5,1,3,0,7,4,1,5,0,6,3,4,4,1,7,5);
+      } if (trialCount ==3){
+        experiment.fillGrid(6,4,0,0,6,3,3,5,7,2,1,2,6,7,4,3,1,6,3,3);
+      } if(trialCount == 4){
+        experiment.fillGrid(7,4,5,7,1,7,0,1,3,4,4,7,1,3,7,5,0,6,7,2);
+      } if(trialCount == 5){
+        experiment.fillGrid(4,5,2,7,1,3,0,0,0,2,4,1,6,3,4,4,7,6,2,2);
+      } if(trialCount == 6){
+        experiment.fillGrid(7,3,3,2,5,2,3,1,2,5,6,4,1,4,3,3,7,2,2,0);
+      } if(trialCount == 7){
+        experiment.fillGrid(4,4,5,4,7,3,7,4,4,7,7,5,0,0,3,7,4,5,1,6);
+      } if(trialCount == 8){
+        experiment.fillGrid(3,3,1,1,0,7,5,3,6,6,0,2,6,4,4,3,7,5,7,4);
+      } if(trialCount ==9){
+        experiment.fillGrid(0,0,3,5,4,5,1,0,1,6,0,6,2,7,1,3,3,0,4,6);
+      } if(trialCount ==10){
+        experiment.fillGrid(4,1,4,2,1,5,2,5,1,4,2,4,6,2,4,4,5,2,0,1);
+      }
+    } 
   },
 
   //checks whether the person matched the two training grids correctly 
@@ -306,5 +336,5 @@ var experiment = {
 // for debugging, jump to training
 //experiment.startTrain()
 //jump to trials
-//showSlide("expIntro");
+showSlide("expIntro");
 
