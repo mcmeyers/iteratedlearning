@@ -67,38 +67,45 @@ var experiment = {
 
   //FUNCTIONS 
 
-  //** BROKEN ** makes limit of highlighted cells 10 
-  max10items: function(input){
+  //makes limit of highlighted cells 10, highlights clicked cells 
+  max10items: function(clicked,input){
     console.log("running");
     var i; 
     var rowIndex = 0; 
     var cellIndex = 0; 
     var count = 0;
+    $(clicked).toggleClass("clicked");
     for(i=0; i<64; i++){
-      var gridElement = document.getElementById(grid).rows[rowIndex].cells[cellIndex];
-      if (gridElement.classList == "clicked"){
+      var gridElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
+
+      if (gridElement.className == "clicked"){
         count++;
       }
+         
       cellIndex++; 
+
       if(cellIndex == 8) {
         rowIndex++;
         if(rowIndex == 8){
           return; 
         } else{
-          cellIndex = 0; //otherwise move onto next row in the grid (not at end of grid)
+          cellIndex = 0;
         }
       }
-      if(count == 10){
-        gridElement.classList.toggle("clicked");
-      } 
+
+      if(count > 10){
+          clicked.classList.remove("clicked");
+        } 
     }
   },
 
   //starts training session 1 
   startTrain: function() {
     showSlide("training1");
-    $("#t1Input td").bind("click", function(){
-      $(this).toggleClass("clicked");
+
+    $("#t1Input td").click(function(){
+      //$(this).toggleClass("clicked");
+      experiment.max10items(this,'t1Input');
     });
     //** BROKEN **  
     //experiment.max10items('t1Input');
@@ -107,19 +114,20 @@ var experiment = {
   //start training session 2 
   startTrain2: function(){
     showSlide("training2");
-    $("#t2Input td").bind("click", function(){
-      $(this).toggleClass("clicked");
+    $("#t2Input td").click(function(){
+      experiment.max10items(this,'t2Input');
     });
   },
 
   //start training session 3
   startTrain3: function(){
     showSlide("training3");
-    $("#t3Input td").bind("click", function(){
-      $(this).toggleClass("clicked");
+    $("#t3Input td").click(function(){
+      experiment.max10items(this,'t3Input');
     });
   },
   
+
   //** ALTER TO STORE AND SUBMIT DATA ** ending function 
   end: function(){
     showSlide("end");
@@ -191,8 +199,8 @@ var experiment = {
     showSlide("input");
     //creates clickable array 
     if(experiment.trialCount == 1){
-      $("#trialInput td").bind("click", function(){
-        $(this).toggleClass("clicked");
+      $("#trialInput td").click(function(){
+        experiment.max10items(this,'trialInput');
       });
     }
   },
@@ -230,6 +238,8 @@ var experiment = {
       }
     } */
     //increases trial #
+    var trialGrid = document.getElementById("trialGrid");
+    var trialInput = document.getElementById("trialInput");
     experiment.trialCount++;
     experiment.clear("trialGrid");
     //ends experiment when 10 trials have been completed 
@@ -241,42 +251,58 @@ var experiment = {
       //**TRY TO GET THIS IN SOME BETTER WAY? like stored in an array** trial 1 FIX THESE COLOR GUYS BECAUSE THEY ARE WRONG RIGHT NOW BUT YOU HAVE TO GO
       if(experiment.trialCount == 1){
         experiment.fillGrid(5,4,0,0,3,5,0,1,4,0,0,3,4,5,6,6,1,3,2,3);
-        document.getElementById("trialGrid").classList.add("purple");
-        document.getElementById("inputGrid").classList.add("purple");
+        trialGrid.classList.add("purple");
+        trialInput.classList.add("purple");
       } if (experiment.trialCount == 2){
           experiment.fillGrid(5,2,4,2,5,1,3,0,7,4,1,5,0,6,3,4,4,1,7,5);
+          trialGrid.classList.remove("purple");
+          trialInput.classList.remove("purple");
       } if (experiment.trialCount ==3){
           experiment.fillGrid(6,4,0,0,6,3,3,5,7,2,1,2,6,7,4,3,1,6,3,3);
-          document.getElementById("trialGrid").classList.add("green");
-          document.getElementById("inputGrid").classList.add("green");
+          trialGrid.classList.add("green");
+          trialInput.classList.add("green");
       } if(experiment.trialCount == 4){
           experiment.fillGrid(7,4,5,7,1,7,0,1,3,4,4,7,1,3,7,5,0,6,7,2);
-          document.getElementById("trialGrid").classList.add("pink");
-          document.getElementById("inputGrid").classList.add("pink");
+          trialGrid.classList.remove("green");
+          trialInput.classList.remove("green");
+          trialGrid.classList.add("pink");
+          trialInput.classList.add("pink");
       } if(experiment.trialCount == 5){
           experiment.fillGrid(4,5,2,7,1,3,0,0,0,2,4,1,6,3,4,4,7,6,2,2);
-          document.getElementById("trialGrid").classList.add("blue");
-          document.getElementById("inputGrid").classList.add("blue");
+          trialGrid.classList.remove("pink");
+          trialInput.classList.remove("pink");
+          trialGrid.classList.add("blue");
+          trialInput.classList.add("blue");
       } if(experiment.trialCount == 6){
           experiment.fillGrid(7,3,3,2,5,2,3,1,2,5,6,4,1,4,3,3,7,2,2,0);
-          document.getElementById("trialGrid").classList.add("orange");
-          document.getElementById("inputGrid").classList.add("orange");
+          trialGrid.classList.remove("blue");
+          trialInput.classList.remove("blue");
+          trialGrid.classList.add("orange");
+          trialInput.classList.add("orange");
       } if(experiment.trialCount == 7){
           experiment.fillGrid(4,4,5,4,7,3,7,4,4,7,7,5,0,0,3,7,4,5,1,6);
-          document.getElementById("trialGrid").classList.add("lime");
-          document.getElementById("inputGrid").classList.add("lime");
+          trialGrid.classList.remove("orange");
+          trialInput.classList.remove("orange");
+          trialGrid.classList.add("lime");
+          trialInput.classList.add("lime");
       } if(experiment.trialCount == 8){
           experiment.fillGrid(3,3,1,1,0,7,5,3,6,6,0,2,6,4,4,3,7,5,7,4);
-          document.getElementById("trialGrid").classList.add("teal");
-          document.getElementById("inputGrid").classList.add("teal");
+          trialGrid.classList.remove("lime");
+          trialInput.classList.remove("lime");
+          trialGrid.classList.add("teal");
+          trialInput.classList.add("teal");
       } if(experiment.trialCount ==9){
           experiment.fillGrid(0,0,3,5,4,5,1,0,1,6,0,6,2,7,1,3,3,0,4,6);
-          document.getElementById("trialGrid").classList.add("navy");
-          document.getElementById("inputGrid").classList.add("navy");
+          trialGrid.classList.remove("teal");
+          trialInput.classList.remove("teal");
+          trialGrid.classList.add("navy");
+          trialInput.classList.add("navy");
       } if(experiment.trialCount ==10){
           experiment.fillGrid(4,1,4,2,1,5,2,5,1,4,2,4,6,2,4,4,5,2,0,1);
-          document.getElementById("trialGrid").classList.add("maroon");
-          document.getElementById("inputGrid").classList.add("maroon");
+          trialGrid.classList.remove("navy");
+          trialInput.classList.remove("navy");
+          trialGrid.classList.add("maroon");
+          trialInput.classList.add("maroon");
       }
     } 
   },
@@ -372,5 +398,5 @@ var experiment = {
 // for debugging, jump to training
 //experiment.startTrain()
 //jump to trials
-showSlide("expIntro");
+//showSlide("expIntro");
 
