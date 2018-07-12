@@ -69,21 +69,19 @@ var experiment = {
 
   //makes limit of highlighted cells 10, highlights clicked cells 
   max10items: function(clicked,input){
-    console.log("running");
     var i; 
     var rowIndex = 0; 
     var cellIndex = 0; 
     var count = 0;
+    //highlighs clicked cell
     $(clicked).toggleClass("clicked");
+    //checks through grid to count how many cells are selected, disables selecting if there are 10 selected already
     for(i=0; i<64; i++){
       var gridElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
-
       if (gridElement.className == "clicked"){
         count++;
-      }
-         
-      cellIndex++; 
-
+      }    
+      cellIndex++;
       if(cellIndex == 8) {
         rowIndex++;
         if(rowIndex == 8){
@@ -92,10 +90,9 @@ var experiment = {
           cellIndex = 0;
         }
       }
-
       if(count > 10){
-          clicked.classList.remove("clicked");
-        } 
+        clicked.classList.remove("clicked");
+      } 
     }
   },
 
@@ -174,6 +171,9 @@ var experiment = {
     var i; 
     var rowIndex = 0; 
     var cellIndex = 0; 
+    //clears previous error message
+    document.getElementById("error").innerHTML = "";
+    //clears highlighted cells
     for(i=0; i<64; i++){
       var gridElement = document.getElementById(grid).rows[rowIndex].cells[cellIndex];
       if(gridElement.classList == "clicked"){
@@ -306,12 +306,41 @@ var experiment = {
       }
     } 
   },
+  //function that shows error message/stops from continuing if less than 10 items are selected (prevents too much simplification)
+  //together with max10items ensures that the user selects EXACTLY 10 items each trial
+  min10Items: function(input){
+    var rowIndex = 0;
+    var cellIndex = 0;
+    var i;
+    var count = 0;
+    for(i=0; i<64; i++){
+      var gridElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
+      if(gridElement.className == "clicked"){
+        count++;
+      }
+      cellIndex++;
+      if(cellIndex == 8) {
+        rowIndex++;
+        if(rowIndex == 8){
+          if(count < 10){
+            $(error).html('<font color="red"><strong>You must select 10 items before continuing. Please try again<strong></font>');
+            return;   
+          } else {
+            experiment.begin()
+          }
+        } else{
+          cellIndex = 0; //otherwise move onto next row in the grid (not at end of grid)
+        } 
+      }
+    } 
+  },
 
-  //checks whether the person matched the two training grids correctly 
+  //checks whether the person matched the two training grids correctly, also checks if there are NOT 10 items selected 
   checkGrid: function(input, target, error, nexttrain){
     var rowIndex= 0;
     var cellIndex= 0;
     var i;
+    var count=0;
     for(i=0; i<64; i++) {
       var inputElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
       var targetElement = document.getElementById(target).rows[rowIndex].cells[cellIndex];
@@ -398,5 +427,5 @@ var experiment = {
 // for debugging, jump to training
 //experiment.startTrain()
 //jump to trials
-//showSlide("expIntro");
+showSlide("expIntro");
 
