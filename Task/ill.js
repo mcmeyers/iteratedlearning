@@ -102,8 +102,7 @@ var experiment = {
   generation:0,
   condition:0,
   date: getCurrentDate(),
-  timestamp: getCurrentTime(),
- //FIX timestamp: getTime(), 
+  timestamp: getCurrentTime(), 
 
   //counts what trial you are on 
   trialCount:0,
@@ -155,6 +154,9 @@ var experiment = {
   //starts training session 1 
   startTrain: function() {
     showSlide("training1");
+    document.ontouchmove=function(event){
+      event.preventDefault();
+    };
     $("#t1Target td.clicked").click(function(){
       ding.play();
     });
@@ -166,8 +168,10 @@ var experiment = {
   //start training session 2 
   startTrain2: function(){
     showSlide("training2");
+    document.ontouchmove=function(event){
+      event.preventDefault();
+    };
     $("#t2Target td.clicked").click(function(){
-      //$(this).toggleClass("clicked");
       ding.play();
     });
     $("#t2Input td").click(function(){
@@ -178,8 +182,10 @@ var experiment = {
   //start training session 3
   startTrain3: function(){
     showSlide("training3");
+    document.ontouchmove=function(event){
+      event.preventDefault();
+    };
     $("#t3Target td.clicked").click(function(){
-      //$(this).toggleClass("clicked");
       ding.play();
     });
     $("#t3Input td").click(function(){
@@ -245,7 +251,7 @@ var experiment = {
     for(i=0; i<64; i++){
       var gridElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
       if(gridElement.className == "clicked"){
-        experiment.dataArray.push(rowIndex);
+       experiment.dataArray.push(rowIndex);
         experiment.dataArray.push(cellIndex);
       }
       cellIndex++;
@@ -257,10 +263,11 @@ var experiment = {
           cellIndex = 0; //otherwise move onto next row in the grid (not at end of grid)
         } 
       }
-    } 
+    }
+    console.log(dataArray) 
   },
 
-  //** NEED TO ADD STORING OF CHOSEN COORDINATES IN AN ARRAY ** function that creates input grid for trials
+  //function that creates input grid for trials
   input: function(){
     //clears data from previous input
     experiment.clear("trialInput"); 
@@ -279,12 +286,13 @@ var experiment = {
     setTimeout(function(){ experiment.input() }, 1000);
   },
 
-
-
-  //displays target slide,**ADD SUBMITTING TRIAL COORDINATE DATA** handles counter for trials and ends study when 10 trials have passed 
+  //displays target slide, stores data, handles counter for trials and ends study when 10 trials have passed 
   begin: function(){
+    document.ontouchmove=function(event){
+      event.preventDefault();
+    }
     if(experiment.trialCount != 0){
-     storeData("trialInput");
+      experiment.storeData("trialInput");
     }
     //increases trial #
     var trialGrid = document.getElementById("trialGrid");
@@ -482,7 +490,7 @@ var experiment = {
     experiment.startTrain();
   }
   //beginnings of a data processing function
-  processData: function() {
+ /* processData: function() {
     
     var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.condition + "," + experiment.generation; 
     dataforRound += "," + experiment.trial1;
@@ -495,20 +503,15 @@ var experiment = {
     dataforRound += "," + experiment.trial8;
     dataforRound += "," + experiment.trial9;
     dataforRound += "," + experiment.trial10; 
-    dataforRound += "," + experiment.date + "," + experiment.timestamp + "\n"; //+ "," + experiment.rtsearch; what is this
+    dataforRound += "," + experiment.date + "," + experiment.timestamp + "\n"; //+ "," + experiment.rtsearch; what is this 
     $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound});
     // use line below for mmturkey version
     //experiment.data.push(dataforRound); 
-  }, 
-
-
-
-
-
+  }, */
 }
 
 // for debugging, jump to training
 //experiment.startTrain()
 //jump to trials
-showSlide("expIntro");
+//showSlide("expIntro");
 
