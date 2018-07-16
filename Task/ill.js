@@ -21,9 +21,17 @@ getCurrentDate = function() {
   var year = currentDate.getFullYear();
   return (month + "/" + day + "/" + year);
 }
+//gets current time 
+getCurrentTime = function() {
+  var currentTime = new Date();
+  var hours = currentTime.getHours();
+  var minutes = currentTime.getMinutes();
+
+  if (minutes < 10) minutes = "0" + minutes;
+  return (hours + ":" + minutes);
+}
 
 //dragElement(document.getElementById("mydiv"));
-
 //lets you have draggable things 
 function dragElement(elmnt) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
@@ -83,6 +91,8 @@ var trial8 = [3,3,1,1,0,7,5,3,6,6,0,2,6,4,4,3,7,5,7,4];
 var trial9 = [0,0,3,5,4,5,1,0,1,6,0,6,2,7,1,3,3,0,4,6];
 var trial10 = [4,1,4,2,1,5,2,5,1,4,2,4,6,2,4,4,5,2,0,1];
 
+var ding = document.getElementById("ding");
+
 //MAIN EXPERIMENT
 var experiment = {
 
@@ -92,11 +102,14 @@ var experiment = {
   generation:0,
   condition:0,
   date: getCurrentDate(),
+  timestamp: getCurrentTime(),
+ //FIX timestamp: getTime(), 
 
   //counts what trial you are on 
   trialCount:0,
 
   // An array to store the data that we're collecting during trials. Stores by seed (for now)
+  dataArray: [],
   dataTrial1: [],
   dataTrial2: [],
   dataTrial3: [],
@@ -106,8 +119,7 @@ var experiment = {
   dataTrial7: [],
   dataTrial8: [],
   dataTrial9: [],
-  dataTrial10: [],
-
+  dataTrial10: [], 
 
   //FUNCTIONS 
 
@@ -143,18 +155,21 @@ var experiment = {
   //starts training session 1 
   startTrain: function() {
     showSlide("training1");
-
+    $("#t1Target td.clicked").click(function(){
+      ding.play();
+    });
     $("#t1Input td").click(function(){
-      //$(this).toggleClass("clicked");
       experiment.max10items(this,'t1Input');
     });
-    //** BROKEN **  
-    //experiment.max10items('t1Input');
   },
 
   //start training session 2 
   startTrain2: function(){
     showSlide("training2");
+    $("#t2Target td.clicked").click(function(){
+      //$(this).toggleClass("clicked");
+      ding.play();
+    });
     $("#t2Input td").click(function(){
       experiment.max10items(this,'t2Input');
     });
@@ -163,6 +178,10 @@ var experiment = {
   //start training session 3
   startTrain3: function(){
     showSlide("training3");
+    $("#t3Target td.clicked").click(function(){
+      //$(this).toggleClass("clicked");
+      ding.play();
+    });
     $("#t3Input td").click(function(){
       experiment.max10items(this,'t3Input');
     });
@@ -176,26 +195,6 @@ var experiment = {
     //setTimeout(function() { turk.submit(experiment) }, 1500);
   },
 
-  //beginnings of a data processing function
-  /*processData: function() {
-    
-    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.condition + "," + experiment.generation; 
-    dataforRound += "," + experiment.trial1;
-    dataforRound += "," + experiment.trial2;
-    dataforRound += "," + experiment.trial3;
-    dataforRound += "," + experiment.trial4;
-    dataforRound += "," + experiment.trial5;
-    dataforRound += "," + experiment.trial6;
-    dataforRound += "," + experiment.trial7;
-    dataforRound += "," + experiment.trial8;
-    dataforRound += "," + experiment.trial9;
-    dataforRound += "," + experiment.trial10; 
-    dataforRound += "," + experiment.date + "," + experiment.timestamp + "\n"; //+ "," + experiment.rtsearch; what is this
-    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound});
-    // use line below for mmturkey version
-    //experiment.data.push(dataforRound); 
-  }, */
-
   //function that fills the target grid with array coordinates 
  fillGrid: function(r1, c1, r2, c2, r3, c3, r4, c4, r5, c5, r6, c6, r7, c7, r8, c8, r9, c9, r10, c10){
     document.getElementById("trialGrid").rows[r1].cells[c1].classList.add("clicked");
@@ -208,6 +207,9 @@ var experiment = {
     document.getElementById("trialGrid").rows[r8].cells[c8].classList.add("clicked");
     document.getElementById("trialGrid").rows[r9].cells[c9].classList.add("clicked");
     document.getElementById("trialGrid").rows[r10].cells[c10].classList.add("clicked");
+    $("#trialGrid td.clicked").click(function(){
+      ding.play();
+    });
   },
 
   //function to clear grids before each trial 
@@ -235,9 +237,31 @@ var experiment = {
     }
   },
 
+//stores data in an array DOES NOT WORK RIGHT NOW ARGH 
+  storeData: function(input){
+    var rowIndex = 0;
+    var cellIndex = 0;
+    var i;
+    for(i=0; i<64; i++){
+      var gridElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
+      if(gridElement.className == "clicked"){
+        experiment.dataArray.push(rowIndex);
+        experiment.dataArray.push(cellIndex);
+      }
+      cellIndex++;
+      if(cellIndex == 8) {
+        rowIndex++;
+        if(rowIndex == 8){
+          return;   
+        } else{
+          cellIndex = 0; //otherwise move onto next row in the grid (not at end of grid)
+        } 
+      }
+    } 
+  },
+
   //** NEED TO ADD STORING OF CHOSEN COORDINATES IN AN ARRAY ** function that creates input grid for trials
   input: function(){
-    console.log(experiment.trialCount);
     //clears data from previous input
     experiment.clear("trialInput"); 
     showSlide("input");
@@ -255,32 +279,13 @@ var experiment = {
     setTimeout(function(){ experiment.input() }, 1000);
   },
 
+
+
   //displays target slide,**ADD SUBMITTING TRIAL COORDINATE DATA** handles counter for trials and ends study when 10 trials have passed 
   begin: function(){
-    /*submits coordinates of selected cells to data array
-    var i;
-    var rowIndex = 0;
-    var cellIndex = 0;
-    if(trialCount != 0){
-      for(i=0; i<64; i++){
-        var gridElement = document.getElementById("trialInput").rows[rowIndex].cells[cellIndex];
-        for (i=1; i<11; i++){
-          if (gridElement.classList == "clicked"){
-            experiment.dataTrial+i = rowIndex;
-            experiment.dataTrial+i = cellIndex; 
-          }
-        }
-        cellIndex++; 
-        if(cellIndex == 8) {
-          rowIndex++;
-          if(rowIndex == 8){
-            return; 
-          } else{
-            cellIndex = 0; //otherwise move onto next row in the grid (not at end of grid)
-          }
-        } 
-      }
-    } */
+    if(experiment.trialCount != 0){
+     storeData("trialInput");
+    }
     //increases trial #
     var trialGrid = document.getElementById("trialGrid");
     var trialInput = document.getElementById("trialInput");
@@ -297,56 +302,66 @@ var experiment = {
         experiment.fillGrid(5,4,0,0,3,5,0,1,4,0,0,3,4,5,6,6,1,3,2,3);
         trialGrid.classList.add("purple");
         trialInput.classList.add("purple");
+       // storeData("trialInput",1);
       } if (experiment.trialCount == 2){
           experiment.fillGrid(5,2,4,2,5,1,3,0,7,4,1,5,0,6,3,4,4,1,7,5);
           trialGrid.classList.remove("purple");
           trialInput.classList.remove("purple");
+         // storeData("trialInput",2);
       } if (experiment.trialCount ==3){
           experiment.fillGrid(6,4,0,0,6,3,3,5,7,2,1,2,6,7,4,3,1,6,3,3);
           trialGrid.classList.add("green");
           trialInput.classList.add("green");
+          //storeData("trialInput",3);
       } if(experiment.trialCount == 4){
           experiment.fillGrid(7,4,5,7,1,7,0,1,3,4,4,7,1,3,7,5,0,6,7,2);
           trialGrid.classList.remove("green");
           trialInput.classList.remove("green");
           trialGrid.classList.add("pink");
           trialInput.classList.add("pink");
+          //storeData("trialInput",4);
       } if(experiment.trialCount == 5){
           experiment.fillGrid(4,5,2,7,1,3,0,0,0,2,4,1,6,3,4,4,7,6,2,2);
           trialGrid.classList.remove("pink");
           trialInput.classList.remove("pink");
           trialGrid.classList.add("blue");
           trialInput.classList.add("blue");
+          //storeData("trialInput",5);
       } if(experiment.trialCount == 6){
           experiment.fillGrid(7,3,3,2,5,2,3,1,2,5,6,4,1,4,3,3,7,2,2,0);
           trialGrid.classList.remove("blue");
           trialInput.classList.remove("blue");
           trialGrid.classList.add("orange");
           trialInput.classList.add("orange");
+          //storeData("trialInput",6);
       } if(experiment.trialCount == 7){
           experiment.fillGrid(4,4,5,4,7,3,7,4,4,7,7,5,0,0,3,7,4,5,1,6);
           trialGrid.classList.remove("orange");
           trialInput.classList.remove("orange");
           trialGrid.classList.add("lime");
           trialInput.classList.add("lime");
+          //storeData("trialInput",7);
       } if(experiment.trialCount == 8){
           experiment.fillGrid(3,3,1,1,0,7,5,3,6,6,0,2,6,4,4,3,7,5,7,4);
           trialGrid.classList.remove("lime");
           trialInput.classList.remove("lime");
           trialGrid.classList.add("teal");
           trialInput.classList.add("teal");
+          //storeData("trialInput",8);
       } if(experiment.trialCount ==9){
           experiment.fillGrid(0,0,3,5,4,5,1,0,1,6,0,6,2,7,1,3,3,0,4,6);
           trialGrid.classList.remove("teal");
           trialInput.classList.remove("teal");
           trialGrid.classList.add("navy");
           trialInput.classList.add("navy");
+          //storeData("trialInput",9);
       } if(experiment.trialCount ==10){
           experiment.fillGrid(4,1,4,2,1,5,2,5,1,4,2,4,6,2,4,4,5,2,0,1);
           trialGrid.classList.remove("navy");
           trialInput.classList.remove("navy");
           trialGrid.classList.add("maroon");
           trialInput.classList.add("maroon");
+          //storeData("trialInput",10);
       }
     } 
   },
@@ -466,10 +481,34 @@ var experiment = {
     //goes to training slide
     experiment.startTrain();
   }
+  //beginnings of a data processing function
+  processData: function() {
+    
+    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.condition + "," + experiment.generation; 
+    dataforRound += "," + experiment.trial1;
+    dataforRound += "," + experiment.trial2;
+    dataforRound += "," + experiment.trial3;
+    dataforRound += "," + experiment.trial4;
+    dataforRound += "," + experiment.trial5;
+    dataforRound += "," + experiment.trial6;
+    dataforRound += "," + experiment.trial7;
+    dataforRound += "," + experiment.trial8;
+    dataforRound += "," + experiment.trial9;
+    dataforRound += "," + experiment.trial10; 
+    dataforRound += "," + experiment.date + "," + experiment.timestamp + "\n"; //+ "," + experiment.rtsearch; what is this
+    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound});
+    // use line below for mmturkey version
+    //experiment.data.push(dataforRound); 
+  }, 
+
+
+
+
+
 }
 
 // for debugging, jump to training
 //experiment.startTrain()
 //jump to trials
-//showSlide("expIntro");
+showSlide("expIntro");
 
