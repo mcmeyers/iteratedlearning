@@ -170,6 +170,15 @@ var trial10 = [[0,1,0,0,0,0,0,0],
               [0,0,1,0,0,0,0,0],
               [0,0,0,0,0,0,0,0]];
 
+var targetArray = [[0,1,0,0,0,0,0,0],
+              [0,0,0,0,1,1,0,0],
+              [0,0,0,0,1,1,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,1,1,0,1,0,0,0],
+              [0,0,1,0,0,0,0,0],
+              [0,0,1,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]];
+
 var ding = document.getElementById("ding");
 
 //MAIN EXPERIMENT
@@ -187,6 +196,14 @@ var experiment = {
   trialCount:0,
 
   // Arrays to store the data that we're collecting during trials. Stores by seed (for now)
+    dataArray: [[0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]],
   dataTrial1: [[0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
@@ -354,6 +371,7 @@ var experiment = {
   //** ALTER TO STORE AND SUBMIT DATA ** ending function 
   end: function(){
     showSlide("end");
+    //experiment.processData();
     // Wait 1.5 seconds and then submit the whole experiment object to Mechanical Turk (mmturkey filters out the functions so we know we're just submitting properties [i.e. data])
     //setTimeout(function() { turk.submit(experiment) }, 1500);
   },
@@ -412,14 +430,15 @@ var experiment = {
   },
 
   //stores data in arrays
-  storeData: function(input, trial){
+  storeData: function(input, target, trial){
     var rowIndex = 0;
     var cellIndex = 0;
     var i;
     for(i=0; i<64; i++){
       var gridElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
       if(gridElement.classList == "clicked"){
-        if(trial==1){
+        experiment.dataArray[rowIndex][cellIndex] = 1;
+        /*if(trial==1){
           experiment.dataTrial1[rowIndex][cellIndex] = 1;
         } if(trial==2){
           experiment.dataTrial2[rowIndex][cellIndex] = 1;
@@ -439,18 +458,55 @@ var experiment = {
           experiment.dataTrial9[rowIndex][cellIndex] = 1;
         } if(trial==10){     
           experiment.dataTrial10[rowIndex][cellIndex] = 1;
-        }
+        } */
       }
       cellIndex++; 
       if(cellIndex == 8) {
         rowIndex++;
         if(rowIndex == 8){
-          return; 
+          //return; 
         } else{
           cellIndex = 0; 
         }
       } 
     }
+        for(i=0; i<64; i++){
+      var gridElement = document.getElementById(target).rows[rowIndex].cells[cellIndex];
+      if(gridElement.classList == "clicked"){
+        targetArray[rowIndex][cellIndex] = 1; 
+        /*if(trial==1){
+          experiment.trial1[rowIndex][cellIndex] = 1;
+        } if(trial==2){
+          experiment.trial2[rowIndex][cellIndex] = 1;
+        } if(trial==3){
+          experiment.trial3[rowIndex][cellIndex] = 1;
+        } if(trial==4){
+          experiment.trial4[rowIndex][cellIndex] = 1;
+        } if(trial==5){ 
+          experiment.trial5[rowIndex][cellIndex] = 1;
+        } if(trial==6){ 
+          experiment.trial6[rowIndex][cellIndex] = 1;
+        } if(trial==7){ 
+          experiment.trial7[rowIndex][cellIndex] = 1;
+        } if(trial==8){  
+          experiment.trial8[rowIndex][cellIndex] = 1;
+        } if(trial==9){    
+          experiment.trial9[rowIndex][cellIndex] = 1;
+        } if(trial==10){     
+          experiment.trial10[rowIndex][cellIndex] = 1;
+        } */
+      }
+      cellIndex++; 
+      if(cellIndex == 8) {
+        rowIndex++;
+        if(rowIndex == 8){
+          //return; 
+        } else{
+          cellIndex = 0; 
+        }
+      } 
+    }
+    experiment.processData();
   },
 
   //function that creates input grid for trials
@@ -477,10 +533,6 @@ var experiment = {
     //prevents scrolling
     document.ontouchmove=function(event){
       event.preventDefault();
-    }
-    //stores data
-    if(experiment.trialCount != 0){
-      experiment.storeData("trialInput", experiment.trialCount);
     }
     var trialGrid = document.getElementById("trialGrid");
     var trialInput = document.getElementById("trialInput");
@@ -563,6 +615,10 @@ var experiment = {
           trialGrid.classList.add("maroon");
           trialInput.classList.add("maroon");
       }
+    }
+        //stores data
+    if(experiment.trialCount != 0){
+      experiment.storeData("trialInput", "trialGrid", experiment.trialCount);
     } 
   },
   //function that shows error message/stops from continuing if less than 10 items are selected (prevents too much simplification)
@@ -680,26 +736,27 @@ var experiment = {
 
     //goes to training slide
     experiment.startTrain();
-  }
-  //beginnings of a data processing function
-  /*processData: function() {
+  },
+  //beginnings of a data processing function ****SOMETHING IS WRONG HERE BUT WILL FIX TOMORROW ****** 
+  processData: function() {
     
     var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.condition + "," + experiment.generation; 
-    dataforRound += "," + experiment.trial1;
-    dataforRound += "," + experiment.trial2;
-    dataforRound += "," + experiment.trial3;
-    dataforRound += "," + experiment.trial4;
-    dataforRound += "," + experiment.trial5;
-    dataforRound += "," + experiment.trial6;
-    dataforRound += "," + experiment.trial7;
-    dataforRound += "," + experiment.trial8;
-    dataforRound += "," + experiment.trial9;
-    dataforRound += "," + experiment.trial10; 
+    /*dataforRound += "," + experiment.dataTrial1;
+    dataforRound += "," + experiment.dataTrial2;
+    dataforRound += "," + experiment.dataTrial3;
+    dataforRound += "," + experiment.dataTrial4;
+    dataforRound += "," + experiment.dataTrial5;
+    dataforRound += "," + experiment.dataTrial6;
+    dataforRound += "," + experiment.dataTrial7;
+    dataforRound += "," + experiment.dataTrial8;
+    dataforRound += "," + experiment.dataTrial9;
+    dataforRound += "," + experiment.dataTrial10;  */
+    dataforRound += "," + experiment.trialCount + "," + targetArray + "," + experiment.dataArray;
     dataforRound += "," + experiment.date + "," + experiment.timestamp + "\n"; //+ "," + experiment.rtsearch; what is this 
-    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound});
+    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
     // use line below for mmturkey version
     //experiment.data.push(dataforRound); 
-  }, */
+  }, 
 }
 
 // for debugging, jump to training
