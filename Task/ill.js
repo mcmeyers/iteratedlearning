@@ -79,17 +79,96 @@ function dragElement(elmnt) {
 // Show the instructions slide 
 showSlide("intro");
 
-//creates initial seed arrays [r1, c1, r2, c2, r3, c3, r4, c4, r5, c5, r6, c6, r7, c7, r8, c8, r9, c9, r10, c10] *not currently used*
-var trial1 = [5,4,0,0,3,5,0,1,4,0,0,3,4,5,6,6,1,3,2,3];
-var trial2 = [5,2,4,2,5,1,3,0,7,4,1,5,5,2,3,4,4,1,7,5];
-var trial3 = [6,4,0,0,6,3,3,5,7,2,1,2,6,7,4,3,1,6,3,3];
-var trial4 = [7,4,5,7,1,7,0,1,3,4,4,7,1,3,7,5,0,6,7,2];
-var trial5 = [4,5,2,7,1,3,0,0,0,2,4,1,6,3,4,4,7,6,2,2];
-var trial6 = [7,3,3,2,5,2,3,1,2,5,6,4,1,4,3,3,7,2,2,0];
-var trial7 = [4,4,5,4,7,3,7,4,4,7,7,5,0,0,3,7,4,5,1,6];
-var trial8 = [3,3,1,1,0,7,5,3,6,6,0,2,6,4,4,3,7,5,7,4];
-var trial9 = [0,0,3,5,4,5,1,0,1,6,0,6,2,7,1,3,3,0,4,6];
-var trial10 = [4,1,4,2,1,5,2,5,1,4,2,4,6,2,4,4,5,2,0,1];
+//creates initial seed grids 
+var trial1 = [[1,1,0,1,0,0,0,0],
+              [0,0,0,1,0,0,0,0],
+              [0,0,0,1,0,0,0,0],
+              [0,0,0,0,0,1,0,0],
+              [1,0,0,0,0,1,0,0],
+              [0,0,0,0,1,0,0,0],
+              [0,0,0,0,0,0,1,0],
+              [0,0,0,0,0,0,0,0]];
+
+var trial2 = [[0,0,0,0,0,0,1,0],
+              [0,0,0,0,0,1,0,0],
+              [0,0,0,0,0,0,0,0],
+              [1,0,0,0,1,0,0,0],
+              [0,1,1,0,0,0,0,0],
+              [0,1,1,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,1,1,0,0]];
+
+var trial3 = [[1,0,0,0,0,0,0,0],
+              [0,0,1,0,0,0,1,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,1,0,1,0,0],
+              [0,0,0,1,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,1,1,0,0,1],
+              [0,0,1,0,0,0,0,0]];
+
+var trial4 = [[0,1,0,0,0,0,1,0],
+              [0,0,0,1,0,0,0,1],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,1,0,0,0],
+              [0,0,0,0,0,0,0,1],
+              [0,0,0,0,0,0,0,1],
+              [0,0,0,0,0,0,0,0],
+              [0,0,1,0,1,1,0,0]];
+
+var trial5 = [[1,0,1,0,0,0,0,0],
+              [0,0,0,1,0,0,0,0],
+              [0,0,1,0,0,0,0,1],
+              [0,0,0,0,0,0,0,0],
+              [0,1,0,0,1,1,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,1,0,0,0,0],
+              [0,0,0,0,0,0,1,0]];
+
+var trial6 = [[0,0,0,0,0,0,0,0],
+              [0,0,0,0,1,0,0,0],
+              [1,0,0,0,0,1,0,0],
+              [0,1,1,1,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,1,0,0,0,0,0],
+              [0,0,0,0,1,0,0,0],
+              [0,0,1,1,0,0,0,0]];
+
+var trial7 = [[1,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,1,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,1],
+              [0,0,0,0,1,1,0,1],
+              [0,0,0,0,1,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,1,1,1,0,0]];
+
+var trial8 = [[0,0,1,0,0,0,0,1],
+              [0,1,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,1,0,0,0,0],
+              [0,0,0,1,0,0,0,0],
+              [0,0,0,1,0,0,0,0],
+              [0,0,0,0,1,0,1,0],
+              [0,0,0,0,1,1,0,0]];
+
+var trial9 = [[1,0,0,0,0,0,1,0],
+              [1,0,0,1,0,0,1,0],
+              [0,0,0,0,0,0,0,1],
+              [1,0,0,0,0,1,0,0],
+              [0,0,0,0,0,1,1,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]];
+
+var trial10 = [[0,1,0,0,0,0,0,0],
+              [0,0,0,0,1,1,0,0],
+              [0,0,0,0,1,1,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,1,1,0,1,0,0,0],
+              [0,0,1,0,0,0,0,0],
+              [0,0,1,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]];
 
 var ding = document.getElementById("ding");
 
@@ -107,18 +186,96 @@ var experiment = {
   //counts what trial you are on 
   trialCount:0,
 
-  // An array to store the data that we're collecting during trials. Stores by seed (for now)
-  dataArray: [],
-  dataTrial1: [],
-  dataTrial2: [],
-  dataTrial3: [],
-  dataTrial4: [],
-  dataTrial5: [],
-  dataTrial6: [],
-  dataTrial7: [],
-  dataTrial8: [],
-  dataTrial9: [],
-  dataTrial10: [], 
+  // Arrays to store the data that we're collecting during trials. Stores by seed (for now)
+  dataTrial1: [[0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]],
+
+  dataTrial2: [[0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]],
+
+  dataTrial3: [[0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]],
+
+  dataTrial4: [[0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]],
+
+  dataTrial5: [[0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]],
+
+  dataTrial6: [[0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]],
+
+  dataTrial7: [[0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]],
+
+  dataTrial8: [[0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]],
+
+  dataTrial9: [[0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]],
+
+  dataTrial10: [[0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]], 
 
   //FUNCTIONS 
 
@@ -202,20 +359,25 @@ var experiment = {
   },
 
   //function that fills the target grid with array coordinates 
- fillGrid: function(r1, c1, r2, c2, r3, c3, r4, c4, r5, c5, r6, c6, r7, c7, r8, c8, r9, c9, r10, c10){
-    document.getElementById("trialGrid").rows[r1].cells[c1].classList.add("clicked");
-    document.getElementById("trialGrid").rows[r2].cells[c2].classList.add("clicked");
-    document.getElementById("trialGrid").rows[r3].cells[c3].classList.add("clicked");
-    document.getElementById("trialGrid").rows[r4].cells[c4].classList.add("clicked");
-    document.getElementById("trialGrid").rows[r5].cells[c5].classList.add("clicked");
-    document.getElementById("trialGrid").rows[r6].cells[c6].classList.add("clicked");
-    document.getElementById("trialGrid").rows[r7].cells[c7].classList.add("clicked");
-    document.getElementById("trialGrid").rows[r8].cells[c8].classList.add("clicked");
-    document.getElementById("trialGrid").rows[r9].cells[c9].classList.add("clicked");
-    document.getElementById("trialGrid").rows[r10].cells[c10].classList.add("clicked");
-    $("#trialGrid td.clicked").click(function(){
-      ding.play();
-    });
+  fillGrid: function(input, trialArray){
+    var i; 
+    var rowIndex = 0; 
+    var cellIndex = 0; 
+    for(i=0; i<64; i++){
+      var gridElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
+      if (trialArray[rowIndex][cellIndex] == 1){
+        gridElement.classList.add("clicked");
+      }    
+      cellIndex++;
+      if(cellIndex == 8) {
+        rowIndex++;
+        if(rowIndex == 8){
+          return; 
+        } else{
+          cellIndex = 0;
+        }
+      }
+    } 
   },
 
   //function to clear grids before each trial 
@@ -237,34 +399,58 @@ var experiment = {
         if(rowIndex == 8){
           return; 
         } else{
-          cellIndex = 0; //otherwise move onto next row in the grid (not at end of grid)
+          cellIndex = 0; 
         }
       } 
     }
   },
+  //makes dinging sound
+  ding: function(){
+    $("#trialGrid td.clicked").click(function(){
+      ding.play();
+    });
+  },
 
-//stores data in an array DOES NOT WORK RIGHT NOW ARGH 
-  storeData: function(input){
+  //stores data in arrays
+  storeData: function(input, trial){
     var rowIndex = 0;
     var cellIndex = 0;
     var i;
     for(i=0; i<64; i++){
       var gridElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
-      if(gridElement.className == "clicked"){
-       experiment.dataArray.push(rowIndex);
-        experiment.dataArray.push(cellIndex);
+      if(gridElement.classList == "clicked"){
+        if(trial==1){
+          experiment.dataTrial1[rowIndex][cellIndex] = 1;
+        } if(trial==2){
+          experiment.dataTrial2[rowIndex][cellIndex] = 1;
+        } if(trial==3){
+          experiment.dataTrial3[rowIndex][cellIndex] = 1;
+        } if(trial==4){
+          experiment.dataTrial4[rowIndex][cellIndex] = 1;
+        } if(trial==5){ 
+          experiment.dataTrial5[rowIndex][cellIndex] = 1;
+        } if(trial==6){ 
+          experiment.dataTrial6[rowIndex][cellIndex] = 1;
+        } if(trial==7){ 
+          experiment.dataTrial7[rowIndex][cellIndex] = 1;
+        } if(trial==8){  
+          experiment.dataTrial8[rowIndex][cellIndex] = 1;
+        } if(trial==9){    
+          experiment.dataTrial9[rowIndex][cellIndex] = 1;
+        } if(trial==10){     
+          experiment.dataTrial10[rowIndex][cellIndex] = 1;
+        }
       }
-      cellIndex++;
+      cellIndex++; 
       if(cellIndex == 8) {
         rowIndex++;
         if(rowIndex == 8){
-          return;   
+          return; 
         } else{
-          cellIndex = 0; //otherwise move onto next row in the grid (not at end of grid)
-        } 
-      }
+          cellIndex = 0; 
+        }
+      } 
     }
-    console.log(dataArray) 
   },
 
   //function that creates input grid for trials
@@ -288,88 +474,94 @@ var experiment = {
 
   //displays target slide, stores data, handles counter for trials and ends study when 10 trials have passed 
   begin: function(){
+    //prevents scrolling
     document.ontouchmove=function(event){
       event.preventDefault();
     }
+    //stores data
     if(experiment.trialCount != 0){
-      experiment.storeData("trialInput");
+      experiment.storeData("trialInput", experiment.trialCount);
     }
-    //increases trial #
     var trialGrid = document.getElementById("trialGrid");
     var trialInput = document.getElementById("trialInput");
+
+    //increases trial #
     experiment.trialCount++;
+    //clears grid
     experiment.clear("trialGrid");
+
     //ends experiment when 10 trials have been completed 
     if(experiment.trialCount == 11){
       experiment.end();
-    } else{                                                   //experiment not completed
-      showSlide("trial");                                     //show target slide
+    } else{  
+      //shows target slide for X seconds                                                 
+      showSlide("trial");                                     
       setTimeout(function(){ experiment.mask() }, 5000);
-      //**TRY TO GET THIS IN SOME BETTER WAY? like stored in an array** trial 1 FIX THESE COLOR GUYS BECAUSE THEY ARE WRONG RIGHT NOW BUT YOU HAVE TO GO
+      //displays each individual trial info
       if(experiment.trialCount == 1){
-        experiment.fillGrid(5,4,0,0,3,5,0,1,4,0,0,3,4,5,6,6,1,3,2,3);
+        experiment.fillGrid("trialGrid", trial1);
+        experiment.ding();
         trialGrid.classList.add("purple");
         trialInput.classList.add("purple");
-       // storeData("trialInput",1);
       } if (experiment.trialCount == 2){
-          experiment.fillGrid(5,2,4,2,5,1,3,0,7,4,1,5,0,6,3,4,4,1,7,5);
+          experiment.fillGrid("trialGrid", trial2);
+          experiment.ding();
           trialGrid.classList.remove("purple");
           trialInput.classList.remove("purple");
-         // storeData("trialInput",2);
       } if (experiment.trialCount ==3){
-          experiment.fillGrid(6,4,0,0,6,3,3,5,7,2,1,2,6,7,4,3,1,6,3,3);
+          experiment.fillGrid("trialGrid", trial3);
+          experiment.ding();
           trialGrid.classList.add("green");
           trialInput.classList.add("green");
-          //storeData("trialInput",3);
       } if(experiment.trialCount == 4){
-          experiment.fillGrid(7,4,5,7,1,7,0,1,3,4,4,7,1,3,7,5,0,6,7,2);
+          experiment.fillGrid("trialGrid", trial4);
+          experiment.ding();
           trialGrid.classList.remove("green");
           trialInput.classList.remove("green");
           trialGrid.classList.add("pink");
           trialInput.classList.add("pink");
-          //storeData("trialInput",4);
       } if(experiment.trialCount == 5){
-          experiment.fillGrid(4,5,2,7,1,3,0,0,0,2,4,1,6,3,4,4,7,6,2,2);
+          experiment.fillGrid("trialGrid", trial5);
+          experiment.ding();
           trialGrid.classList.remove("pink");
           trialInput.classList.remove("pink");
           trialGrid.classList.add("blue");
           trialInput.classList.add("blue");
-          //storeData("trialInput",5);
       } if(experiment.trialCount == 6){
-          experiment.fillGrid(7,3,3,2,5,2,3,1,2,5,6,4,1,4,3,3,7,2,2,0);
+          experiment.fillGrid("trialGrid", trial6);
+          experiment.ding();
           trialGrid.classList.remove("blue");
           trialInput.classList.remove("blue");
           trialGrid.classList.add("orange");
           trialInput.classList.add("orange");
-          //storeData("trialInput",6);
       } if(experiment.trialCount == 7){
-          experiment.fillGrid(4,4,5,4,7,3,7,4,4,7,7,5,0,0,3,7,4,5,1,6);
+          experiment.fillGrid("trialGrid", trial7);
+          experiment.ding();
           trialGrid.classList.remove("orange");
           trialInput.classList.remove("orange");
           trialGrid.classList.add("lime");
           trialInput.classList.add("lime");
-          //storeData("trialInput",7);
       } if(experiment.trialCount == 8){
-          experiment.fillGrid(3,3,1,1,0,7,5,3,6,6,0,2,6,4,4,3,7,5,7,4);
+          experiment.fillGrid("trialGrid", trial8);
+          experiment.ding();
           trialGrid.classList.remove("lime");
           trialInput.classList.remove("lime");
           trialGrid.classList.add("teal");
           trialInput.classList.add("teal");
-          //storeData("trialInput",8);
       } if(experiment.trialCount ==9){
-          experiment.fillGrid(0,0,3,5,4,5,1,0,1,6,0,6,2,7,1,3,3,0,4,6);
+          experiment.fillGrid("trialGrid", trial9);
+          experiment.ding();
           trialGrid.classList.remove("teal");
           trialInput.classList.remove("teal");
           trialGrid.classList.add("navy");
           trialInput.classList.add("navy");
-          //storeData("trialInput",9);
       } if(experiment.trialCount ==10){
-          experiment.fillGrid(4,1,4,2,1,5,2,5,1,4,2,4,6,2,4,4,5,2,0,1);
+          experiment.fillGrid("trialGrid", trial10);
+          experiment.ding();
           trialGrid.classList.remove("navy");
           trialInput.classList.remove("navy");
           trialGrid.classList.add("maroon");
           trialInput.classList.add("maroon");
-          //storeData("trialInput",10);
       }
     } 
   },
@@ -396,7 +588,7 @@ var experiment = {
             experiment.begin()
           }
         } else{
-          cellIndex = 0; //otherwise move onto next row in the grid (not at end of grid)
+          cellIndex = 0; 
         } 
       }
     } 
@@ -490,7 +682,7 @@ var experiment = {
     experiment.startTrain();
   }
   //beginnings of a data processing function
- /* processData: function() {
+  /*processData: function() {
     
     var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.condition + "," + experiment.generation; 
     dataforRound += "," + experiment.trial1;
@@ -511,7 +703,7 @@ var experiment = {
 }
 
 // for debugging, jump to training
-//experiment.startTrain()
+//experiment.startTrain();
 //jump to trials
 //showSlide("expIntro");
 
