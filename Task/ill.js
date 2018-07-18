@@ -195,16 +195,8 @@ var experiment = {
   //counts what trial you are on 
   trialCount:0,
 
-  // Arrays to store the data that we're collecting during trials. Stores by seed (for now)
-    dataArray: [[0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0]],
-  dataTrial1: [[0,0,0,0,0,0,0,0],
+  // Array to store the data that we're collecting during trials. Stores by seed (for now)
+  dataArray: [[0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
@@ -213,86 +205,6 @@ var experiment = {
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0]],
 
-  dataTrial2: [[0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0]],
-
-  dataTrial3: [[0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0]],
-
-  dataTrial4: [[0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0]],
-
-  dataTrial5: [[0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0]],
-
-  dataTrial6: [[0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0]],
-
-  dataTrial7: [[0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0]],
-
-  dataTrial8: [[0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0]],
-
-  dataTrial9: [[0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0]],
-
-  dataTrial10: [[0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0]], 
 
   //FUNCTIONS 
 
@@ -371,7 +283,6 @@ var experiment = {
   //** ALTER TO STORE AND SUBMIT DATA ** ending function 
   end: function(){
     showSlide("end");
-    //experiment.processData();
     // Wait 1.5 seconds and then submit the whole experiment object to Mechanical Turk (mmturkey filters out the functions so we know we're just submitting properties [i.e. data])
     //setTimeout(function() { turk.submit(experiment) }, 1500);
   },
@@ -433,32 +344,13 @@ var experiment = {
   storeData: function(input, target, trial){
     var rowIndex = 0;
     var cellIndex = 0;
+    var row2Index = 0;
+    var cell2Index = 0;
     var i;
     for(i=0; i<64; i++){
       var gridElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
       if(gridElement.classList == "clicked"){
         experiment.dataArray[rowIndex][cellIndex] = 1;
-        /*if(trial==1){
-          experiment.dataTrial1[rowIndex][cellIndex] = 1;
-        } if(trial==2){
-          experiment.dataTrial2[rowIndex][cellIndex] = 1;
-        } if(trial==3){
-          experiment.dataTrial3[rowIndex][cellIndex] = 1;
-        } if(trial==4){
-          experiment.dataTrial4[rowIndex][cellIndex] = 1;
-        } if(trial==5){ 
-          experiment.dataTrial5[rowIndex][cellIndex] = 1;
-        } if(trial==6){ 
-          experiment.dataTrial6[rowIndex][cellIndex] = 1;
-        } if(trial==7){ 
-          experiment.dataTrial7[rowIndex][cellIndex] = 1;
-        } if(trial==8){  
-          experiment.dataTrial8[rowIndex][cellIndex] = 1;
-        } if(trial==9){    
-          experiment.dataTrial9[rowIndex][cellIndex] = 1;
-        } if(trial==10){     
-          experiment.dataTrial10[rowIndex][cellIndex] = 1;
-        } */
       }
       cellIndex++; 
       if(cellIndex == 8) {
@@ -471,30 +363,9 @@ var experiment = {
       } 
     }
         for(i=0; i<64; i++){
-      var gridElement = document.getElementById(target).rows[rowIndex].cells[cellIndex];
-      if(gridElement.classList == "clicked"){
-        targetArray[rowIndex][cellIndex] = 1; 
-        /*if(trial==1){
-          experiment.trial1[rowIndex][cellIndex] = 1;
-        } if(trial==2){
-          experiment.trial2[rowIndex][cellIndex] = 1;
-        } if(trial==3){
-          experiment.trial3[rowIndex][cellIndex] = 1;
-        } if(trial==4){
-          experiment.trial4[rowIndex][cellIndex] = 1;
-        } if(trial==5){ 
-          experiment.trial5[rowIndex][cellIndex] = 1;
-        } if(trial==6){ 
-          experiment.trial6[rowIndex][cellIndex] = 1;
-        } if(trial==7){ 
-          experiment.trial7[rowIndex][cellIndex] = 1;
-        } if(trial==8){  
-          experiment.trial8[rowIndex][cellIndex] = 1;
-        } if(trial==9){    
-          experiment.trial9[rowIndex][cellIndex] = 1;
-        } if(trial==10){     
-          experiment.trial10[rowIndex][cellIndex] = 1;
-        } */
+      var targetElement = document.getElementById(target).rows[row2Index].cells[cell2Index];
+      if(targetElement.classList == "clicked"){
+        targetArray[row2Index][cell2Index] = 1; 
       }
       cellIndex++; 
       if(cellIndex == 8) {
@@ -507,6 +378,8 @@ var experiment = {
       } 
     }
     experiment.processData();
+    console.log(experiment.dataArray);
+    console.log(targetArray);
   },
 
   //function that creates input grid for trials
@@ -537,6 +410,10 @@ var experiment = {
     var trialGrid = document.getElementById("trialGrid");
     var trialInput = document.getElementById("trialInput");
 
+        //stores data
+    if(experiment.trialCount != 0){
+      experiment.storeData("trialInput", "trialGrid", experiment.trialCount);
+    } 
     //increases trial #
     experiment.trialCount++;
     //clears grid
@@ -616,10 +493,6 @@ var experiment = {
           trialInput.classList.add("maroon");
       }
     }
-        //stores data
-    if(experiment.trialCount != 0){
-      experiment.storeData("trialInput", "trialGrid", experiment.trialCount);
-    } 
   },
   //function that shows error message/stops from continuing if less than 10 items are selected (prevents too much simplification)
   //together with max10items ensures that the user selects EXACTLY 10 items each trial
@@ -697,7 +570,7 @@ var experiment = {
           } if(nexttrain != 2 && nexttrain != 3){
             showSlide("expIntro");
         }} else{
-          cellIndex = 0; //otherwise move onto next row in the grid (not at end of grid)
+          cellIndex = 0; 
         }
       }
     }
@@ -737,20 +610,11 @@ var experiment = {
     //goes to training slide
     experiment.startTrain();
   },
-  //beginnings of a data processing function ****SOMETHING IS WRONG HERE BUT WILL FIX TOMORROW ****** 
+
+  //processes data 
   processData: function() {
     
     var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.condition + "," + experiment.generation; 
-    /*dataforRound += "," + experiment.dataTrial1;
-    dataforRound += "," + experiment.dataTrial2;
-    dataforRound += "," + experiment.dataTrial3;
-    dataforRound += "," + experiment.dataTrial4;
-    dataforRound += "," + experiment.dataTrial5;
-    dataforRound += "," + experiment.dataTrial6;
-    dataforRound += "," + experiment.dataTrial7;
-    dataforRound += "," + experiment.dataTrial8;
-    dataforRound += "," + experiment.dataTrial9;
-    dataforRound += "," + experiment.dataTrial10;  */
     dataforRound += "," + experiment.trialCount + "," + targetArray + "," + experiment.dataArray;
     dataforRound += "," + experiment.date + "," + experiment.timestamp + "\n"; //+ "," + experiment.rtsearch; what is this 
     $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
