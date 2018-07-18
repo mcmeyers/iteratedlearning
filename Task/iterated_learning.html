@@ -13,7 +13,7 @@
 
 <!-- load important things like jquery and mturk and style sheet, setup -->
 <head>
-	<title>Iterated Learning Template</title>
+	<title>Iterated Learning</title>
 	<script src="mmturkey-0.6.js"></script>
 	<link rel="stylesheet" href="style.css" />
 </head>
@@ -29,10 +29,14 @@
 <!-- introduction slide with input of important things -->
 <div class="slide" id="intro">
 	<div style="text-align: center;  padding: 20px 15px 10px 10px">
+		<p id="notAccepted" style="font-size:40px"></p>
+		<p class="block-text">Welcome to the study! Please click the button below to begin. In this game, you will be asked to recreate grids exactly as they appear. Try to remember the grids as best as you can.</p>
 
-		<p class="block-text">Welcome to the study! Please enter your information and click the button below to begin.</p>
+            <div class="row"> <h4 style="margin:1% 15% 0 15%">   Please complete this HIT in one sitting, without refreshing the page. This HIT should take approximately 6 minutes to complete, but you will have 30 minutes to do so. You will likely not need all of that time, so don't feel the need to rush.  </h4> </div>
+	        <br>
+	        <div class="row"> <p class="block-text"> By answering the following questions, you are participating in a study being performed by cognitive scientists in the University of Chicago Department of Psychology. If you have questions about this research, please contact us at <a href="mailto:callab.uchicago@gmail.com">callab.uchicago@gmail.com</a>. You must be  at least 18 years old to participate. Your participation in this research is voluntary. You may decline to answer any or all of the following questions. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you. Note however that we have recently been made aware that your public Amazon.com profile can be accessed via your worker ID if you do not choose to opt out. If you would like to opt out of this feature, you may follow instructions available <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=16465241">here</a>.</p> </div>
 
-		<p class="block-text">
+		<!--<p class="block-text">
 			subject ID:<br>
 			<input type="text" id="subjectID" name="subjectID" size="30">
 		</p>
@@ -50,13 +54,14 @@
 		<p class="block-text">
 			generation:<br>
 			<input type="text" id="generation" name="generation" size="30">
-		</p>
+		</p> -->
 	
 	<!--displays the results if someone included the necessary info or not -->
 	<div id="checkMessage"></div> 
 
 	<!--Button to check if information has been inputted, proceed to next slide if yes-->
-		<button type="button" onclick="this.blur(); experiment.checkInput()">Start</button> 
+		<button id="startButton" type="button" onclick="this.blur()">Start</button> 
+		<!-- <button type="button" onclick="this.blur(); experiment.checkInput()">Start</button>  -->
 	</div>
 
 </div>
@@ -228,6 +233,16 @@
 <!--connects to javascript file which has actual experiment code on it. This line of info is very important and without it none of your functions will run. They are all written in a separate file for clarity and stuff. -->
 <script src="jquery-1.11.2.min.js"></script>
 <script src="ill.js"></script>
+<script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
+<script type="text/javascript">
+(function(){
+    var ut_id = "53ae4ea04173428d22d2c34c58eca39a";
+    if (UTWorkerLimitReached(ut_id)) {
+        document.getElementsByTagName('body')[0].innerHTML = "You have already completed the maximum number of HITs allowed by this requester. Please click 'Return HIT' to avoid any impact on your approval rating.";
+    }
+})();
+</script>
+
 
 </body>
 </html>

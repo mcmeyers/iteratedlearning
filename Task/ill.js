@@ -78,6 +78,13 @@ function dragElement(elmnt) {
 
 // Show the instructions slide 
 showSlide("intro");
+if(turk.assignmentId == "ASSIGNMENT_ID_NOT_AVAILABLE") {
+    document.getElementById("notAccepted").innerHTML= "Please accept the HIT to Begin!!";
+} else {
+    $("#startButton").click(function(){
+      experiment.startTrain();
+    });
+}
 
 //creates initial seed grids 
 var trial1 = [[1,1,0,1,0,0,0,0],
@@ -185,7 +192,7 @@ var ding = document.getElementById("ding");
 var experiment = {
 
   //things collected and stored from the intro slide
-  subid:"",
+  subid: Math.random(1,100), 
   subage:0,
   generation:1,
   condition:"pilot1",
@@ -283,8 +290,8 @@ var experiment = {
   //** ALTER TO STORE AND SUBMIT DATA ** ending function 
   end: function(){
     showSlide("end");
-    // Wait 1.5 seconds and then submit the whole experiment object to Mechanical Turk (mmturkey filters out the functions so we know we're just submitting properties [i.e. data])
-    //setTimeout(function() { turk.submit(experiment) }, 1500);
+    // Wait 1 seconds and then submit the whole experiment object to Mechanical Turk (mmturkey filters out the functions so we know we're just submitting properties [i.e. data])
+    setTimeout(function() { turk.submit(experiment) }, 1000);
   },
 
   //function that fills the target grid with array coordinates 
@@ -377,6 +384,7 @@ var experiment = {
         }
       } 
     }
+    //var dataforRound += "," + experiment.trialCount + "," + targetArray + "," + experiment.dataArray;
     experiment.processData();
     console.log(experiment.dataArray);
     console.log(targetArray);
@@ -614,8 +622,9 @@ var experiment = {
   //processes data 
   processData: function() {
     
-    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.condition + "," + experiment.generation; 
+    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition; 
     dataforRound += "," + experiment.trialCount + "," + targetArray + "," + experiment.dataArray;
+    
     dataforRound += "," + experiment.date + "," + experiment.timestamp + "\n"; //+ "," + experiment.rtsearch; what is this 
     $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
     // use line below for mmturkey version
