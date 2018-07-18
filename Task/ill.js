@@ -187,8 +187,8 @@ var experiment = {
   //things collected and stored from the intro slide
   subid:"",
   subage:0,
-  generation:0,
-  condition:0,
+  generation:1,
+  condition:"pilot1",
   date: getCurrentDate(),
   timestamp: getCurrentTime(), 
 
@@ -398,7 +398,7 @@ var experiment = {
   //displays visual mask for X seconds 
   mask: function(){
     showSlide("mask");
-    setTimeout(function(){ experiment.input() }, 1000);
+    setTimeout(function(){ experiment.input() }, 5000);
   },
 
   //displays target slide, stores data, handles counter for trials and ends study when 10 trials have passed 
@@ -425,7 +425,7 @@ var experiment = {
     } else{  
       //shows target slide for X seconds                                                 
       showSlide("trial");                                     
-      setTimeout(function(){ experiment.mask() }, 5000);
+      setTimeout(function(){ experiment.mask() }, 15000);
       //displays each individual trial info
       if(experiment.trialCount == 1){
         experiment.fillGrid("trialGrid", trial1);
@@ -594,7 +594,7 @@ var experiment = {
     experiment.subage = parseInt(document.getElementById("age").value);
 
     //condition
-    if (document.getElementById("condition").value.length < 1) {
+   /* if (document.getElementById("condition").value.length < 1) {
       $("#checkMessage").html('<font color="red">You must input a condition</font>');
       return;
     }
@@ -605,7 +605,7 @@ var experiment = {
       $("#checkMessage").html('<font color="red">You must input a generation</font>');
       return;
     }
-    experiment.generation = parseInt(document.getElementById("generation").value);
+    experiment.generation = parseInt(document.getElementById("generation").value); */
 
     //goes to training slide
     experiment.startTrain();
