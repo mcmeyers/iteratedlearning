@@ -1,0 +1,92 @@
+---
+title: "iterated_learning"
+author: "Maddie Meyers, Dan Yurovsky"
+date: "7/19/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries}
+library(tidyverse)
+library(png)
+library(grid)
+library(xtable)
+library(feather)
+library(irr)
+library(tidyboot)
+library(directlabels)
+library(lme4)
+library(broom)
+
+theme_set(theme_classic(base_size = 10))
+```
+
+## Setup
+
+```{r load csv}
+data2 <- read.csv("tabletstudyresults.csv") 
+
+#filters out people who didn't complete 10 trials
+data <- data2 %>%
+  arrange(sub_id, trial) %>%
+  group_by(sub_id) %>%
+  mutate(n = n()) %>%
+  filter(n == 10 & condition != "test") %>%
+  select(-n) %>%
+  ungroup() %>%
+  rename(target.1..1. = target.1..0..1, target.1..2. = target.1..0..2, target.1..3. = target.1..0..3, target.1..4. = target.1..0..4, target.1..5. = target.1..0..5, target.1..6. = target.1..0..6, target.1..7. = target.1..0..7, target.5.3. = target.25.3.)
+```
+
+```{r formats data into grids}
+#temp
+inputs<-data %>%
+  select(-contains("target"))
+target<-data %>%
+  select(-contains("input"))
+
+spread_data <- data %>%
+  gather(row, value, -sub_id, -age, -condition, -generation, -date, -time, -trial)%>%
+  arrange(sub_id, trial) %>%
+  separate(row, c("type","row", "col")) %>%
+  unite(ty_col, type, col) %>%
+  spread(ty_col, value) 
+
+responses <- inputs %>%
+  gather(row, value, -sub_id, -age, -condition, -generation, -date, -time, -trial)%>%
+  arrange(sub_id, trial) %>%
+  separate(row, c("type","row", "col")) %>%
+  spread(col, value) %>%
+  rename(input_col0 = "0", input_col1 = "1", input_col2 = "2", input_col3 = "3", input_col4 = "4", input_col5 = "5", input_col6 = "6", input_col7 = "7")
+  unite(ty_col, type, col) %>%
+  spread(ty_col, value)
+
+targets <- target %>%
+  select(-condition, -age, -generation, -date, -time, -sub_id)%>%
+  unique() %>%
+  gather(row, value, -trial)%>%
+  separate(row, c("type","row", "col")) %>%
+  #arrange(trial)
+  spread(col, value) %>%
+  rename(target_col0 = "0", target_col1 = "1", target_col2 = "2", target_col3 = "3", target_col4 = "4", target_col5 = "5", target_col6 = "6", target_col7 = "7")
+
+calculate_data <- data %>%
+  gather(row, value, -sub_id, -age, -condition, -generation, -date, -time, -trial)%>%
+  arrange(sub_id, trial) %>%
+  separate(row, c("type","row", "col")) %>%
+  spread(type,value)
+```
+## Looking at data
+
+```{r calculates percent accuracy-- BROKEN RN}
+#calculated_data <-data %>%
+ # if(input == target){
+  #  mutate(accuracy = 1)
+  #}
+  #mutate(accuracy = if(input == target){1})
+```
+
+
+
