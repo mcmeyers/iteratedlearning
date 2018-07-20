@@ -1,12 +1,21 @@
 <!-- TO DO:
+	low priority: 
 	-add images instead of just colors??? probably not necessary FOR NOW 
-	-consolidate codes with colors
-	-figure out how to store and save all data 
-	-figure out how to feed input (produced) grids into next iteration of study trial (will be difficult but is most important) depending on study condition and generation number 
+	-consolidate codes with colors 
 	-create draggable target elements?
-	-put in timeout for grid creation
-	-change grid array data storage from (row, col) of highlighted to array with 1's and 0's for what is colored in 
 	-create function that makes blank arrays instead of creating them all manually 
+
+	medium priority:
+	-figure out how to feed input (produced) grids into next iteration of study trial (will be difficult but is most important) depending on study condition and generation number
+
+	high priority:
+	-fix ding glitch
+	-store target arrays in data file fix glitch
+	-submit data all at once instead of trial by trial
+	-figure out programming screenshots
+	-show displays in random order
+	-add practice memory section, take out 2 initial trials
+	-add comment section at the end for turkers 
 -->
 <!DOCTYPE html>
 <html>
@@ -96,15 +105,15 @@
 		</table> 
 
 	<div style="text-align: center">
-		<button type="button" onclick="this.blur(); experiment.checkGrid('t1Input', 't1Target', '#checkInput',2)">Check My Answer</button>
+		<button type="button" onclick="this.blur(); experiment.checkGrid('t1Input', 't1Target', '#checkInput')">Check My Answer</button>
 
 	</div>
 
 </div>
 
-<!-- TRAINING TRIAL 2 -->
-<div class="slide" id="training2">
-	<!--instructions -->
+<!-- TRAINING TRIAL 2 
+<div class="slide" id="training2"> -->
+	<!--instructions 
 	<p class="block-text">Great job! Let's try a few more. Remember, your job is to click the cells in the grid on the right so that they match the grid on the left. Click the target grid cells to hear a sound.</p> <br>
 	<div id="checkInput2"></div> 
 
@@ -133,11 +142,11 @@
 		<button type="button" onclick="this.blur(); experiment.checkGrid('t2Input', 't2Target', '#checkInput2',3)">Check My Answer</button>
 
 	</div>
-</div>
+</div> -->
 
-<!-- TRAINING TRIAL 3 -->
-<div class="slide" id="training3">
-	<!--instructions -->
+<!-- TRAINING TRIAL 3 
+<div class="slide" id="training3"> -->
+	<!--instructions 
 	<p class="block-text">Just one more practice before we start!</p> <br>
 
 	<div id="checkInput3"></div> 
@@ -169,7 +178,7 @@
 		<button type="button" onclick="this.blur(); experiment.checkGrid('t3Input', 't3Target', '#checkInput3')">Check My Answer</button>
 
 	</div>
-</div>
+</div> --> 
 
 <!--EXPERIMENT INTRO-->
 <center>
@@ -224,8 +233,14 @@
 
 <!--ENDING SLIDE-->
 <div class="slide" id="end">
-
-	<p class="block-text">Congrats, you're all finished! Thanks for contributing to science.</p> 
+	<center>
+	<p class="block-text">Congrats, you're all finished! Thanks for contributing to science. If you have any comments about what you just did, please leave them in the box below. When you're ready to submit, just click "Done".</p> 
+			<p class="block-text">
+			comments:<br>
+			<input type="text" id="comment" name="comment" size=75>
+		</p> 
+	<button type="button" id="done" onclick="this.blur(); experiment.realEnd()">Done</button>
+	</center>
 
 </div>
 

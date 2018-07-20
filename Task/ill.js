@@ -177,13 +177,13 @@ var trial10 = [[0,1,0,0,0,0,0,0],
               [0,0,1,0,0,0,0,0],
               [0,0,0,0,0,0,0,0]];
 
-var targetArray = [[0,1,0,0,0,0,0,0],
-              [0,0,0,0,1,1,0,0],
-              [0,0,0,0,1,1,0,0],
+var targetArray = [[0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
-              [0,1,1,0,1,0,0,0],
-              [0,0,1,0,0,0,0,0],
-              [0,0,1,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0]];
 
 var ding = document.getElementById("ding");
@@ -198,6 +198,7 @@ var experiment = {
   condition:"pilot1",
   date: getCurrentDate(),
   timestamp: getCurrentTime(), 
+  comment: "NA",
 
   //counts what trial you are on 
   trialCount:0,
@@ -259,7 +260,7 @@ var experiment = {
   },
 
   //start training session 2 
-  startTrain2: function(){
+ /* startTrain2: function(){
     showSlide("training2");
     document.ontouchmove=function(event){
       event.preventDefault();
@@ -284,14 +285,16 @@ var experiment = {
     $("#t3Input td").click(function(){
       experiment.max10items(this,'t3Input');
     });
-  },
+  }, */
   
-
+  realEnd: function(){
+    // Wait 1 seconds and then submit the whole experiment object to Mechanical Turk (mmturkey filters out the functions so we know we're just submitting properties [i.e. data])
+    setTimeout(function() { turk.submit(experiment) }, 1000);
+  },
   //** ALTER TO STORE AND SUBMIT DATA ** ending function 
   end: function(){
     showSlide("end");
-    // Wait 1 seconds and then submit the whole experiment object to Mechanical Turk (mmturkey filters out the functions so we know we're just submitting properties [i.e. data])
-    setTimeout(function() { turk.submit(experiment) }, 1000);
+    experiment.comment = parseInt(document.getElementById("comment").value);
   },
 
   //function that fills the target grid with array coordinates 
@@ -313,7 +316,7 @@ var experiment = {
           cellIndex = 0;
         }
       }
-    } 
+    }
   },
 
   //function to clear grids before each trial 
@@ -327,7 +330,7 @@ var experiment = {
     for(i=0; i<64; i++){
       var gridElement = document.getElementById(grid).rows[rowIndex].cells[cellIndex];
       if(gridElement.classList == "clicked"){
-        gridElement.classList.toggle("clicked");
+        gridElement.classList.remove("clicked");
       }
       cellIndex++; 
       if(cellIndex == 8) {
@@ -406,7 +409,7 @@ var experiment = {
   //displays visual mask for X seconds 
   mask: function(){
     showSlide("mask");
-    setTimeout(function(){ experiment.input() }, 5000);
+    setTimeout(function(){ experiment.input() }, 1000);
   },
 
   //displays target slide, stores data, handles counter for trials and ends study when 10 trials have passed 
@@ -433,7 +436,7 @@ var experiment = {
     } else{  
       //shows target slide for X seconds                                                 
       showSlide("trial");                                     
-      setTimeout(function(){ experiment.mask() }, 15000);
+      setTimeout(function(){ experiment.mask() }, 5000);
       //displays each individual trial info
       if(experiment.trialCount == 1){
         experiment.fillGrid("trialGrid", trial1);
@@ -464,6 +467,7 @@ var experiment = {
           trialInput.classList.remove("pink");
           trialGrid.classList.add("blue");
           trialInput.classList.add("blue");
+          // IT IS HERE THAT THE EXPERIMENT DINGING BREAKS
       } if(experiment.trialCount == 6){
           experiment.fillGrid("trialGrid", trial6);
           experiment.ding();
@@ -624,11 +628,10 @@ var experiment = {
     
     var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition; 
     dataforRound += "," + experiment.trialCount + "," + targetArray + "," + experiment.dataArray;
-    
-    dataforRound += "," + experiment.date + "," + experiment.timestamp + "\n"; //+ "," + experiment.rtsearch; what is this 
-    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
+    dataforRound += "," + experiment.date + "," + experiment.timestamp + "," + experiment.comment + "\n"; //+ "," + experiment.rtsearch; what is this 
     // use line below for mmturkey version
     //experiment.data.push(dataforRound); 
+    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
   }, 
 }
 
@@ -636,4 +639,4 @@ var experiment = {
 //experiment.startTrain();
 //jump to trials
 //showSlide("expIntro");
-
+//showSlide("end");
