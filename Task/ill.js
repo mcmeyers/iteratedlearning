@@ -197,6 +197,24 @@ var trial10 = [[0,1,0,0,0,0,0,0],
               [0,0,1,0,0,0,0,0],
               [0,0,0,0,0,0,0,0]];
 
+  // Array to store the data that we're collecting during trials. Stores by seed (for now)
+var dataArray= [[0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]];
+var targetArray= [[0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]];
+
 var ding = document.getElementById("ding");
 
 //MAIN EXPERIMENT
@@ -213,24 +231,6 @@ var experiment = {
 
   //counts what trial you are on 
   trialCount:0,
-
-  // Array to store the data that we're collecting during trials. Stores by seed (for now)
-  dataArray: [[0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0]],
-  targetArray: [[0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0]],
 
 
 
@@ -342,18 +342,31 @@ var experiment = {
     });
   },
 
+    //processes data 
+  processData: function() {
+    
+    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition; 
+    dataforRound += "," + experiment.trialCount + "," + targetArray + "," + dataArray;
+    dataforRound += "," + experiment.date + "," + experiment.timestamp + "," + experiment.comment + "\n"; //+ "," + experiment.rtsearch; what is this 
+    // use line below for mmturkey version
+    //experiment.data.push(dataforRound); 
+    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
+
+  }, 
+
   //stores data in arrays
   storeData: function(input, target, trial){
     var rowIndex = 0;
     var cellIndex = 0;
-    var row2Index = 0;
-    var cell2Index = 0;
     var i;
-    var j;
     for(i=0; i<64; i++){
       var gridElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
+      var targetElement = document.getElementById(target).rows[rowIndex].cells[cellIndex];
       if(gridElement.classList == "clicked"){
-        experiment.dataArray[rowIndex][cellIndex] = 1;
+        dataArray[rowIndex][cellIndex] = 1;
+      }
+      if(targetElement.classList == "clicked"){
+        targetArray[rowIndex][cellIndex] = 1; 
       }
       cellIndex++; 
       if(cellIndex == 8) {
@@ -364,24 +377,9 @@ var experiment = {
           cellIndex = 0; 
         }
       } 
-    }
-    for(j=0; j<64; j++){
-      var targetElement = document.getElementById(target).rows[row2Index].cells[cell2Index];
-      if(targetElement.classList == "clicked"){
-        experiment.targetArray[row2Index][cell2Index] = 1; 
-      }
-      cell2Index++; 
-      if(cell2Index == 8) {
-        row2Index++;
-        if(row2Index == 8){
-          //return; 
-        } else{
-          cell2Index = 0; 
-        }
-      } 
-    }
-    console.log(experiment.dataArray);
-    console.log(experiment.targetArray);
+    } 
+    console.log(dataArray);
+    console.log(targetArray);
     //var dataforRound += "," + experiment.trialCount + "," + targetArray + "," + experiment.dataArray;
     experiment.processData();
   },
@@ -438,6 +436,8 @@ var experiment = {
         //stores data
     if(experiment.trialCount != 0){
       experiment.storeData("trialInput", "trialGrid", experiment.trialCount);
+    //  experiment.clearData(targetArray);
+     // experiment.clearData(dataArray);
     } 
     //increases trial #
     experiment.trialCount++;
@@ -658,19 +658,6 @@ var experiment = {
     experiment.startTrain();
   },
 
-  //processes data 
-  processData: function() {
-    
-    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition; 
-    dataforRound += "," + experiment.trialCount + "," + experiment.targetArray + "," + experiment.dataArray;
-    dataforRound += "," + experiment.date + "," + experiment.timestamp + "," + experiment.comment + "\n"; //+ "," + experiment.rtsearch; what is this 
-    // use line below for mmturkey version
-    //experiment.data.push(dataforRound); 
-    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
-    experiment.clearData(experiment.targetArray);
-    experiment.clearData(experiment.dataArray);
-
-  }, 
 }
 
 // for debugging, jump to training
