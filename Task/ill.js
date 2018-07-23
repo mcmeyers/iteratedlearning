@@ -8,9 +8,9 @@
 // Shows slides
 function showSlide(id) {
   // Hide all slides
-	$(".slide").hide();
-	// Show just the slide we want to show
-	$("#"+id).show();
+  $(".slide").hide();
+  // Show just the slide we want to show
+  $("#"+id).show();
 }
 
 //gets current date
@@ -87,6 +87,26 @@ if(turk.assignmentId == "ASSIGNMENT_ID_NOT_AVAILABLE") {
 }
 
 //creates initial seed grids 
+
+var train1 = [[1,1,0,0,0,0,0,0],
+              [1,1,0,0,0,0,0,0],
+              [1,1,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,1,1],
+              [0,0,0,0,0,0,1,1],
+              [0,0,0,0,0,0,0,0]];
+
+
+var train2 = [[1,0,0,0,0,0,0,0],
+              [0,1,0,0,0,0,0,0],
+              [0,0,1,0,0,0,0,0],
+              [0,0,0,1,0,0,0,0],
+              [0,0,0,0,1,0,0,0],
+              [0,0,0,0,0,1,0,0],
+              [0,0,0,0,0,0,1,0],
+              [0,0,0,0,0,1,1,1]];
+
 var trial1 = [[1,1,0,1,0,0,0,0],
               [0,0,0,1,0,0,0,0],
               [0,0,0,1,0,0,0,0],
@@ -177,15 +197,6 @@ var trial10 = [[0,1,0,0,0,0,0,0],
               [0,0,1,0,0,0,0,0],
               [0,0,0,0,0,0,0,0]];
 
-var targetArray = [[0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0]];
-
 var ding = document.getElementById("ding");
 
 //MAIN EXPERIMENT
@@ -212,6 +223,15 @@ var experiment = {
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0]],
+  targetArray: [[0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]],
+
 
 
   //FUNCTIONS 
@@ -258,34 +278,6 @@ var experiment = {
       experiment.max10items(this,'t1Input');
     });
   },
-
-  //start training session 2 
- /* startTrain2: function(){
-    showSlide("training2");
-    document.ontouchmove=function(event){
-      event.preventDefault();
-    };
-    $("#t2Target td.clicked").click(function(){
-      ding.play();
-    });
-    $("#t2Input td").click(function(){
-      experiment.max10items(this,'t2Input');
-    });
-  },
-
-  //start training session 3
-  startTrain3: function(){
-    showSlide("training3");
-    document.ontouchmove=function(event){
-      event.preventDefault();
-    };
-    $("#t3Target td.clicked").click(function(){
-      ding.play();
-    });
-    $("#t3Input td").click(function(){
-      experiment.max10items(this,'t3Input');
-    });
-  }, */
   
   realEnd: function(){
     // Wait 1 seconds and then submit the whole experiment object to Mechanical Turk (mmturkey filters out the functions so we know we're just submitting properties [i.e. data])
@@ -357,6 +349,7 @@ var experiment = {
     var row2Index = 0;
     var cell2Index = 0;
     var i;
+    var j;
     for(i=0; i<64; i++){
       var gridElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
       if(gridElement.classList == "clicked"){
@@ -372,11 +365,34 @@ var experiment = {
         }
       } 
     }
-        for(i=0; i<64; i++){
+    for(j=0; j<64; j++){
       var targetElement = document.getElementById(target).rows[row2Index].cells[cell2Index];
       if(targetElement.classList == "clicked"){
-        targetArray[row2Index][cell2Index] = 1; 
+        experiment.targetArray[row2Index][cell2Index] = 1; 
       }
+      cell2Index++; 
+      if(cell2Index == 8) {
+        row2Index++;
+        if(row2Index == 8){
+          //return; 
+        } else{
+          cell2Index = 0; 
+        }
+      } 
+    }
+    console.log(experiment.dataArray);
+    console.log(experiment.targetArray);
+    //var dataforRound += "," + experiment.trialCount + "," + targetArray + "," + experiment.dataArray;
+    experiment.processData();
+  },
+
+
+  clearData: function(clearArray){
+    var rowIndex = 0;
+    var cellIndex = 0;
+    var i;
+    for(i=0; i<64; i++){
+      clearArray[rowIndex][cellIndex] = 0;
       cellIndex++; 
       if(cellIndex == 8) {
         rowIndex++;
@@ -387,11 +403,9 @@ var experiment = {
         }
       } 
     }
-    //var dataforRound += "," + experiment.trialCount + "," + targetArray + "," + experiment.dataArray;
-    experiment.processData();
-    console.log(experiment.dataArray);
-    console.log(targetArray);
   },
+
+
 
   //function that creates input grid for trials
   input: function(){
@@ -430,37 +444,57 @@ var experiment = {
     //clears grid
     experiment.clear("trialGrid");
 
+    if(experiment.trialCount ==3){
+      showSlide("expIntro");
+      $(practiceIntro).html('<font color="red"><strong>Now we are going to begin the study. The next screen will display a target grid for 15 seconds. Click the colored elements. Try your best to remember where each color is located on the grid. After a short break, you will have to recreate the grid by clicking where you would like to place each color. When you have finished, click next to see a new pattern. There will be 10 trials.<strong></font>'); 
+      return;
+    }
+
     //ends experiment when 10 trials have been completed 
     if(experiment.trialCount == 11){
       experiment.end();
     } else{  
       //shows target slide for X seconds                                                 
-      showSlide("trial");                                     
+      showSlide("trial");                                
       setTimeout(function(){ experiment.mask() }, 5000);
       //displays each individual trial info
       if(experiment.trialCount == 1){
+        experiment.fillGrid("trialGrid", train1);
+        experiment.ding();
+        trialGrid.classList.add("aqua");
+        trialInput.classList.add("aqua");
+      } if (experiment.trialCount == 2){
+          experiment.fillGrid("trialGrid", train2);
+          experiment.ding();
+          trialGrid.classList.remove("aqua");
+          trialInput.classList.remove("aqua");
+      }
+      if(experiment.trialCount == 3){
+      
         experiment.fillGrid("trialGrid", trial1);
         experiment.ding();
         trialGrid.classList.add("purple");
         trialInput.classList.add("purple");
-      } if (experiment.trialCount == 2){
+      } if (experiment.trialCount == 4){
           experiment.fillGrid("trialGrid", trial2);
           experiment.ding();
           trialGrid.classList.remove("purple");
           trialInput.classList.remove("purple");
-      } if (experiment.trialCount ==3){
+          trialGrid.classList.add("olive");
+          trialInput.classList.add("olive");
+      } if (experiment.trialCount ==5){
           experiment.fillGrid("trialGrid", trial3);
           experiment.ding();
           trialGrid.classList.add("green");
           trialInput.classList.add("green");
-      } if(experiment.trialCount == 4){
+      } if(experiment.trialCount == 6){
           experiment.fillGrid("trialGrid", trial4);
           experiment.ding();
           trialGrid.classList.remove("green");
           trialInput.classList.remove("green");
           trialGrid.classList.add("pink");
           trialInput.classList.add("pink");
-      } if(experiment.trialCount == 5){
+      } if(experiment.trialCount == 7){
           experiment.fillGrid("trialGrid", trial5);
           experiment.ding();
           trialGrid.classList.remove("pink");
@@ -468,35 +502,35 @@ var experiment = {
           trialGrid.classList.add("blue");
           trialInput.classList.add("blue");
           // IT IS HERE THAT THE EXPERIMENT DINGING BREAKS
-      } if(experiment.trialCount == 6){
+      } if(experiment.trialCount == 8){
           experiment.fillGrid("trialGrid", trial6);
           experiment.ding();
           trialGrid.classList.remove("blue");
           trialInput.classList.remove("blue");
           trialGrid.classList.add("orange");
           trialInput.classList.add("orange");
-      } if(experiment.trialCount == 7){
+      } if(experiment.trialCount == 9){
           experiment.fillGrid("trialGrid", trial7);
           experiment.ding();
           trialGrid.classList.remove("orange");
           trialInput.classList.remove("orange");
           trialGrid.classList.add("lime");
           trialInput.classList.add("lime");
-      } if(experiment.trialCount == 8){
+      } if(experiment.trialCount == 10){
           experiment.fillGrid("trialGrid", trial8);
           experiment.ding();
           trialGrid.classList.remove("lime");
           trialInput.classList.remove("lime");
           trialGrid.classList.add("teal");
           trialInput.classList.add("teal");
-      } if(experiment.trialCount ==9){
+      } if(experiment.trialCount ==11){
           experiment.fillGrid("trialGrid", trial9);
           experiment.ding();
           trialGrid.classList.remove("teal");
           trialInput.classList.remove("teal");
           trialGrid.classList.add("navy");
           trialInput.classList.add("navy");
-      } if(experiment.trialCount ==10){
+      } if(experiment.trialCount ==12){
           experiment.fillGrid("trialGrid", trial10);
           experiment.ding();
           trialGrid.classList.remove("navy");
@@ -580,7 +614,8 @@ var experiment = {
           if(nexttrain ===3){
             experiment.startTrain3();
           } if(nexttrain != 2 && nexttrain != 3){
-            showSlide("expIntro");
+            showSlide("expIntro");      
+            $(practiceIntro).html('<font color="red"><strong>GOING TO DO SOME TRAINING<strong></font>'); 
         }} else{
           cellIndex = 0; 
         }
@@ -627,11 +662,14 @@ var experiment = {
   processData: function() {
     
     var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition; 
-    dataforRound += "," + experiment.trialCount + "," + targetArray + "," + experiment.dataArray;
+    dataforRound += "," + experiment.trialCount + "," + experiment.targetArray + "," + experiment.dataArray;
     dataforRound += "," + experiment.date + "," + experiment.timestamp + "," + experiment.comment + "\n"; //+ "," + experiment.rtsearch; what is this 
     // use line below for mmturkey version
     //experiment.data.push(dataforRound); 
     $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
+    experiment.clearData(experiment.targetArray);
+    experiment.clearData(experiment.dataArray);
+
   }, 
 }
 

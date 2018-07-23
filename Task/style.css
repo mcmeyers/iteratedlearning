@@ -141,6 +141,12 @@ button[disabled] {
 .grid.maroon td.clicked{
     background-color:maroon;
 }
+.grid.olive td.clicked{
+    background-color:olive;
+}
+.grid.aqua td.clicked{
+    background-color:aqua;
+}
 
 .clicked{
     background-color:yellow;
