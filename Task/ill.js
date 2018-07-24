@@ -7,9 +7,7 @@
 
 // Shows slides
 function showSlide(id) {
-  // Hide all slides
   $(".slide").hide();
-  // Show just the slide we want to show
   $("#"+id).show();
 }
 
@@ -31,53 +29,12 @@ getCurrentTime = function() {
   return (hours + ":" + minutes);
 }
 
-//dragElement(document.getElementById("mydiv"));
-//lets you have draggable things 
-function dragElement(elmnt) {
-  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-  if (document.getElementById(elmnt.id + "header")) {
-    /* if present, the header is where you move the DIV from:*/
-    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
-  } else {
-    /* otherwise, move the DIV from anywhere inside the DIV:*/
-    elmnt.onmousedown = dragMouseDown;
-  }
-
-  function dragMouseDown(e) {
-    e = e || window.event;
-    e.preventDefault();
-    // get the mouse cursor position at startup:
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    document.onmouseup = closeDragElement;
-    // call a function whenever the cursor moves:
-    document.onmousemove = elementDrag;
-  }
-
-  function elementDrag(e) {
-    e = e || window.event;
-    e.preventDefault();
-    // calculate the new cursor position:
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    // set the element's new position:
-    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-  }
-
-  function closeDragElement() {
-    /* stop moving when mouse button is released:*/
-    document.onmouseup = null;
-    document.onmousemove = null;
-  }
-}
 
 //EXPERIMENT SETUP 
 
 // Show the instructions slide 
 showSlide("intro");
+
 if(turk.assignmentId == "ASSIGNMENT_ID_NOT_AVAILABLE") {
     document.getElementById("notAccepted").innerHTML= "Please accept the HIT to Begin!!";
 } else {
@@ -197,7 +154,6 @@ var trial10 = [[0,1,0,0,0,0,0,0],
               [0,0,1,0,0,0,0,0],
               [0,0,0,0,0,0,0,0]];
 
-  // Array to store the data that we're collecting during trials. Stores by seed (for now)
 var dataArray= [[0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
@@ -206,6 +162,7 @@ var dataArray= [[0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0]];
+
 var targetArray= [[0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
@@ -214,6 +171,8 @@ var targetArray= [[0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0]];
+              
+
 
 var ding = document.getElementById("ding");
 
@@ -281,9 +240,9 @@ var experiment = {
   
   realEnd: function(){
     // Wait 1 seconds and then submit the whole experiment object to Mechanical Turk (mmturkey filters out the functions so we know we're just submitting properties [i.e. data])
-    setTimeout(function() { turk.submit(experiment) }, 1000);
+    //setTimeout(function() { turk.submit(experiment) }, 1000);
   },
-  //** ALTER TO STORE AND SUBMIT DATA ** ending function 
+
   end: function(){
     showSlide("end");
     experiment.comment = parseInt(document.getElementById("comment").value);
@@ -335,27 +294,45 @@ var experiment = {
       } 
     }
   },
+
   //makes dinging sound
   ding: function(){
+  	if($("#trialGrid td").classList == "clicked"){
     $("#trialGrid td.clicked").click(function(){
       ding.play();
     });
+	}
   },
 
     //processes data 
-  processData: function() {
-    
-    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition; 
-    dataforRound += "," + experiment.trialCount + "," + targetArray + "," + dataArray;
-    dataforRound += "," + experiment.date + "," + experiment.timestamp + "," + experiment.comment + "\n"; //+ "," + experiment.rtsearch; what is this 
+  processData: function() {  
+    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + experiment.comment; 
+    dataforRound += "," + experiment.trialCount + "," + targetArray + "," + dataArray + "\n"; 
     // use line below for mmturkey version
     //experiment.data.push(dataforRound); 
     $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
-
   }, 
 
   //stores data in arrays
   storeData: function(input, target, trial){
+  	var dataArray= [[0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]];
+
+    var targetArray= [[0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]];
+              
     var rowIndex = 0;
     var cellIndex = 0;
     var i;
@@ -383,27 +360,6 @@ var experiment = {
     //var dataforRound += "," + experiment.trialCount + "," + targetArray + "," + experiment.dataArray;
     experiment.processData();
   },
-
-
-  clearData: function(clearArray){
-    var rowIndex = 0;
-    var cellIndex = 0;
-    var i;
-    for(i=0; i<64; i++){
-      clearArray[rowIndex][cellIndex] = 0;
-      cellIndex++; 
-      if(cellIndex == 8) {
-        rowIndex++;
-        if(rowIndex == 8){
-          //return; 
-        } else{
-          cellIndex = 0; 
-        }
-      } 
-    }
-  },
-
-
 
   //function that creates input grid for trials
   input: function(){
@@ -436,8 +392,6 @@ var experiment = {
         //stores data
     if(experiment.trialCount != 0){
       experiment.storeData("trialInput", "trialGrid", experiment.trialCount);
-    //  experiment.clearData(targetArray);
-     // experiment.clearData(dataArray);
     } 
     //increases trial #
     experiment.trialCount++;
@@ -446,7 +400,7 @@ var experiment = {
 
     if(experiment.trialCount ==3){
       showSlide("expIntro");
-      $(practiceIntro).html('<font color="red"><strong>Now we are going to begin the study. The next screen will display a target grid for 15 seconds. Click the colored elements. Try your best to remember where each color is located on the grid. After a short break, you will have to recreate the grid by clicking where you would like to place each color. When you have finished, click next to see a new pattern. There will be 10 trials.<strong></font>'); 
+      $(practiceIntro).html('<center>You have finished the training, and now we are going to begin the study. Just like in the practice, try to remember and recreate the grids to the best of your ability. There will be 10 trials. Good luck! <center>'); 
       return;
     }
 
@@ -578,7 +532,6 @@ var experiment = {
     for(i=0; i<64; i++) {
       var inputElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
       var targetElement = document.getElementById(target).rows[rowIndex].cells[cellIndex];
-
      //checks if the target cell is clicked or not
       if(targetElement.className == 'clicked'){
         //if target cell clicked, check if input cell is also clicked [RIGHT]
@@ -602,8 +555,7 @@ var experiment = {
           cellIndex++;
         } 
       }
-
-      //move onto next row if you need to
+	   //move onto next row if you need to
       if(cellIndex == 8) {
         rowIndex++;
         //if you are at the end of the grid, either move on to the next training session (T2 or T3, or move onto the actual study trials)
@@ -615,7 +567,7 @@ var experiment = {
             experiment.startTrain3();
           } if(nexttrain != 2 && nexttrain != 3){
             showSlide("expIntro");      
-            $(practiceIntro).html('<font color="red"><strong>GOING TO DO SOME TRAINING<strong></font>'); 
+            $(practiceIntro).html('<center>Now you will try to recreate a grid from memory. A target grid will appear for <strong>10</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. <strong>Fill in the colors on the blank grid just as they appear on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
         }} else{
           cellIndex = 0; 
         }
