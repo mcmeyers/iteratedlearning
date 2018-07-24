@@ -183,7 +183,8 @@ var experiment = {
   subid: Math.random(1,100), 
   subage:0,
   generation:1,
-  condition:"pilot1",
+  //CHANGE ME BEFORE PILOT!!!!!!!!
+  condition:"test1",
   date: getCurrentDate(),
   timestamp: getCurrentTime(), 
   comment: "NA",
@@ -306,11 +307,11 @@ var experiment = {
 
     //processes data 
   processData: function() {  
-    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + experiment.comment; 
+    /*var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + experiment.comment; 
     dataforRound += "," + experiment.trialCount + "," + targetArray + "," + dataArray + "\n"; 
     // use line below for mmturkey version
     //experiment.data.push(dataforRound); 
-    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
+    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); */
   }, 
 
   //stores data in arrays
@@ -358,7 +359,12 @@ var experiment = {
     console.log(dataArray);
     console.log(targetArray);
     //var dataforRound += "," + experiment.trialCount + "," + targetArray + "," + experiment.dataArray;
-    experiment.processData();
+    //experiment.processData();
+        var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + experiment.comment; 
+    dataforRound += "," + experiment.trialCount + "," + targetArray + "," + dataArray + "\n"; 
+    // use line below for mmturkey version
+    //experiment.data.push(dataforRound); 
+    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
   },
 
   //function that creates input grid for trials
@@ -377,7 +383,22 @@ var experiment = {
   //displays visual mask for X seconds 
   mask: function(){
     showSlide("mask");
+    //CHANGE ME BEFORE PILOT ******
     setTimeout(function(){ experiment.input() }, 1000);
+  },
+
+  colorAdd: function(color){
+  	var trialGrid = document.getElementById("trialGrid");
+    var trialInput = document.getElementById("trialInput");
+    trialGrid.classList.add(color);
+    trialInput.classList.add(color);
+  },
+
+  colorRemove: function(color){
+  	var trialGrid = document.getElementById("trialGrid");
+    var trialInput = document.getElementById("trialInput");
+    trialGrid.classList.remove(color);
+    trialInput.classList.remove(color);
   },
 
   //displays target slide, stores data, handles counter for trials and ends study when 10 trials have passed 
@@ -400,8 +421,8 @@ var experiment = {
 
     if(experiment.trialCount ==3){
       showSlide("expIntro");
-      $(practiceIntro).html('<center>You have finished the training, and now we are going to begin the study. Just like in the practice, try to remember and recreate the grids to the best of your ability. There will be 10 trials. Good luck! <center>'); 
-      return;
+      $(practiceIntro).html('<center>You have finished the training, and now we are going to begin the study. Just like in the practice, try to remember and recreate the grids to the best of your ability. There will be 10 trials. Good luck! <center>');
+      return;  
     }
 
     //ends experiment when 10 trials have been completed 
@@ -409,88 +430,68 @@ var experiment = {
       experiment.end();
     } else{  
       //shows target slide for X seconds                                                 
-      showSlide("trial");                                
+      showSlide("trial");  
+      //CHANGE ME BEFORE PILOT ******                              
       setTimeout(function(){ experiment.mask() }, 5000);
       //displays each individual trial info
       if(experiment.trialCount == 1){
         experiment.fillGrid("trialGrid", train1);
         experiment.ding();
-        trialGrid.classList.add("aqua");
-        trialInput.classList.add("aqua");
+        experiment.colorAdd("aqua");
       } if (experiment.trialCount == 2){
           experiment.fillGrid("trialGrid", train2);
           experiment.ding();
-          trialGrid.classList.remove("aqua");
-          trialInput.classList.remove("aqua");
+          experiment.colorRemove("aqua");
       }
-      if(experiment.trialCount == 3){
-      
+      if(experiment.trialCount == 4){
         experiment.fillGrid("trialGrid", trial1);
         experiment.ding();
-        trialGrid.classList.add("purple");
-        trialInput.classList.add("purple");
-      } if (experiment.trialCount == 4){
+        experiment.colorAdd("purple");
+      } if (experiment.trialCount == 5){
           experiment.fillGrid("trialGrid", trial2);
           experiment.ding();
-          trialGrid.classList.remove("purple");
-          trialInput.classList.remove("purple");
-          trialGrid.classList.add("olive");
-          trialInput.classList.add("olive");
-      } if (experiment.trialCount ==5){
+          experiment.colorRemove("purple");
+          experiment.colorAdd("olive");
+      } if (experiment.trialCount ==6){
           experiment.fillGrid("trialGrid", trial3);
           experiment.ding();
-          trialGrid.classList.add("green");
-          trialInput.classList.add("green");
-      } if(experiment.trialCount == 6){
+          experiment.colorAdd("green");
+          experiment.colorRemove("olive");
+      } if(experiment.trialCount == 7){
           experiment.fillGrid("trialGrid", trial4);
           experiment.ding();
-          trialGrid.classList.remove("green");
-          trialInput.classList.remove("green");
-          trialGrid.classList.add("pink");
-          trialInput.classList.add("pink");
-      } if(experiment.trialCount == 7){
+          experiment.colorRemove("green");
+          experiment.colorAdd("pink");
+      } if(experiment.trialCount == 8){
           experiment.fillGrid("trialGrid", trial5);
           experiment.ding();
-          trialGrid.classList.remove("pink");
-          trialInput.classList.remove("pink");
-          trialGrid.classList.add("blue");
-          trialInput.classList.add("blue");
-          // IT IS HERE THAT THE EXPERIMENT DINGING BREAKS
-      } if(experiment.trialCount == 8){
+          experiment.colorRemove("pink");
+          experiment.colorAdd("blue");
+      } if(experiment.trialCount == 9){
           experiment.fillGrid("trialGrid", trial6);
           experiment.ding();
-          trialGrid.classList.remove("blue");
-          trialInput.classList.remove("blue");
-          trialGrid.classList.add("orange");
-          trialInput.classList.add("orange");
-      } if(experiment.trialCount == 9){
+          experiment.colorRemove("blue");
+          experiment.colorAdd("orange");
+      } if(experiment.trialCount == 10){
           experiment.fillGrid("trialGrid", trial7);
           experiment.ding();
-          trialGrid.classList.remove("orange");
-          trialInput.classList.remove("orange");
-          trialGrid.classList.add("lime");
-          trialInput.classList.add("lime");
-      } if(experiment.trialCount == 10){
+          experiment.colorRemove("orange");
+          experiment.colorAdd("lime");
+      } if(experiment.trialCount == 11){
           experiment.fillGrid("trialGrid", trial8);
           experiment.ding();
-          trialGrid.classList.remove("lime");
-          trialInput.classList.remove("lime");
-          trialGrid.classList.add("teal");
-          trialInput.classList.add("teal");
-      } if(experiment.trialCount ==11){
+          experiment.colorRemove("lime");
+          experiment.colorAdd("teal");
+      } if(experiment.trialCount ==12){
           experiment.fillGrid("trialGrid", trial9);
           experiment.ding();
-          trialGrid.classList.remove("teal");
-          trialInput.classList.remove("teal");
-          trialGrid.classList.add("navy");
-          trialInput.classList.add("navy");
-      } if(experiment.trialCount ==12){
+          experiment.colorRemove("teal");
+          experiment.colorAdd("navy");
+      } if(experiment.trialCount ==13){
           experiment.fillGrid("trialGrid", trial10);
           experiment.ding();
-          trialGrid.classList.remove("navy");
-          trialInput.classList.remove("navy");
-          trialGrid.classList.add("maroon");
-          trialInput.classList.add("maroon");
+          experiment.colorRemove("navy");
+          experiment.colorAdd("maroon");
       }
     }
   },
