@@ -27,7 +27,8 @@ theme_set(theme_classic(base_size = 10))
 ## Setup
 
 ```{r load csv}
-data2 <- read.csv("tabletstudyresults.csv") 
+data2 <- read_csv("tabletstudyresults.csv") %>%
+  select(sub_id:input_7_7)
 
 #filters out people who didn't complete 10 trials
 data <- data2 %>%
@@ -71,15 +72,45 @@ targets <- target %>%
   rename(target_col0 = "0", target_col1 = "1", target_col2 = "2", target_col3 = "3", target_col4 = "4", target_col5 = "5", target_col6 = "6", target_col7 = "7")
 
 calculate_data <- data %>%
-  gather(row, value, -sub_id, -age, -condition, -generation, -date, -time, -trial)%>%
+  gather(row, value, -sub_id, -age, -condition, -generation, -trial)%>%
   arrange(sub_id, trial) %>%
   separate(row, c("type","row", "col")) %>%
   spread(type,value) %>%
-  mutate(accuracy = if_else(input == target, 1, 0))
-
+  mutate(accuracy = input == target,
+         sub_id = as.character(sub_id)) 
 ```
 ## Looking at data
 Calculates percent accuracies for the first pilot round of data. 
+```{r accuracy}
+trial_data <- calculate_data %>%
+  filter(target == 1) %>%
+  group_by(trial, sub_id) %>%
+  summarise(accuracy = mean(accuracy)) %>%
+  tidyboot_mean(accuracy) 
+
+ggplot(trial_data, aes(x = trial, y = empirical_stat, 
+                       ymin = ci_lower, ymax = ci_upper)) + 
+  geom_pointrange() + 
+  geom_smooth()
+
+```
+
+```{r plot_grids}
+pdf("trial_data.pdf", width = 10, height = 10)
+calculate_data %>%
+  distinct(trial, row, col, target) %>%
+  mutate(sub_id = "target") %>%
+  rename(input = target) %>%
+  bind_rows(select(calculate_data, sub_id, trial, row, col, input)) %>%
+  mutate(input = factor(input), sub_id = factor(sub_id, levels = unique(.$sub_id))) %>%
+  ggplot(aes(x = col, y = row, fill = input)) +
+  facet_grid(trial ~ sub_id) +
+  geom_tile(color = "black") + 
+  scale_fill_manual(values = c("0" = "white", "1" = "black"), guide = F)
+dev.off()
+```
+
+
 ```{r calculates percent accuracy-- BROKEN RN}
 # total grid accuracy
 sum(calculate_data$accuracy)/5760 * 100
