@@ -27,7 +27,7 @@ theme_set(theme_classic(base_size = 10))
 ## Setup
 
 ```{r load csv}
-data2 <- read_csv("tabletstudyresults.csv") %>%
+data2 <- read_csv("iteratedstudyresults.csv") %>%
   select(sub_id:input_7_7)
 
 #filters out people who didn't complete 10 trials
@@ -49,21 +49,21 @@ target<-data %>%
   select(-contains("input"))
 
 spread_data <- data %>%
-  gather(row, value, -sub_id, -age, -condition, -generation, -date, -time, -trial)%>%
+  gather(row, value, -sub_id, -age, -condition, -generation, -date, -time, -trial, -comments)%>%
   arrange(sub_id, trial) %>%
   separate(row, c("type","row", "col")) %>%
   unite(ty_col, type, col) %>%
   spread(ty_col, value) 
 
 responses <- inputs %>%
-  gather(row, value, -sub_id, -age, -condition, -generation, -date, -time, -trial)%>%
+  gather(row, value, -sub_id, -age, -condition, -generation, -date, -time, -trial, -comments)%>%
   arrange(sub_id, trial) %>%
   separate(row, c("type","row", "col")) %>%
   spread(col, value) %>%
   rename(input_col0 = "0", input_col1 = "1", input_col2 = "2", input_col3 = "3", input_col4 = "4", input_col5 = "5", input_col6 = "6", input_col7 = "7")
 
 targets <- target %>%
-  select(-condition, -age, -generation, -date, -time, -sub_id)%>%
+  select(-condition, -age, -generation, -date, -time, -sub_id, -comments)%>%
   unique() %>%
   gather(row, value, -trial)%>%
   separate(row, c("type","row", "col")) %>%
@@ -72,7 +72,7 @@ targets <- target %>%
   rename(target_col0 = "0", target_col1 = "1", target_col2 = "2", target_col3 = "3", target_col4 = "4", target_col5 = "5", target_col6 = "6", target_col7 = "7")
 
 calculate_data <- data %>%
-  gather(row, value, -sub_id, -age, -condition, -generation, -trial)%>%
+  gather(row, value, -sub_id, -age, -condition, -generation, -trial, -comments)%>%
   arrange(sub_id, trial) %>%
   separate(row, c("type","row", "col")) %>%
   spread(type,value) %>%
