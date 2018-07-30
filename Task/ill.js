@@ -186,15 +186,15 @@ var experiment = {
   subage:0,
   generation:1,
   //CHANGE ME BEFORE PILOT!!!!!!!!
-  condition:"test2",
+  condition:"pilot2",
   date: getCurrentDate(),
   timestamp: getCurrentTime(), 
-  comment: ["NA"],
+  comments: ["NA"],
+  data:[],
 
   //counts what trial you are on 
   trialCount:0,
   trial:0,
-
 
 
   //FUNCTIONS 
@@ -233,6 +233,7 @@ var experiment = {
   //starts training session 1 
   startTrain: function() {
     showSlide("training1");
+    experiment.data.push("sub_id, age, generation, condition, date, time, comments, trialCount, trialDisplay, target_0_0, target_0_1, target_0_2, target_0_3, target_0_4, target_0_5, target_0_6, target_0_7, target_1_0, target_1_1, target_1_2, target_1_3, target_1_4, target_1_5, target_1_6, target_1_7, target_2_0, target_2_1, target_2_2, target_2_3, target_2_4, target_2_5, target_2_6, target_2_7, target_3_0, target_3_1, target_3_2, target_3_3, target_3_4, target_3_5, target_3_6, target_3_7, target_4_0, target_4_1, target_4_2, target_4_3, target_4_4, target_4_5, target_4_6, target_4_7, target_5_0, target_5_1, target_5_2, target_5_3, target_5_4, target_5_5, target_5_6, target_5_7, target_6_0, target_6_1, target_6_2, target_6_3, target_6_4, target_6_5, target_6_6, target_6_7, target_7_0, target_7_1, target_7_2, target_7_3, target_7_4, target_7_5, target_7_6, target_7_7, input_0_0, input_0_1, input_0_2, input_0_3, input_0_4, input_0_5, input_0_6, input_0_7, input_1_0, input_1_1, input_1_2, input_1_3, input_1_4, input_1_5, input_1_6, input_1_7, input_2_0, input_2_1, input_2_2, input_2_3, input_2_4, input_2_5, input_2_6, input_2_7, input_3_0, input_3_1, input_3_2, input_3_3, input_3_4, input_3_5, input_3_6, input_3_7, input_4_0, input_4_1, input_4_2, input_4_3, input_4_4, input_4_5, input_4_6, input_4_7, input_5_0, input_5_1, input_5_2, input_5_3, input_5_4, input_5_5, input_5_6, input_5_7, input_6_0, input_6_1, input_6_2, input_6_3, input_6_4, input_6_5, input_6_6, input_6_7, input_7_0, input_7_1, input_7_2, input_7_3, input_7_4, input_7_5, input_7_6, input_7_7");
     document.ontouchmove=function(event){
       event.preventDefault();
     };
@@ -245,17 +246,17 @@ var experiment = {
   },
   
   realEnd: function(){
-    var comment = document.getElementById("comment").value;
-    comment.replace(",", " ");
-    console.log(comment);
-    if(experiment.comment != "NA"){
-    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + comment + "\n"; 
+    experiment.comments = document.getElementById("comment").value.replace(","," "); 
+   // console.log(comment);
+   if(experiment.comments != ""){
+    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + experiment.comments; 
+    dataforRound += "," + 14 + "," + experiment.trial + "," + targetArray + "," + dataArray + "\n"; 
     // use line below for mmturkey version
-    //experiment.data.push(dataforRound); 
-    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
+    experiment.data.push(dataforRound); 
   }
+    //$.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
     // Wait 1 seconds and then submit the whole experiment object to Mechanical Turk (mmturkey filters out the functions so we know we're just submitting properties [i.e. data])
-    //setTimeout(function() { turk.submit(experiment) }, 1000);
+    setTimeout(function() { turk.submit(experiment) }, 1000);
   },
 
   end: function(){
@@ -320,6 +321,7 @@ var experiment = {
   //stores data in arrays
   storeData: function(input, target, trialCount){
     if(trialCount != 3){
+
   	var dataArray= [[0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
@@ -360,18 +362,20 @@ var experiment = {
         }
       } 
     } 
+
     console.log(dataArray);
     console.log(targetArray);
     console.log(experiment.trialCount);
     console.log(experiment.trial);
     
-    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + experiment.comment; 
+    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + experiment.comments; 
     dataforRound += "," + experiment.trialCount + "," + experiment.trial + "," + targetArray + "," + dataArray + "\n"; 
     // use line below for mmturkey version
-    //experiment.data.push(dataforRound); 
-    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
+    experiment.data.push(dataforRound); 
+    //$.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
   }
   },
+
 
   //function that creates input grid for trials
   input: function(){
@@ -390,7 +394,7 @@ var experiment = {
   mask: function(){
     showSlide("mask");
     //CHANGE ME BEFORE PILOT ******
-    setTimeout(function(){ experiment.input() }, 1000);
+    setTimeout(function(){ experiment.input() }, 2000);
   },
 
   colorAdd: function(color){
@@ -442,7 +446,7 @@ var experiment = {
       //shows target slide for X seconds                                                 
       showSlide("trial");  
       //CHANGE ME BEFORE PILOT ******                              
-      setTimeout(function(){ experiment.mask() }, 5000);
+      setTimeout(function(){ experiment.mask() }, 15000);
       //displays each individual trial info
       if(experiment.trialCount == 1){
         experiment.fillGrid("trialGrid", train1);
@@ -579,7 +583,7 @@ var experiment = {
             experiment.startTrain3();
           } if(nexttrain != 2 && nexttrain != 3){
             showSlide("expIntro");      
-            $(practiceIntro).html('<center>Now you will try to recreate a grid from memory. A target grid will appear for <strong>10</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. <strong>Fill in the colors on the blank grid just as they appear on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
+            $(practiceIntro).html('<center>Now you will try to recreate a grid from memory. A target grid will appear for <strong>15</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. <strong>Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
         }} else{
           cellIndex = 0; 
         }
@@ -628,5 +632,5 @@ var experiment = {
 //experiment.startTrain();
 //jump to trials
 //showSlide("expIntro");
-//experiment.end();
+//sexperiment.end();
 
