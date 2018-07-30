@@ -1,5 +1,5 @@
 //This is the javascript file for the iterated learning study
-//A lot of this code was taken from Claire Bergy and Long Ouyang
+//Some of this code was taken from Claire Bergy and Long Ouyang
 //Madeline Meyers Iterated Learning Study
 
 
@@ -53,7 +53,6 @@ var train1 = [[1,1,0,0,0,0,0,0],
               [0,0,0,0,0,0,1,1],
               [0,0,0,0,0,0,1,1],
               [0,0,0,0,0,0,0,0]];
-
 
 var train2 = [[1,0,0,0,0,0,0,0],
               [0,1,0,0,0,0,0,0],
@@ -171,6 +170,9 @@ var targetArray= [[0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0]];
+
+var displayNum= [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
               
 
 
@@ -184,17 +186,22 @@ var experiment = {
   subage:0,
   generation:1,
   //CHANGE ME BEFORE PILOT!!!!!!!!
-  condition:"test1",
+  condition:"test2",
   date: getCurrentDate(),
   timestamp: getCurrentTime(), 
-  comment: "NA",
+  comment: ["NA"],
 
   //counts what trial you are on 
   trialCount:0,
+  trial:0,
 
 
 
   //FUNCTIONS 
+  getRandomDisplay: function() {
+   var randomIndex = Math.floor(Math.random()*displayNum.length);
+   return displayNum.splice(randomIndex, 1)[0];
+  }, 
 
   //makes limit of highlighted cells 10, highlights clicked cells 
   max10items: function(clicked,input){
@@ -217,12 +224,10 @@ var experiment = {
           return; 
         } else{
           cellIndex = 0;
-        }
-      }
+      } }
       if(count > 10){
         clicked.classList.remove("clicked");
-      } 
-    }
+      } }
   },
 
   //starts training session 1 
@@ -246,7 +251,14 @@ var experiment = {
 
   end: function(){
     showSlide("end");
-    experiment.comment = parseInt(document.getElementById("comment").value);
+    experiment.comment.push(split(document.getElementById("comment").value));
+    console.log(experiment.comment);
+    if(experiment.comment != "NA"){
+    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + experiment.comment + "\n"; 
+    // use line below for mmturkey version
+    //experiment.data.push(dataforRound); 
+    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
+  }
   },
 
   //function that fills the target grid with array coordinates 
@@ -305,17 +317,9 @@ var experiment = {
 	}
   },
 
-    //processes data 
-  processData: function() {  
-    /*var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + experiment.comment; 
-    dataforRound += "," + experiment.trialCount + "," + targetArray + "," + dataArray + "\n"; 
-    // use line below for mmturkey version
-    //experiment.data.push(dataforRound); 
-    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); */
-  }, 
-
   //stores data in arrays
-  storeData: function(input, target, trial){
+  storeData: function(input, target, trialCount){
+    if(trialCount != 3){
   	var dataArray= [[0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
@@ -358,13 +362,15 @@ var experiment = {
     } 
     console.log(dataArray);
     console.log(targetArray);
-    //var dataforRound += "," + experiment.trialCount + "," + targetArray + "," + experiment.dataArray;
-    //experiment.processData();
-        var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + experiment.comment; 
-    dataforRound += "," + experiment.trialCount + "," + targetArray + "," + dataArray + "\n"; 
+    console.log(experiment.trialCount);
+    console.log(experiment.trial);
+    
+    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + experiment.comment; 
+    dataforRound += "," + experiment.trialCount + "," + experiment.trial + "," + targetArray + "," + dataArray + "\n"; 
     // use line below for mmturkey version
     //experiment.data.push(dataforRound); 
     $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
+  }
   },
 
   //function that creates input grid for trials
@@ -394,11 +400,11 @@ var experiment = {
     trialInput.classList.add(color);
   },
 
-  colorRemove: function(color){
+  colorRemove: function(){
   	var trialGrid = document.getElementById("trialGrid");
     var trialInput = document.getElementById("trialInput");
-    trialGrid.classList.remove(color);
-    trialInput.classList.remove(color);
+    trialGrid.classList.remove("aqua", "purple", "olive", "green", "pink", "blue", "orange", "lime", "teal", "navy", "maroon");
+    trialInput.classList.remove("aqua", "purple", "olive", "green", "pink", "blue", "orange", "lime", "teal", "navy", "maroon");
   },
 
   //displays target slide, stores data, handles counter for trials and ends study when 10 trials have passed 
@@ -425,10 +431,14 @@ var experiment = {
       return;  
     }
 
-    //ends experiment when 10 trials have been completed 
-    if(experiment.trialCount == 11){
+    //ends experiment when 10 trials + 2 trainings have been completed 
+    if(experiment.trialCount == 14){
       experiment.end();
     } else{  
+      if(experiment.trialCount != 1 && experiment.trialCount != 2){
+        experiment.trial = experiment.getRandomDisplay(experiment.displayNum);
+        console.log(experiment.trial);
+      }
       //shows target slide for X seconds                                                 
       showSlide("trial");  
       //CHANGE ME BEFORE PILOT ******                              
@@ -441,56 +451,57 @@ var experiment = {
       } if (experiment.trialCount == 2){
           experiment.fillGrid("trialGrid", train2);
           experiment.ding();
-          experiment.colorRemove("aqua");
+          experiment.colorRemove();
       }
-      if(experiment.trialCount == 4){
+      if(experiment.trial == 1){
         experiment.fillGrid("trialGrid", trial1);
         experiment.ding();
+        experiment.colorRemove();
         experiment.colorAdd("purple");
-      } if (experiment.trialCount == 5){
+      } if (experiment.trial == 2){
           experiment.fillGrid("trialGrid", trial2);
           experiment.ding();
-          experiment.colorRemove("purple");
+          experiment.colorRemove();
           experiment.colorAdd("olive");
-      } if (experiment.trialCount ==6){
+      } if (experiment.trial ==3){
           experiment.fillGrid("trialGrid", trial3);
           experiment.ding();
+          experiment.colorRemove();
           experiment.colorAdd("green");
-          experiment.colorRemove("olive");
-      } if(experiment.trialCount == 7){
+      } if(experiment.trial == 4){
           experiment.fillGrid("trialGrid", trial4);
           experiment.ding();
-          experiment.colorRemove("green");
+          experiment.colorRemove();
           experiment.colorAdd("pink");
-      } if(experiment.trialCount == 8){
+      } if(experiment.trial == 5){
           experiment.fillGrid("trialGrid", trial5);
           experiment.ding();
-          experiment.colorRemove("pink");
+          experiment.colorRemove();
           experiment.colorAdd("blue");
-      } if(experiment.trialCount == 9){
+      } if(experiment.trial == 6){
           experiment.fillGrid("trialGrid", trial6);
           experiment.ding();
-          experiment.colorRemove("blue");
+          experiment.colorRemove();
           experiment.colorAdd("orange");
-      } if(experiment.trialCount == 10){
+      } if(experiment.trial == 7){
           experiment.fillGrid("trialGrid", trial7);
           experiment.ding();
-          experiment.colorRemove("orange");
+          experiment.colorRemove();
           experiment.colorAdd("lime");
-      } if(experiment.trialCount == 11){
+      } if(experiment.trial== 8){
           experiment.fillGrid("trialGrid", trial8);
           experiment.ding();
-          experiment.colorRemove("lime");
+          experiment.colorRemove();
           experiment.colorAdd("teal");
-      } if(experiment.trialCount ==12){
+      } if(experiment.trial==9){
           experiment.fillGrid("trialGrid", trial9);
           experiment.ding();
-          experiment.colorRemove("teal");
+          experiment.colorRemove();
           experiment.colorAdd("navy");
-      } if(experiment.trialCount ==13){
+      } if(experiment.trial ==10){
           experiment.fillGrid("trialGrid", trial10);
           experiment.ding();
-          experiment.colorRemove("navy");
+          experiment.colorRemove();
           experiment.colorAdd("maroon");
       }
     }
