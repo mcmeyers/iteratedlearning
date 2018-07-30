@@ -245,20 +245,21 @@ var experiment = {
   },
   
   realEnd: function(){
+    var comment = document.getElementById("comment").value;
+    comment.replace(",", " ");
+    console.log(comment);
+    if(experiment.comment != "NA"){
+    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + comment + "\n"; 
+    // use line below for mmturkey version
+    //experiment.data.push(dataforRound); 
+    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
+  }
     // Wait 1 seconds and then submit the whole experiment object to Mechanical Turk (mmturkey filters out the functions so we know we're just submitting properties [i.e. data])
     //setTimeout(function() { turk.submit(experiment) }, 1000);
   },
 
   end: function(){
     showSlide("end");
-    experiment.comment.push(split(document.getElementById("comment").value));
-    console.log(experiment.comment);
-    if(experiment.comment != "NA"){
-    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + experiment.comment + "\n"; 
-    // use line below for mmturkey version
-    //experiment.data.push(dataforRound); 
-    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
-  }
   },
 
   //function that fills the target grid with array coordinates 
@@ -310,11 +311,10 @@ var experiment = {
 
   //makes dinging sound
   ding: function(){
-  	if($("#trialGrid td").classList == "clicked"){
-    $("#trialGrid td.clicked").click(function(){
+   $("#trialGrid td").unbind("click");
+   $("#trialGrid td.clicked").click(function(){
       ding.play();
-    });
-	}
+    }); 
   },
 
   //stores data in arrays
@@ -628,4 +628,5 @@ var experiment = {
 //experiment.startTrain();
 //jump to trials
 //showSlide("expIntro");
-//showSlide("end");
+//experiment.end();
+
