@@ -35,13 +35,14 @@ getCurrentTime = function() {
 // Show the instructions slide 
 showSlide("intro");
 
-if(turk.assignmentId == "ASSIGNMENT_ID_NOT_AVAILABLE") {
+//FOR TURK VERSION
+/*if(turk.assignmentId == "ASSIGNMENT_ID_NOT_AVAILABLE") {
     document.getElementById("notAccepted").innerHTML= "Please accept the HIT to Begin!!";
 } else {
     $("#startButton").click(function(){
       experiment.startTrain();
     });
-}
+} */
 
 //creates initial seed grids 
 
@@ -117,14 +118,14 @@ var trial6 = [[0,0,0,0,0,0,0,0],
               [0,0,0,0,1,0,0,0],
               [0,0,1,1,0,0,0,0]];
 
-var trial7 = [[1,0,0,0,0,0,0,0],
+var trial7 = [[0,0,1,0,0,0,1,0],
               [0,0,0,0,0,0,1,0],
               [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,1],
-              [0,0,0,0,1,1,0,1],
-              [0,0,0,0,1,0,0,0],
               [0,0,0,0,0,0,0,0],
-              [0,0,0,1,1,1,0,0]];
+              [0,0,0,1,1,0,1,0],
+              [1,0,0,0,0,0,0,0],
+              [0,0,0,0,0,1,1,1],
+              [0,0,0,0,0,0,0,0]];
 
 var trial8 = [[0,0,1,0,0,0,0,1],
               [0,1,0,0,0,0,0,0],
@@ -144,14 +145,14 @@ var trial9 = [[1,0,0,0,0,0,1,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0]];
 
-var trial10 = [[0,1,0,0,0,0,0,0],
-              [0,0,0,0,1,1,0,0],
-              [0,0,0,0,1,1,0,0],
+var trial10 = [[1,0,0,0,1,0,0,0],
               [0,0,0,0,0,0,0,0],
-              [0,1,1,0,1,0,0,0],
-              [0,0,1,0,0,0,0,0],
-              [0,0,1,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0]];
+              [0,0,0,0,0,1,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,1,0,0,1,1,0],
+              [0,0,0,0,0,0,0,1],
+              [0,1,0,0,0,0,1,0],
+              [0,0,0,0,0,0,0,1]];
 
 var dataArray= [[0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
@@ -173,9 +174,6 @@ var targetArray= [[0,0,0,0,0,0,0,0],
 
 var displayNum= [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-              
-
-
 var ding = document.getElementById("ding");
 
 //MAIN EXPERIMENT
@@ -185,8 +183,8 @@ var experiment = {
   subid: Math.random(1,100), 
   subage:0,
   generation:1,
-  //CHANGE ME BEFORE PILOT!!!!!!!!
-  condition:"pilot2",
+  //CHANGE FOR TURK
+  condition:"pilotkid",
   date: getCurrentDate(),
   timestamp: getCurrentTime(), 
   comments: ["NA"],
@@ -252,11 +250,11 @@ var experiment = {
     var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + experiment.comments; 
     dataforRound += "," + 14 + "," + experiment.trial + "," + targetArray + "," + dataArray + "\n"; 
     // use line below for mmturkey version
-    experiment.data.push(dataforRound); 
+    //experiment.data.push(dataforRound); 
+    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
   }
-    //$.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
     // Wait 1 seconds and then submit the whole experiment object to Mechanical Turk (mmturkey filters out the functions so we know we're just submitting properties [i.e. data])
-    setTimeout(function() { turk.submit(experiment) }, 1000);
+    //setTimeout(function() { turk.submit(experiment) }, 1000);
   },
 
   end: function(){
@@ -371,8 +369,8 @@ var experiment = {
     var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + experiment.comments; 
     dataforRound += "," + experiment.trialCount + "," + experiment.trial + "," + targetArray + "," + dataArray + "\n"; 
     // use line below for mmturkey version
-    experiment.data.push(dataforRound); 
-    //$.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
+    //experiment.data.push(dataforRound); 
+    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
   }
   },
 
@@ -456,6 +454,7 @@ var experiment = {
           experiment.fillGrid("trialGrid", train2);
           experiment.ding();
           experiment.colorRemove();
+          experiment.trial == 0.5
       }
       if(experiment.trial == 1){
         experiment.fillGrid("trialGrid", trial1);

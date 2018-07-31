@@ -1,5 +1,4 @@
 library(tidyverse)
-library(lubridate)
 library(jsonlite)
 
 files <- list.files("../raw_data/", ".json", full.names = T)

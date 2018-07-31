@@ -40,12 +40,12 @@
 	<div style="text-align: center;  padding: 20px 15px 10px 10px">
 		<p id="notAccepted" style="font-size:40px"></p>
 		<p class="block-text">Welcome to the study! Please click the button below to begin. In this game, you will be asked to recreate grids exactly as they appear. Try to remember the grids as best as you can.</p>
-
-            <div class="row"> <h4 style="margin:1% 15% 0 15%">   Please complete this HIT in one sitting, without refreshing the page. This HIT should take approximately 10 minutes to complete, but you will have 30 minutes to do so. You will likely not need all of that time, so don't feel the need to rush.  </h4> </div>
+		<!--CHANGE FOR TURK 
+            <div class="row"> <h4 style="margin:1% 15% 0 15%">   Please complete this HIT in one sitting, without refreshing the page. This HIT should take approximately 7.5 minutes to complete, but you will have 30 minutes to do so. You will likely not need all of that time, so don't feel the need to rush.  </h4> </div>
 	        <br>
-	        <div class="row"> <p class="block-text"> By answering the following questions, you are participating in a study being performed by cognitive scientists in the University of Chicago Department of Psychology. If you have questions about this research, please contact us at <a href="mailto:callab.uchicago@gmail.com">callab.uchicago@gmail.com</a>. You must be  at least 18 years old to participate. Your participation in this research is voluntary. You may decline to answer any or all of the following questions. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you. Note however that we have recently been made aware that your public Amazon.com profile can be accessed via your worker ID if you do not choose to opt out. If you would like to opt out of this feature, you may follow instructions available <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=16465241">here</a>.</p> </div>
-
-		<!--<p class="block-text">
+	        <div class="row"> <p class="block-text"> By answering the following questions, you are participating in a study being performed by cognitive scientists in the University of Chicago Department of Psychology. If you have questions about this research, please contact us at <a href="mailto:callab.uchicago@gmail.com">callab.uchicago@gmail.com</a>. You must be  at least 18 years old to participate. Your participation in this research is voluntary. You may decline to answer any or all of the following questions. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you. Note however that we have recently been made aware that your public Amazon.com profile can be accessed via your worker ID if you do not choose to opt out. If you would like to opt out of this feature, you may follow instructions available <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=16465241">here</a>.</p> </div> -->
+		<!--CHANGE FOR TURK-->
+		<p class="block-text">
 			subject ID:<br>
 			<input type="text" id="subjectID" name="subjectID" size="30">
 		</p>
@@ -53,9 +53,9 @@
 		<p class="block-text">
 			age:<br>
 			<input type="text" id="age" name="age" size="30">
-		</p>
+		</p> 
 
-		<p class="block-text">
+		<!--<p class="block-text">
 			condition:<br>
 			<input type="text" id="condition" name="condition" size="30">
 		</p>
@@ -68,8 +68,8 @@
 	<!--displays the results if someone included the necessary info or not -->
 	<div id="checkMessage"></div> 
 
-	<!--Button to check if information has been inputted, proceed to next slide if yes-->
-		<button id="startButton" type="button" onclick="this.blur()">Start</button> 
+	<!--CHANGE FOR TURK Button to check if information has been inputted, proceed to next slide if yes-->
+		<button id="startButton" type="button" onclick="this.blur(), experiment.checkInput()">Start</button> 
 		<!-- <button type="button" onclick="this.blur(); experiment.checkInput()">Start</button>  -->
 	</div>
 
