@@ -27,8 +27,7 @@ theme_set(theme_classic(base_size = 10))
 ## Setup
 
 ```{r load csv}
-data2 <- read_csv("iteratedstudyresults.csv") %>%
-  select(sub_id:input_7_7)
+data2 <- read_csv("../data/anonymized_data.csv") 
 
 #filters out people who didn't complete 10 trials
 data <- data2 %>%
