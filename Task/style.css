@@ -97,7 +97,7 @@ button[disabled] {
 
 .grid td {
     cursor:pointer;
-    width:60px; height:60px;
+    width:70px; height:70px;
     border:2px solid;
     text-align:center;
     font-family:sans-serif; font-size:16px;

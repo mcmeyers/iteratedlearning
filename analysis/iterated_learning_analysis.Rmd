@@ -20,6 +20,7 @@ library(tidyboot)
 library(directlabels)
 library(lme4)
 library(broom)
+library(acss)
 
 theme_set(theme_classic(base_size = 10))
 ```
@@ -31,112 +32,67 @@ data2 <- read_csv("../data/anonymized_data.csv")
 
 #filters out people who didn't complete 10 trials
 data <- data2 %>%
-  arrange(sub_id, trial) %>%
+  arrange(sub_id, trialDisplay) %>%
   group_by(sub_id) %>%
   mutate(n = n()) %>%
-  filter(n == 10 & condition != "test" & sub_id != 0) %>%
+  filter(n >= 12 & condition != "test" & sub_id != 0) %>%
   select(-n) %>%
-  ungroup() 
+  ungroup() %>%
+  filter(trialCount < 14)
 ```
 
-Right now, I'm not quite sure what format we want our data in (because it is in a dataframe of 1's and 0's, so here are a bunch of different options. 
-```{r formats data into grids}
-#temp
-inputs<-data %>%
-  select(-contains("target"))
-target<-data %>%
-  select(-contains("input"))
-
-spread_data <- data %>%
-  gather(row, value, -sub_id, -age, -condition, -generation, -date, -time, -trial, -comments)%>%
-  arrange(sub_id, trial) %>%
-  separate(row, c("type","row", "col")) %>%
-  unite(ty_col, type, col) %>%
-  spread(ty_col, value) 
-
-responses <- inputs %>%
-  gather(row, value, -sub_id, -age, -condition, -generation, -date, -time, -trial, -comments)%>%
-  arrange(sub_id, trial) %>%
-  separate(row, c("type","row", "col")) %>%
-  spread(col, value) %>%
-  rename(input_col0 = "0", input_col1 = "1", input_col2 = "2", input_col3 = "3", input_col4 = "4", input_col5 = "5", input_col6 = "6", input_col7 = "7")
-
-targets <- target %>%
-  select(-condition, -age, -generation, -date, -time, -sub_id, -comments)%>%
-  unique() %>%
-  gather(row, value, -trial)%>%
-  separate(row, c("type","row", "col")) %>%
-  #arrange(trial)
-  spread(col, value) %>%
-  rename(target_col0 = "0", target_col1 = "1", target_col2 = "2", target_col3 = "3", target_col4 = "4", target_col5 = "5", target_col6 = "6", target_col7 = "7")
-
+```{r formats data}
 calculate_data <- data %>%
-  gather(row, value, -sub_id, -age, -condition, -generation, -trial, -comments)%>%
-  arrange(sub_id, trial) %>%
+  gather(row, value,-sub_id:-trialDisplay)%>%
+  arrange(sub_id, trialDisplay) %>%
   separate(row, c("type","row", "col")) %>%
   spread(type,value) %>%
+  mutate(input = as.numeric(input), target = as.numeric(target),
+         row = as.numeric(row), column = as.numeric(col)) %>%
   mutate(accuracy = input == target,
          sub_id = as.character(sub_id)) 
 ```
-## Looking at data
-Calculates percent accuracies for the first pilot round of data. 
-```{r accuracy}
-trial_data <- calculate_data %>%
-  filter(target == 1) %>%
-  group_by(trial, sub_id) %>%
-  summarise(accuracy = mean(accuracy)) %>%
-  tidyboot_mean(accuracy) 
-
-ggplot(trial_data, aes(x = trial, y = empirical_stat, 
-                       ymin = ci_lower, ymax = ci_upper)) + 
-  geom_pointrange() + 
-  geom_smooth()
-
-```
-
+## Descriptive
+Displays the actual grids that people made 
 ```{r plot_grids}
 pdf("trial_data.pdf", width = 10, height = 10)
 calculate_data %>%
-  distinct(trial, row, col, target) %>%
+  distinct(trialDisplay, row, col, target) %>%
   mutate(sub_id = "target") %>%
   rename(input = target) %>%
-  bind_rows(select(calculate_data, sub_id, trial, row, col, input)) %>%
+  bind_rows(select(calculate_data, sub_id, trialDisplay, row, col, input)) %>%
   mutate(input = factor(input), sub_id = factor(sub_id, levels = unique(.$sub_id))) %>%
+  mutate(row = 7 - row) %>%
   ggplot(aes(x = col, y = row, fill = input)) +
-  facet_grid(trial ~ sub_id) +
-  geom_tile(color = "black") + 
+  facet_grid(trialDisplay ~ sub_id) +
+  geom_tile(color = "black") +
   scale_fill_manual(values = c("0" = "white", "1" = "black"), guide = F)
 dev.off()
 ```
 
+## Analysis
+Percent accuracies calculated by %/10 targets placed correctly 
+```{r accuracy}
+trial_data <- calculate_data %>%
+  filter(target == 1) %>%
+  filter(trialDisplay > 0) %>%
+  group_by(trialDisplay, sub_id) %>%
+  summarise(accuracy = mean(accuracy)) %>%
+  tidyboot_mean(accuracy) 
 
-```{r calculates percent accuracy-- BROKEN RN}
-# total grid accuracy
-sum(calculate_data$accuracy)/5760 * 100
-#this is 51% total grid accuracy across trials, which is not good but also double counts errors (ex. if subject did not place target in correct place it counts 2x as a mismatch) 
-
-# percent accuracy of 10 targets placed 
-sum(filter(calculate_data,target==1)$accuracy)/900 * 100
-#this is 68% which is actually not terrible! Maybe it depends on the trial grid?
-
-#percent accuracy of 10 targets placed by trial
-calculate_trial <- calculate_data %>%
-  filter(target==1) %>%
-  group_by(trial) %>%
-  summarise(accuracy_bytrial = sum(accuracy)/90) %>%
-  mutate(range = max(accuracy_bytrial)-min(accuracy_bytrial))
-
-#accuracy by person (can also do accuracy by person by trial by adding extra group_by)
-calculate_person <- calculate_data %>%
-  filter(target==1) %>%
-  group_by(sub_id) %>%
-  #group_by(sub_id, trial) %>%
-  summarise(accuracy_byperson = sum(accuracy)/100) %>%
-  mutate(range =max(accuracy_byperson)-min(accuracy_byperson))
-  #summarise(accuracy_byperstrial = sum(accuracy)/10)
-
-#there was a larger range by trials than by subjs
+ggplot(trial_data, aes(x = trialDisplay, y = empirical_stat, 
+                       ymin = ci_lower, ymax = ci_upper)) + 
+  geom_pointrange() + 
+  geom_smooth()
 ```
 
+Clustering: # of targets touching 
+```{r}
 
+```
+
+Algorithmic Complexity: Block Decomposition Method [do you need to install the function every time?]
+```{r}
+
+```
 
