@@ -29,6 +29,34 @@ getCurrentTime = function() {
   return (hours + ":" + minutes);
 }
 
+function startTimer(duration, display) {
+    var timer = duration, seconds;
+    setInterval(function () {
+        seconds = parseInt(timer % 60, 10);
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.textContent = seconds;
+
+        if (--timer < 0) {
+            timer = duration;
+        }
+    }, 1000);
+}
+
+function clearTimer(display){
+  var duration = 0
+    var timer = duration, seconds;
+    setInterval(function () {
+        seconds = parseInt(timer % 60, 10);
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.textContent = seconds;
+
+        if (--timer < 0) {
+            timer = duration;
+        }
+    }, 1000);
+}
 
 //EXPERIMENT SETUP 
 
@@ -80,7 +108,7 @@ var trial2 = [[0,0,0,0,0,0,1,0],
               [0,1,1,0,0,0,0,0],
               [0,1,1,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
-              [0,0,0,0,1,1,0,0]];
+              [0,0,0,0,1,1,0,0]]; 
 
 var trial3 = [[1,0,0,0,0,0,0,0],
               [0,0,1,0,0,0,1,0],
@@ -98,7 +126,7 @@ var trial4 = [[0,1,0,0,0,0,1,0],
               [0,0,0,0,0,0,0,1],
               [0,0,0,0,0,0,0,1],
               [0,0,0,0,0,0,0,0],
-              [0,0,1,0,1,1,0,0]];
+              [0,0,1,0,1,1,0,0]]; 
 
 var trial5 = [[1,0,1,0,0,0,0,0],
               [0,0,0,1,0,0,0,0],
@@ -172,7 +200,7 @@ var targetArray= [[0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0]];
 
-var displayNum= [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+var displayNum= [1, 8, 3, 5, 6, 9];
 
 var ding = document.getElementById("ding");
 
@@ -373,10 +401,9 @@ var experiment = {
     $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
   }
   },
-
-
   //function that creates input grid for trials
   input: function(){
+    clearTimer(document.querySelector('#count'));
     //clears data from previous input
     experiment.clear("trialInput"); 
     showSlide("input");
@@ -386,6 +413,8 @@ var experiment = {
         experiment.max10items(this,'trialInput');
       });
     }
+    setTimeout(function(){ experiment.begin() }, 61000);
+    startTimer(60, document.querySelector('#count'));
   },
 
   //displays visual mask for X seconds 
@@ -433,8 +462,8 @@ var experiment = {
       return;  
     }
 
-    //ends experiment when 10 trials + 2 trainings have been completed 
-    if(experiment.trialCount == 14){
+    //ends experiment when 6 trials + 2 trainings have been completed 
+    if(experiment.trialCount == 10){
       experiment.end();
     } else{  
       if(experiment.trialCount != 1 && experiment.trialCount != 2){
@@ -444,7 +473,25 @@ var experiment = {
       //shows target slide for X seconds                                                 
       showSlide("trial");  
       //CHANGE ME BEFORE PILOT ******                              
-      setTimeout(function(){ experiment.mask() }, 15000);
+      setTimeout(function(){ experiment.mask() }, 12000);
+      if(experiment.trialCount == 4){
+        $(progress).html('<font color="black" size=5em> You have <strong> 6 </strong> trials left to complete.</font>');
+      }
+            if(experiment.trialCount == 5){
+        $(progress).html('<font color="black" size=5em> You have <strong> 5 </strong> trials left to complete.</font>');
+      }
+            if(experiment.trialCount == 6){
+        $(progress).html('<font color="black" size=5em> You have <strong> 4 </strong> trials left to complete.</font>');
+      }
+            if(experiment.trialCount == 7){
+        $(progress).html('<font color="black" size=5em> You have <strong> 3 </strong> trials left to complete.</font>');
+      }
+            if(experiment.trialCount == 8){
+        $(progress).html('<font color="black" size=5em> You have <strong> 2 </strong> trials left to complete.</font>');
+      }
+            if(experiment.trialCount == 9){
+        $(progress).html('<font color="black" size=5em> You have <strong> 1 </strong> trials left to complete.</font>');
+      }
       //displays each individual trial info
       if(experiment.trialCount == 1){
         experiment.fillGrid("trialGrid", train1);
@@ -582,7 +629,7 @@ var experiment = {
             experiment.startTrain3();
           } if(nexttrain != 2 && nexttrain != 3){
             showSlide("expIntro");      
-            $(practiceIntro).html('<center>Now you will try to recreate a grid from memory. A target grid will appear for <strong>15</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. <strong>Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
+            $(practiceIntro).html('<center>Now you will try to recreate a grid from memory. A target grid will appear for <strong>12</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. <strong>Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
         }} else{
           cellIndex = 0; 
         }
@@ -632,4 +679,7 @@ var experiment = {
 //jump to trials
 //showSlide("expIntro");
 //sexperiment.end();
+//experiment.trialCount = 3;
+//experiment.begin();
+
 
