@@ -266,6 +266,9 @@ var experiment = {
       if(count > 10){
         clicked.classList.remove("clicked");
         document.querySelector('#blocksLeft').textContent = 0;
+      }
+      if(count == 0){
+        document.querySelector('#blocksLeft').textContent = 10;
       } }
   },
 
@@ -301,6 +304,7 @@ var experiment = {
   end: function(){
     showSlide("end");
     end_sd.play();
+    setTimeout(function(){experiment.realEnd()}, 15000);
   },
 
   //function that fills the target grid with array coordinates 
@@ -501,10 +505,10 @@ var experiment = {
       setTimeout(function(){ experiment.mask() }, 12000);
       if(experiment.trialCount == 4){
         $(progress).html('<font color="black" size=5em> You have <strong> 6 </strong> trials left to complete.</font>');
-        trial_1.play();
       }
             if(experiment.trialCount == 5){
         $(progress).html('<font color="black" size=5em> You have <strong> 5 </strong> trials left to complete.</font>');
+                trial_1.play();
       }
             if(experiment.trialCount == 6){
         $(progress).html('<font color="black" size=5em> You have <strong> 4 </strong> trials left to complete.</font>');
