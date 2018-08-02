@@ -204,6 +204,14 @@ var targetArray= [[0,0,0,0,0,0,0,0],
 var displayNum= [1, 8, 3, 5, 6, 9];
 
 var ding = document.getElementById("ding");
+var end_sd = document.getElementById("end_sd");
+var halfway = document.getElementById("halfway");
+var training_1_error = document.getElementById("training_1_error");
+var training_2 = document.getElementById("training_2");
+var trial_1 = document.getElementById("trial_1");
+var timeout = document.getElementById("timeout");
+var one_left = document.getElementById("one_left");
+
 var timer; 
 
 //MAIN EXPERIMENT
@@ -292,6 +300,7 @@ var experiment = {
 
   end: function(){
     showSlide("end");
+    end_sd.play();
   },
 
   //function that fills the target grid with array coordinates 
@@ -415,14 +424,18 @@ var experiment = {
       $("#trialInput td").click(function(){
         experiment.max10items(this,'trialInput');
       });
+      training_2.play();
     }
     var count = 60;
     timer = setInterval(function() {
     $("#count").html(count--);
-    experiment.timeUsed = 60-count; 
+    experiment.timeUsed = 60-count;
+    if(count == 10){
+      timeout.play();
+    } 
     if(count == 1) {
       clearInterval(timer);
-      setTimeout(function(){experiment.begin()},1000);
+      setTimeout(function(){experiment.begin()},2000);
     }
     }, 1000);
   },
@@ -488,6 +501,7 @@ var experiment = {
       setTimeout(function(){ experiment.mask() }, 12000);
       if(experiment.trialCount == 4){
         $(progress).html('<font color="black" size=5em> You have <strong> 6 </strong> trials left to complete.</font>');
+        trial_1.play();
       }
             if(experiment.trialCount == 5){
         $(progress).html('<font color="black" size=5em> You have <strong> 5 </strong> trials left to complete.</font>');
@@ -497,12 +511,14 @@ var experiment = {
       }
             if(experiment.trialCount == 7){
         $(progress).html('<font color="black" size=5em> You have <strong> 3 </strong> trials left to complete.</font>');
+        halfway.play();
       }
             if(experiment.trialCount == 8){
         $(progress).html('<font color="black" size=5em> You have <strong> 2 </strong> trials left to complete.</font>');
       }
             if(experiment.trialCount == 9){
         $(progress).html('<font color="black" size=5em> You have <strong> 1 </strong> trials left to complete.</font>');
+                one_left.play();
       }
       //displays each individual trial info
       if(experiment.trialCount == 1){
@@ -535,12 +551,12 @@ var experiment = {
           experiment.fillGrid("trialGrid", trial4);
           experiment.ding();
           experiment.colorRemove();
-          experiment.colorAdd("pink");
+          experiment.colorAdd("navy");
       } if(experiment.trial == 5){
           experiment.fillGrid("trialGrid", trial5);
           experiment.ding();
           experiment.colorRemove();
-          experiment.colorAdd("blue");
+          experiment.colorAdd("maroon");
       } if(experiment.trial == 6){
           experiment.fillGrid("trialGrid", trial6);
           experiment.ding();
@@ -560,12 +576,12 @@ var experiment = {
           experiment.fillGrid("trialGrid", trial9);
           experiment.ding();
           experiment.colorRemove();
-          experiment.colorAdd("navy");
+          experiment.colorAdd("pink");
       } if(experiment.trial ==10){
           experiment.fillGrid("trialGrid", trial10);
           experiment.ding();
           experiment.colorRemove();
-          experiment.colorAdd("maroon");
+          experiment.colorAdd("blue");
       }
     }
   },
@@ -617,6 +633,7 @@ var experiment = {
           cellIndex++;
           //if no, display error message
         } else {
+          training_1_error.play();
           $(error).html('<font color="red"><strong>The two grids should be the same. Please try again<strong></font>');
           return;
         }
@@ -625,6 +642,7 @@ var experiment = {
         //and the input cell IS clicked [WRONG]
         if(inputElement.className =='clicked'){
           //display error message
+          training_1_error.play();
           $(error).html('<font color="red"><strong>The two grids should be the same. Please try again<strong></font>');
           return;
         } else {
@@ -690,7 +708,7 @@ var experiment = {
 }
 
 // for debugging, jump to training
-experiment.startTrain();
+//experiment.startTrain();
 //ju1mp to trials
 //showSlide("expIntro");
 //sexperiment.end();

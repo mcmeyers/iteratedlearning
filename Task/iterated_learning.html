@@ -35,6 +35,13 @@
 		</div>  -->
 
 <audio id="ding" src="sounds/ding.m4a"></audio>
+<audio id="end_sd" src="sounds/end.m4a"></audio>
+<audio id="halfway" src="sounds/halfway.m4a"></audio>
+<audio id="one_left" src="sounds/one_left.m4a"></audio>
+<audio id="timeout" src="sounds/timeout.m4a"></audio>
+<audio id="training_1_error" src="sounds/training_1_error.m4a"></audio>
+<audio id="training_2" src="sounds/training_2.m4a"></audio>
+<audio id="trial_1" src="sounds/trial_1.m4a"></audio>
 <!-- introduction slide with input of important things -->
 <div class="slide" id="intro">
 	<div style="text-align: center;  padding: 20px 15px 10px 10px">
@@ -124,7 +131,7 @@
 <!--TRIAL DISPLAY-->
 <div class="slide" id="trial">
 	<center>
-	<table class="grid" id="trialGrid">
+	<table class="grid" id="trialGrid" style="float:left; margin: 15px;  margin-left: 500px;">
    			<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
@@ -139,18 +146,18 @@
 </div>
 
 <!--VISUAL MASK-->
-<div class="slide" id="mask">
-	<center>
+<div class="slide" id="mask" style="margin-left:500px; float:left">
+
 	<img src="images/scribble_mask.png" height=650 alt="visual mask">
-	</center>
+
 </div>
 
 <!--TRIAL INPUT-->
 <div class="slide" id="input">
-	<div id="progress" style="margin:auto; margin-left:725px"></div>
-	<div id = "countdown" style="border:4px solid blue; display: inline-block; padding:2px; float:left">Time Remaining: <span id="count" style="color:blue">60</span> seconds</div>
+	<div id="progress" style="margin:auto; margin-left:650px"></div>
+	<div id = "countdown" style="border:4px solid black; display: inline-block; padding:10px; float:left; font-size:30px">Time Remaining: <span id="count" style="color:red">60</span> seconds</div>
 
-<table class="grid" id="trialInput" style="float:left; margin: 15px;  margin-left: 300px; ">
+<table class="grid" id="trialInput" style="float:left; margin: 15px;  margin-left: 200px; ">
    			<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
