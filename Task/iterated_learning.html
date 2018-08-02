@@ -147,13 +147,10 @@
 
 <!--TRIAL INPUT-->
 <div class="slide" id="input">
-	<center>
-	<div id="progress"></div>
-</center>
-	<div id = "countdown" style="border:4px solid blue; display: inline-block; padding:2px">Time Remaining: <span id="count" style="color:blue">60</span> seconds
-	</div>
-<center>
-	<table class="grid" id="trialInput">
+	<div id="progress" style="margin:auto; margin-left:725px"></div>
+	<div id = "countdown" style="border:4px solid blue; display: inline-block; padding:2px; float:left">Time Remaining: <span id="count" style="color:blue">60</span> seconds</div>
+
+<table class="grid" id="trialInput" style="float:left; margin: 15px;  margin-left: 300px; ">
    			<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
@@ -163,10 +160,14 @@
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 	</table>
-	<div id="error"></div> 
+	<div style="float:left; font-size:40px">
+<p > Blocks left to place: </p> 
+	<div id="blockCount" style ="background-color: yellow; border:5px solid black; padding: 20px; display: inline-block; margin-left:125px"><span id="blocksLeft">10</span></div>
+</div>
+<div style="clear:both; margin-left:725px">
+	<div id="error" style="margin=left:600px"></div> 
 	<button type="button" id="button" onclick="this.blur(); experiment.min10Items('trialInput')">Ready for the Next Trial!</button>
-	</center>
-
+</div>
 </div>
 
 <!--ENDING SLIDE-->
