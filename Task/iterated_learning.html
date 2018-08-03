@@ -78,7 +78,7 @@
 	<div id="checkMessage"></div> 
 
 	<!--CHANGE FOR TURK Button to check if information has been inputted, proceed to next slide if yes-->
-		<button id="startButton" type="button" onclick="this.blur(), experiment.checkInput(); experiment.sparkle();">Start</button> 
+		<button id="startButton" type="button" onclick="this.blur(), experiment.checkInput(); ">Start</button> 
 		<!-- <button type="button" onclick="this.blur(); experiment.checkInput()">Start</button>  -->
 	</div>
 
@@ -114,7 +114,7 @@
 		</table> 
 
 	<div style="text-align: center">
-		<button type="button" onclick="this.blur(); experiment.checkGrid('t1Input', 't1Target', '#checkInput')">Check My Answer</button>
+		<button type="button" onclick="this.blur(); experiment.checkGrid('t1Input', 't1Target', '#checkInput'); experiment.sparkle();">Check My Answer</button>
 
 	</div>
 
@@ -126,7 +126,7 @@
 <div class="slide" id="expIntro">
 	<div class="block-text" id="practiceIntro"></div> 
 
-	<button type="button" onclick="this.blur(); experiment.begin(); experiment.sparkle();">I'm Ready to Start!</button>
+	<button type="button" onclick="this.blur(); experiment.begin();">I'm Ready to Start!</button>
 </div>
 </center>
 
@@ -172,7 +172,7 @@
 	<div style="float:left; font-size:32px">
 <p > Blocks left to place: </p> 
 	<div id="blockCount" style ="background-color: yellow; border:5px solid black; padding: 20px; display: inline-block; margin-left:75px"><span id="blocksLeft">10</span></div>
-	<br><br><br><button type="button" id="button" style="clear:both; margin-left:20px" onclick="this.blur(); experiment.min10Items('trialInput'); ">Ready for the Next Trial!</button>
+	<br><br><br><button type="button" id="button" style="clear:both; margin-left:20px" onclick="this.blur(); experiment.playSound();">Ready for the Next Trial!</button>
 </div>
 <div style="clear:both; margin-left: 400px">
 	<div id="error" style="float:left"></div> 
@@ -182,12 +182,14 @@
 <!--ENDING SLIDE-->
 <div class="slide" id="end">
 	<center>
-	<p class="block-text">Congrats, you're all finished! Thanks for contributing to science. If you have any comments about what you just did, please leave them in the box below. When you're ready to submit, just click "Done".</p> 
-			<p class="block-text">
+	<p class="block-text">Congrats, you're all finished! Thanks for contributing to science. <!--If you have any comments about what you just did, please leave them in the box below. When you're ready to submit, just click "Done".--></p> 
+		<img src="images/smiley.png" height=500 alt="smiley face">	
+			<!-- <p class="block-text">
 			comments:<br>
 			<input type="text" id="comment" size=75>
 		</p> 
-	<button type="button" id="done" onclick="this.blur(); experiment.realEnd()">Done</button>
+	<button type="button" id="done" onclick="this.blur(); experiment.realEnd()">Done</button> -->
+
 	</center>
 
 </div>

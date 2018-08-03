@@ -291,6 +291,7 @@ var experiment = {
   },
   
   realEnd: function(){
+    /*
     experiment.comments = document.getElementById("comment").value.replace(","," "); 
    // console.log(comment);
    if(experiment.comments != ""){
@@ -301,7 +302,7 @@ var experiment = {
     $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
   }
     // Wait 1 seconds and then submit the whole experiment object to Mechanical Turk (mmturkey filters out the functions so we know we're just submitting properties [i.e. data])
-    //setTimeout(function() { turk.submit(experiment) }, 1000);
+    //setTimeout(function() { turk.submit(experiment) }, 1000); */
   },
 
   end: function(){
@@ -446,13 +447,13 @@ var experiment = {
             $("#count").html(60);},2000);
     }
     }, 1000);
-      if(experiment.trialCount == 5){
+    /*  if(experiment.trialCount == 5){
         trial_1.play();
       } if(experiment.trialCount == 7){
         halfway.play();
       } if(experiment.trialCount == 9){
         one_left.play();
-      } 
+      } */
   },
 
   //displays visual mask for X seconds 
@@ -479,6 +480,9 @@ var experiment = {
 
   //displays target slide, stores data, handles counter for trials and ends study when 10 trials have passed 
   begin: function(){
+
+    document.getElementById("button").disabled = false;
+
     //prevents scrolling
     document.querySelector('#blocksLeft').textContent = 10; 
     document.ontouchmove=function(event){
@@ -586,12 +590,14 @@ var experiment = {
       }
     }
   },
-
   keepGoing: function(){
     clearInterval(timer);
     $("#count").html(60);
     experiment.begin();
   },
+
+
+
   //function that shows error message/stops from continuing if less than 10 items are selected (prevents too much simplification)
   //together with max10items ensures that the user selects EXACTLY 10 items each trial
   min10Items: function(input){
@@ -613,11 +619,34 @@ var experiment = {
             $(error).html('<font color="red"><strong>You must select 10 items before continuing. Please try again<strong></font>');
             return;   
           } else{
-          experiment.keepGoing();
+            return;
+          //experiment.playSound();
         }} else{
           cellIndex = 0; 
         } 
       }
+    } 
+  },
+
+    playSound: function(){
+    experiment.min10Items('trialInput');
+    if(experiment.trialCount == 5){
+        trial_1.play();
+        document.getElementById("button").disabled = true;
+        setTimeout(function() { experiment.keepGoing(); }, 3500); 
+        return;
+    } if(experiment.trialCount == 6){
+        halfway.play();
+        document.getElementById("button").disabled = true;
+        setTimeout(function() { experiment.keepGoing(); }, 3500); 
+        return;
+    } if(experiment.trialCount == 8){
+        one_left.play();
+        document.getElementById("button").disabled = true;
+        setTimeout(function() { experiment.keepGoing(); }, 2500); 
+        return;
+    } if(experiment.trialCount != 5 & experiment.trialCount != 6 & experiment.trialCount !=8){
+      experiment.keepGoing(); 
     } 
   },
 
@@ -716,7 +745,6 @@ var experiment = {
     experiment.generation = parseInt(document.getElementById("generation").value); */
 
     //goes to training slide
-    sparkle.play();
     experiment.startTrain();
   },
 
@@ -726,8 +754,9 @@ var experiment = {
 //experiment.startTrain();
 //ju1mp to trials
 //showSlide("expIntro");
-//sexperiment.end();
+//experiment.end();
 //experiment.trialCount = 3;
+
 //experiment.begin();
 
 
