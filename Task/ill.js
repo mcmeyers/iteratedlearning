@@ -2,7 +2,6 @@
 //Some of this code was taken from Claire Bergy and Long Ouyang
 //Madeline Meyers Iterated Learning Study
 
-
 // GENERAL FUNCTIONS 
 
 // Shows slides
@@ -28,6 +27,36 @@ getCurrentTime = function() {
   if (minutes < 10) minutes = "0" + minutes;
   return (hours + ":" + minutes);
 }
+
+function startTimer(duration, display) {
+    var timer = duration, seconds;
+    setInterval(function () {
+        seconds = parseInt(timer % 60, 10);
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.textContent = seconds;
+
+        if (--timer < 0) {
+            timer = duration;
+        }
+    }, 1000);
+}
+
+function clearTimer(display){
+  var duration = 0
+    var timer = duration, seconds;
+    setInterval(function () {
+        seconds = parseInt(timer % 60, 10);
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.textContent = seconds;
+
+        if (--timer < 0) {
+            timer = duration;
+        }
+    }, 1000);
+}
+
 
 
 //EXPERIMENT SETUP 
@@ -80,7 +109,7 @@ var trial2 = [[0,0,0,0,0,0,1,0],
               [0,1,1,0,0,0,0,0],
               [0,1,1,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
-              [0,0,0,0,1,1,0,0]];
+              [0,0,0,0,1,1,0,0]]; 
 
 var trial3 = [[1,0,0,0,0,0,0,0],
               [0,0,1,0,0,0,1,0],
@@ -98,7 +127,7 @@ var trial4 = [[0,1,0,0,0,0,1,0],
               [0,0,0,0,0,0,0,1],
               [0,0,0,0,0,0,0,1],
               [0,0,0,0,0,0,0,0],
-              [0,0,1,0,1,1,0,0]];
+              [0,0,1,0,1,1,0,0]]; 
 
 var trial5 = [[1,0,1,0,0,0,0,0],
               [0,0,0,1,0,0,0,0],
@@ -172,9 +201,18 @@ var targetArray= [[0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0]];
 
-var displayNum= [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+var displayNum= [1, 8, 3, 5, 6, 9];
 
 var ding = document.getElementById("ding");
+var end_sd = document.getElementById("end_sd");
+var halfway = document.getElementById("halfway");
+var training_1_error = document.getElementById("training_1_error");
+var training_2 = document.getElementById("training_2");
+var trial_1 = document.getElementById("trial_1");
+var timeout = document.getElementById("timeout");
+var one_left = document.getElementById("one_left");
+
+var timer; 
 
 //MAIN EXPERIMENT
 var experiment = {
@@ -193,6 +231,7 @@ var experiment = {
   //counts what trial you are on 
   trialCount:0,
   trial:0,
+  timeUsed:0,
 
 
   //FUNCTIONS 
@@ -214,6 +253,7 @@ var experiment = {
       var gridElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
       if (gridElement.className == "clicked"){
         count++;
+        document.querySelector('#blocksLeft').textContent = 10-count; 
       }    
       cellIndex++;
       if(cellIndex == 8) {
@@ -225,13 +265,17 @@ var experiment = {
       } }
       if(count > 10){
         clicked.classList.remove("clicked");
+        document.querySelector('#blocksLeft').textContent = 0;
+      }
+      if(count == 0){
+        document.querySelector('#blocksLeft').textContent = 10;
       } }
   },
 
   //starts training session 1 
   startTrain: function() {
     showSlide("training1");
-    experiment.data.push("sub_id, age, generation, condition, date, time, comments, trialCount, trialDisplay, target_0_0, target_0_1, target_0_2, target_0_3, target_0_4, target_0_5, target_0_6, target_0_7, target_1_0, target_1_1, target_1_2, target_1_3, target_1_4, target_1_5, target_1_6, target_1_7, target_2_0, target_2_1, target_2_2, target_2_3, target_2_4, target_2_5, target_2_6, target_2_7, target_3_0, target_3_1, target_3_2, target_3_3, target_3_4, target_3_5, target_3_6, target_3_7, target_4_0, target_4_1, target_4_2, target_4_3, target_4_4, target_4_5, target_4_6, target_4_7, target_5_0, target_5_1, target_5_2, target_5_3, target_5_4, target_5_5, target_5_6, target_5_7, target_6_0, target_6_1, target_6_2, target_6_3, target_6_4, target_6_5, target_6_6, target_6_7, target_7_0, target_7_1, target_7_2, target_7_3, target_7_4, target_7_5, target_7_6, target_7_7, input_0_0, input_0_1, input_0_2, input_0_3, input_0_4, input_0_5, input_0_6, input_0_7, input_1_0, input_1_1, input_1_2, input_1_3, input_1_4, input_1_5, input_1_6, input_1_7, input_2_0, input_2_1, input_2_2, input_2_3, input_2_4, input_2_5, input_2_6, input_2_7, input_3_0, input_3_1, input_3_2, input_3_3, input_3_4, input_3_5, input_3_6, input_3_7, input_4_0, input_4_1, input_4_2, input_4_3, input_4_4, input_4_5, input_4_6, input_4_7, input_5_0, input_5_1, input_5_2, input_5_3, input_5_4, input_5_5, input_5_6, input_5_7, input_6_0, input_6_1, input_6_2, input_6_3, input_6_4, input_6_5, input_6_6, input_6_7, input_7_0, input_7_1, input_7_2, input_7_3, input_7_4, input_7_5, input_7_6, input_7_7");
+    experiment.data.push("sub_id, age, generation, condition, date, time, comments, trialCount, trialDisplay, inputTime, target_0_0, target_0_1, target_0_2, target_0_3, target_0_4, target_0_5, target_0_6, target_0_7, target_1_0, target_1_1, target_1_2, target_1_3, target_1_4, target_1_5, target_1_6, target_1_7, target_2_0, target_2_1, target_2_2, target_2_3, target_2_4, target_2_5, target_2_6, target_2_7, target_3_0, target_3_1, target_3_2, target_3_3, target_3_4, target_3_5, target_3_6, target_3_7, target_4_0, target_4_1, target_4_2, target_4_3, target_4_4, target_4_5, target_4_6, target_4_7, target_5_0, target_5_1, target_5_2, target_5_3, target_5_4, target_5_5, target_5_6, target_5_7, target_6_0, target_6_1, target_6_2, target_6_3, target_6_4, target_6_5, target_6_6, target_6_7, target_7_0, target_7_1, target_7_2, target_7_3, target_7_4, target_7_5, target_7_6, target_7_7, input_0_0, input_0_1, input_0_2, input_0_3, input_0_4, input_0_5, input_0_6, input_0_7, input_1_0, input_1_1, input_1_2, input_1_3, input_1_4, input_1_5, input_1_6, input_1_7, input_2_0, input_2_1, input_2_2, input_2_3, input_2_4, input_2_5, input_2_6, input_2_7, input_3_0, input_3_1, input_3_2, input_3_3, input_3_4, input_3_5, input_3_6, input_3_7, input_4_0, input_4_1, input_4_2, input_4_3, input_4_4, input_4_5, input_4_6, input_4_7, input_5_0, input_5_1, input_5_2, input_5_3, input_5_4, input_5_5, input_5_6, input_5_7, input_6_0, input_6_1, input_6_2, input_6_3, input_6_4, input_6_5, input_6_6, input_6_7, input_7_0, input_7_1, input_7_2, input_7_3, input_7_4, input_7_5, input_7_6, input_7_7");
     document.ontouchmove=function(event){
       event.preventDefault();
     };
@@ -248,7 +292,7 @@ var experiment = {
    // console.log(comment);
    if(experiment.comments != ""){
     var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + experiment.comments; 
-    dataforRound += "," + 14 + "," + experiment.trial + "," + targetArray + "," + dataArray + "\n"; 
+    dataforRound += "," + 14 + "," + experiment.trial + "," + experiment.timeUsed + "," + targetArray + "," + dataArray + "\n"; 
     // use line below for mmturkey version
     //experiment.data.push(dataforRound); 
     $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
@@ -259,6 +303,8 @@ var experiment = {
 
   end: function(){
     showSlide("end");
+    end_sd.play();
+    setTimeout(function(){experiment.realEnd()}, 15000);
   },
 
   //function that fills the target grid with array coordinates 
@@ -285,6 +331,7 @@ var experiment = {
 
   //function to clear grids before each trial 
   clear: function(grid){ 
+    //clearInterval(timer);
     var i; 
     var rowIndex = 0; 
     var cellIndex = 0; 
@@ -361,20 +408,16 @@ var experiment = {
       } 
     } 
 
-    console.log(dataArray);
-    console.log(targetArray);
-    console.log(experiment.trialCount);
-    console.log(experiment.trial);
+
+    console.log(experiment.timeUsed);
     
     var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + experiment.comments; 
-    dataforRound += "," + experiment.trialCount + "," + experiment.trial + "," + targetArray + "," + dataArray + "\n"; 
+    dataforRound += "," + experiment.trialCount + "," + experiment.trial + "," + experiment.timeUsed + "," + targetArray + "," + dataArray + "\n"; 
     // use line below for mmturkey version
     //experiment.data.push(dataforRound); 
     $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
   }
   },
-
-
   //function that creates input grid for trials
   input: function(){
     //clears data from previous input
@@ -385,7 +428,20 @@ var experiment = {
       $("#trialInput td").click(function(){
         experiment.max10items(this,'trialInput');
       });
+      training_2.play();
     }
+    var count = 60;
+    timer = setInterval(function() {
+    $("#count").html(count--);
+    experiment.timeUsed = 60-count;
+    if(count == 10){
+      timeout.play();
+    } 
+    if(count == 1) {
+      clearInterval(timer);
+      setTimeout(function(){experiment.begin()},2000);
+    }
+    }, 1000);
   },
 
   //displays visual mask for X seconds 
@@ -398,6 +454,7 @@ var experiment = {
   colorAdd: function(color){
   	var trialGrid = document.getElementById("trialGrid");
     var trialInput = document.getElementById("trialInput");
+    document.getElementById("blockCount").style.backgroundColor = color;
     trialGrid.classList.add(color);
     trialInput.classList.add(color);
   },
@@ -412,6 +469,7 @@ var experiment = {
   //displays target slide, stores data, handles counter for trials and ends study when 10 trials have passed 
   begin: function(){
     //prevents scrolling
+    document.querySelector('#blocksLeft').textContent = 10; 
     document.ontouchmove=function(event){
       event.preventDefault();
     }
@@ -433,8 +491,8 @@ var experiment = {
       return;  
     }
 
-    //ends experiment when 10 trials + 2 trainings have been completed 
-    if(experiment.trialCount == 14){
+    //ends experiment when 6 trials + 2 trainings have been completed 
+    if(experiment.trialCount == 10){
       experiment.end();
     } else{  
       if(experiment.trialCount != 1 && experiment.trialCount != 2){
@@ -444,7 +502,28 @@ var experiment = {
       //shows target slide for X seconds                                                 
       showSlide("trial");  
       //CHANGE ME BEFORE PILOT ******                              
-      setTimeout(function(){ experiment.mask() }, 15000);
+      setTimeout(function(){ experiment.mask() }, 12000);
+      if(experiment.trialCount == 4){
+        $(progress).html('<font color="black" size=5em> You have <strong> 6 </strong> trials left to complete.</font>');
+      }
+            if(experiment.trialCount == 5){
+        $(progress).html('<font color="black" size=5em> You have <strong> 5 </strong> trials left to complete.</font>');
+                trial_1.play();
+      }
+            if(experiment.trialCount == 6){
+        $(progress).html('<font color="black" size=5em> You have <strong> 4 </strong> trials left to complete.</font>');
+      }
+            if(experiment.trialCount == 7){
+        $(progress).html('<font color="black" size=5em> You have <strong> 3 </strong> trials left to complete.</font>');
+        halfway.play();
+      }
+            if(experiment.trialCount == 8){
+        $(progress).html('<font color="black" size=5em> You have <strong> 2 </strong> trials left to complete.</font>');
+      }
+            if(experiment.trialCount == 9){
+        $(progress).html('<font color="black" size=5em> You have <strong> 1 </strong> trials left to complete.</font>');
+                one_left.play();
+      }
       //displays each individual trial info
       if(experiment.trialCount == 1){
         experiment.fillGrid("trialGrid", train1);
@@ -454,6 +533,7 @@ var experiment = {
           experiment.fillGrid("trialGrid", train2);
           experiment.ding();
           experiment.colorRemove();
+          experiment.colorAdd("yellow");
           experiment.trial == 0.5
       }
       if(experiment.trial == 1){
@@ -475,12 +555,12 @@ var experiment = {
           experiment.fillGrid("trialGrid", trial4);
           experiment.ding();
           experiment.colorRemove();
-          experiment.colorAdd("pink");
+          experiment.colorAdd("navy");
       } if(experiment.trial == 5){
           experiment.fillGrid("trialGrid", trial5);
           experiment.ding();
           experiment.colorRemove();
-          experiment.colorAdd("blue");
+          experiment.colorAdd("maroon");
       } if(experiment.trial == 6){
           experiment.fillGrid("trialGrid", trial6);
           experiment.ding();
@@ -500,12 +580,12 @@ var experiment = {
           experiment.fillGrid("trialGrid", trial9);
           experiment.ding();
           experiment.colorRemove();
-          experiment.colorAdd("navy");
+          experiment.colorAdd("pink");
       } if(experiment.trial ==10){
           experiment.fillGrid("trialGrid", trial10);
           experiment.ding();
           experiment.colorRemove();
-          experiment.colorAdd("maroon");
+          experiment.colorAdd("blue");
       }
     }
   },
@@ -529,6 +609,8 @@ var experiment = {
             $(error).html('<font color="red"><strong>You must select 10 items before continuing. Please try again<strong></font>');
             return;   
           } else {
+            clearInterval(timer);
+            $("#count").html(60);
             experiment.begin()
           }
         } else{
@@ -555,6 +637,7 @@ var experiment = {
           cellIndex++;
           //if no, display error message
         } else {
+          training_1_error.play();
           $(error).html('<font color="red"><strong>The two grids should be the same. Please try again<strong></font>');
           return;
         }
@@ -563,6 +646,7 @@ var experiment = {
         //and the input cell IS clicked [WRONG]
         if(inputElement.className =='clicked'){
           //display error message
+          training_1_error.play();
           $(error).html('<font color="red"><strong>The two grids should be the same. Please try again<strong></font>');
           return;
         } else {
@@ -582,7 +666,7 @@ var experiment = {
             experiment.startTrain3();
           } if(nexttrain != 2 && nexttrain != 3){
             showSlide("expIntro");      
-            $(practiceIntro).html('<center>Now you will try to recreate a grid from memory. A target grid will appear for <strong>15</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. <strong>Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
+            $(practiceIntro).html('<center>Now you will try to recreate a grid from memory. A target grid will appear for <strong>12</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. <strong>Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
         }} else{
           cellIndex = 0; 
         }
@@ -629,7 +713,10 @@ var experiment = {
 
 // for debugging, jump to training
 //experiment.startTrain();
-//jump to trials
+//ju1mp to trials
 //showSlide("expIntro");
 //sexperiment.end();
+//experiment.trialCount = 3;
+//experiment.begin();
+
 
