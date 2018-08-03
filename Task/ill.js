@@ -211,6 +211,8 @@ var training_2 = document.getElementById("training_2");
 var trial_1 = document.getElementById("trial_1");
 var timeout = document.getElementById("timeout");
 var one_left = document.getElementById("one_left");
+var errorSound = document.getElementById("errorSound");
+var sparkle = document.getElementById("sparkle");
 
 var timer; 
 
@@ -265,6 +267,7 @@ var experiment = {
       } }
       if(count > 10){
         clicked.classList.remove("clicked");
+        errorSound.play();
         document.querySelector('#blocksLeft').textContent = 0;
       }
       if(count == 0){
@@ -438,10 +441,18 @@ var experiment = {
       timeout.play();
     } 
     if(count == 1) {
-      clearInterval(timer);
-      setTimeout(function(){experiment.begin()},2000);
+      //clearInterval(timer);
+      setTimeout(function(){experiment.begin(); clearInterval(timer);
+            $("#count").html(60);},2000);
     }
     }, 1000);
+      if(experiment.trialCount == 5){
+        trial_1.play();
+      } if(experiment.trialCount == 7){
+        halfway.play();
+      } if(experiment.trialCount == 9){
+        one_left.play();
+      } 
   },
 
   //displays visual mask for X seconds 
@@ -487,6 +498,7 @@ var experiment = {
 
     if(experiment.trialCount ==3){
       showSlide("expIntro");
+      sparkle.play();
       $(practiceIntro).html('<center>You have finished the training, and now we are going to begin the study. Just like in the practice, try to remember and recreate the grids to the best of your ability. There will be 10 trials. Good luck! <center>');
       return;  
     }
@@ -499,30 +511,15 @@ var experiment = {
         experiment.trial = experiment.getRandomDisplay(experiment.displayNum);
         console.log(experiment.trial);
       }
-      //shows target slide for X seconds                                                 
+      //shows target slide for X seconds 
       showSlide("trial");  
       //CHANGE ME BEFORE PILOT ******                              
       setTimeout(function(){ experiment.mask() }, 12000);
-      if(experiment.trialCount == 4){
-        $(progress).html('<font color="black" size=5em> You have <strong> 6 </strong> trials left to complete.</font>');
-      }
-            if(experiment.trialCount == 5){
-        $(progress).html('<font color="black" size=5em> You have <strong> 5 </strong> trials left to complete.</font>');
-                trial_1.play();
-      }
-            if(experiment.trialCount == 6){
-        $(progress).html('<font color="black" size=5em> You have <strong> 4 </strong> trials left to complete.</font>');
-      }
-            if(experiment.trialCount == 7){
-        $(progress).html('<font color="black" size=5em> You have <strong> 3 </strong> trials left to complete.</font>');
-        halfway.play();
-      }
-            if(experiment.trialCount == 8){
-        $(progress).html('<font color="black" size=5em> You have <strong> 2 </strong> trials left to complete.</font>');
-      }
-            if(experiment.trialCount == 9){
-        $(progress).html('<font color="black" size=5em> You have <strong> 1 </strong> trials left to complete.</font>');
-                one_left.play();
+      if(experiment.trialCount > 3 & experiment.trialCount < 10){
+        document.getElementById("progress").style.display = "block";
+        $(progressNo).html(10-experiment.trialCount);
+      } else{
+        document.getElementById("progress").style.display = "none";
       }
       //displays each individual trial info
       if(experiment.trialCount == 1){
@@ -589,6 +586,12 @@ var experiment = {
       }
     }
   },
+
+  keepGoing: function(){
+    clearInterval(timer);
+    $("#count").html(60);
+    experiment.begin();
+  },
   //function that shows error message/stops from continuing if less than 10 items are selected (prevents too much simplification)
   //together with max10items ensures that the user selects EXACTLY 10 items each trial
   min10Items: function(input){
@@ -606,14 +609,12 @@ var experiment = {
         rowIndex++;
         if(rowIndex == 8){
           if(count < 10){
+            errorSound.play();
             $(error).html('<font color="red"><strong>You must select 10 items before continuing. Please try again<strong></font>');
             return;   
-          } else {
-            clearInterval(timer);
-            $("#count").html(60);
-            experiment.begin()
-          }
-        } else{
+          } else{
+          experiment.keepGoing();
+        }} else{
           cellIndex = 0; 
         } 
       }
@@ -660,12 +661,15 @@ var experiment = {
         //if you are at the end of the grid, either move on to the next training session (T2 or T3, or move onto the actual study trials)
         if(rowIndex == 8){
           if(nexttrain === 2){
+            sparkle.play();
             experiment.startTrain2();
           } 
           if(nexttrain ===3){
+            sparkle.play();
             experiment.startTrain3();
           } if(nexttrain != 2 && nexttrain != 3){
-            showSlide("expIntro");      
+            showSlide("expIntro"); 
+            sparkle.play();     
             $(practiceIntro).html('<center>Now you will try to recreate a grid from memory. A target grid will appear for <strong>12</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. <strong>Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
         }} else{
           cellIndex = 0; 
@@ -674,11 +678,16 @@ var experiment = {
     }
   },
 
+  sparkle: function(){
+    sparkle.play();
+  },
+
   //checks whether first slide is filled out completely 
   checkInput: function() {
     //subject ID
     if (document.getElementById("subjectID").value.length < 1) {
       $("#checkMessage").html('<font color="red">You must input a subject ID</font>');
+      errorSound.play();
       return;
     }
     //stores info in variable
@@ -686,6 +695,7 @@ var experiment = {
 
     //age
     if (document.getElementById("age").value.length < 1) {
+      errorSound.play();
       $("#checkMessage").html('<font color="red">You must input a subject age</font>');
       return;
     }
@@ -706,6 +716,7 @@ var experiment = {
     experiment.generation = parseInt(document.getElementById("generation").value); */
 
     //goes to training slide
+    sparkle.play();
     experiment.startTrain();
   },
 

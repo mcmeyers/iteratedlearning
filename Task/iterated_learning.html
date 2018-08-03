@@ -36,12 +36,14 @@
 
 <audio id="ding" src="sounds/ding.m4a"></audio>
 <audio id="end_sd" src="sounds/end.m4a"></audio>
-<audio id="halfway" src="sounds/halfway.m4a"></audio>
-<audio id="one_left" src="sounds/one_left.m4a"></audio>
+<audio id="halfway" src="sounds/halfway.m4a" ></audio>
+<audio id="one_left" src="sounds/one_left.m4a" ></audio>
 <audio id="timeout" src="sounds/timeout.m4a"></audio>
 <audio id="training_1_error" src="sounds/training_1_error.m4a"></audio>
 <audio id="training_2" src="sounds/training_2.m4a"></audio>
 <audio id="trial_1" src="sounds/trial_1.m4a"></audio>
+<audio id="sparkle" src="sounds/sparkle.m4a"></audio>
+<audio id="errorSound" src="sounds/error.mp3"></audio>
 <!-- introduction slide with input of important things -->
 <div class="slide" id="intro">
 	<div style="text-align: center;  padding: 20px 15px 10px 10px">
@@ -76,7 +78,7 @@
 	<div id="checkMessage"></div> 
 
 	<!--CHANGE FOR TURK Button to check if information has been inputted, proceed to next slide if yes-->
-		<button id="startButton" type="button" onclick="this.blur(), experiment.checkInput()">Start</button> 
+		<button id="startButton" type="button" onclick="this.blur(), experiment.checkInput(); experiment.sparkle();">Start</button> 
 		<!-- <button type="button" onclick="this.blur(); experiment.checkInput()">Start</button>  -->
 	</div>
 
@@ -124,7 +126,7 @@
 <div class="slide" id="expIntro">
 	<div class="block-text" id="practiceIntro"></div> 
 
-	<button type="button" onclick="this.blur(); experiment.begin()">I'm Ready to Start!</button>
+	<button type="button" onclick="this.blur(); experiment.begin(); experiment.sparkle();">I'm Ready to Start!</button>
 </div>
 </center>
 
@@ -154,7 +156,7 @@
 
 <!--TRIAL INPUT-->
 <div class="slide" id="input">
-	<div id="progress" style="margin:auto"></div>
+	<div id="progress" style="margin:auto; font-size: 23px">You have <strong><span id="progressNo"></strong> trials left to complete</div>
 	<div id = "countdown" style="border:4px solid black; display: inline-block; padding:10px; float:left; font-size:30px">Time Remaining: <span id="count" style="color:red">60</span> seconds</div>
 
 <table class="grid" id="trialInput" style="float:left; margin: 15px;">
@@ -170,9 +172,9 @@
 	<div style="float:left; font-size:32px">
 <p > Blocks left to place: </p> 
 	<div id="blockCount" style ="background-color: yellow; border:5px solid black; padding: 20px; display: inline-block; margin-left:75px"><span id="blocksLeft">10</span></div>
-	<br><br><br><button type="button" id="button" style="clear:both; margin-left:20px" onclick="this.blur(); experiment.min10Items('trialInput')">Ready for the Next Trial!</button>
+	<br><br><br><button type="button" id="button" style="clear:both; margin-left:20px" onclick="this.blur(); experiment.min10Items('trialInput'); ">Ready for the Next Trial!</button>
 </div>
-<div style="clear:both">
+<div style="clear:both; margin-left: 400px">
 	<div id="error" style="float:left"></div> 
 </div>
 </div>
@@ -188,6 +190,10 @@
 	<button type="button" id="done" onclick="this.blur(); experiment.realEnd()">Done</button>
 	</center>
 
+</div>
+
+<!--BLANK SLIDE -->
+<div class="slide" id="blank">
 </div>
 
 
