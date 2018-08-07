@@ -291,7 +291,7 @@ var experiment = {
   },
   
   realEnd: function(){
-    /*
+    
     experiment.comments = document.getElementById("comment").value.replace(","," "); 
    // console.log(comment);
    if(experiment.comments != ""){
@@ -302,7 +302,7 @@ var experiment = {
     $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
   }
     // Wait 1 seconds and then submit the whole experiment object to Mechanical Turk (mmturkey filters out the functions so we know we're just submitting properties [i.e. data])
-    //setTimeout(function() { turk.submit(experiment) }, 1000); */
+    //setTimeout(function() { turk.submit(experiment) }, 1000); 
   },
 
   end: function(){
@@ -441,19 +441,12 @@ var experiment = {
     if(count == 10){
       timeout.play();
     } 
-    if(count == 1) {
-      //clearInterval(timer);
-      setTimeout(function(){experiment.begin(); clearInterval(timer);
-            $("#count").html(60);},2000);
+    if(count == -1) {
+      experiment.begin(); 
+      clearInterval(timer);
+      $("#count").html(60);
     }
     }, 1000);
-    /*  if(experiment.trialCount == 5){
-        trial_1.play();
-      } if(experiment.trialCount == 7){
-        halfway.play();
-      } if(experiment.trialCount == 9){
-        one_left.play();
-      } */
   },
 
   //displays visual mask for X seconds 
@@ -628,20 +621,23 @@ var experiment = {
     } 
   },
 
-    playSound: function(){
+  playSound: function(){
     experiment.min10Items('trialInput');
     if(experiment.trialCount == 5){
         trial_1.play();
+        clearInterval(timer);
         document.getElementById("button").disabled = true;
         setTimeout(function() { experiment.keepGoing(); }, 3500); 
         return;
     } if(experiment.trialCount == 6){
         halfway.play();
+        clearInterval(timer);
         document.getElementById("button").disabled = true;
         setTimeout(function() { experiment.keepGoing(); }, 3500); 
         return;
     } if(experiment.trialCount == 8){
         one_left.play();
+        clearInterval(timer);
         document.getElementById("button").disabled = true;
         setTimeout(function() { experiment.keepGoing(); }, 2500); 
         return;
