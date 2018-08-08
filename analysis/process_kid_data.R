@@ -6,7 +6,7 @@ data <- read_csv("iteratedstudyresults.csv") %>%
   filter(condition == "pilotkid", sub_id != "Xx") %>%
   group_by(sub_id) %>%
   mutate(n = n()) %>%
-  filter(n >= 10) %>%
+  filter(n >= 10, n != 14) %>%
   select(sub_id:input_7_7) %>%
   mutate(available = 1)
 

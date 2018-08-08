@@ -22,6 +22,7 @@ library(lme4)
 library(broom)
 library(acss)
 library(devtools)
+library(reshape2)
 
 theme_set(theme_classic(base_size = 10))
 ```
@@ -31,7 +32,7 @@ theme_set(theme_classic(base_size = 10))
 ```{r load csv}
 data2 <- read_csv("../data/anonymized_data.csv")
 kidData<-read_csv("iteratedstudyresults.csv")
-practice_data <- matrix(sample(0:1, 64, replace=TRUE), nrow=8, ncol=8)
+practice_data <- matrix(sample(0:1, 100, replace=TRUE), nrow=10, ncol=10)
 practice_data_2<-rbind(practice_data, matrix(sample(0:1,100, replace=TRUE), nrow=10, ncol=10))
 
 #filters out people who didn't complete 10 trials
@@ -45,6 +46,16 @@ data <- data2 %>%
   select(-n) %>%
   ungroup() %>%
   filter(trialCount < 14)
+```
+
+```{r}
+spread_data <- data %>%
+  gather(row, value, -sub_id, -age, -condition, -generation, -date, -time, -trialDisplay, -trialCount, -comments)%>%
+  arrange(sub_id, trialDisplay) %>%
+  separate(row, c("type","row", "col")) %>%
+  unite(ty_col, type, col) %>%
+  spread(ty_col, value) %>%
+  filter(is.na(row)==F)
 ```
 
 ```{r formats data}
@@ -103,16 +114,75 @@ Density: measured as edge length. Taken from Gauvrit et al 2017
 
 ```
 
+Want a function that can summarize over every set of 8 rows 
+```{r}
+bdm_function = function(m){
+  x = rep("x", nrow(m)/8)
+  k=1
+  q=1
+  for(i in 1:(nrow(m)/8)){
+    df = m[q:(q+7), 5:12]
+    data.matrix(df)
+    x[k] = bdm(df)
+    k = k +1
+    q=q+7
+  }
+  return(x) 
+}
+```
+
 Algorithmic Complexity: Block Decomposition Method [do you need to install the function every time?]
 ```{r}
-one_grid <- data %>%
-  filter(sub_id == 0.0666252233225888, trialCount == 4) %>%
-  select(input_0_0:input_7_7)
+bdm_data <- spread_data %>%
+  filter(trialDisplay != 0) %>%
+  select(sub_id, generation, trialDisplay, row, input_0:input_7) %>%
+  mutate(input_7 = as.numeric(input_7),
+         input_6 = as.numeric(input_6),
+         input_5 = as.numeric(input_5),
+         input_4 = as.numeric(input_4),
+         input_3 = as.numeric(input_3),
+         input_2 = as.numeric(input_2),
+         input_1 = as.numeric(input_1),
+         input_0 = as.numeric(input_0)) 
 
-#make a loop that looks at each 10 rows in data frame and computes the complexity bdm of each one and then spits it into data frame 
-bdm(practice_data) #this does work with a random 10x10 matrix; does not work with other sized matrices 
+target_data <- spread_data %>%
+  filter(trialDisplay != 0) %>%
+  select(sub_id, generation, trialDisplay, row, target_0:target_7) %>%
+  mutate(sub_id = 0, generation = 0) %>%
+  unique(.) %>%
+  mutate(target_7 = as.numeric(target_7),
+         target_6 = as.numeric(target_6),
+         target_5 = as.numeric(target_5),
+         target_4 = as.numeric(target_4),
+         target_3 = as.numeric(target_3),
+         target_2 = as.numeric(target_2),
+         target_1 = as.numeric(target_1),
+         target_0 = as.numeric(target_0)) 
+ 
+target_store <- data.frame(bdm = bdm_function(target_data)) 
+bdm_store <- data.frame(bdm = bdm_function(bdm_data))
 
+bind_targets <- target_data %>%
+  mutate(generation = 0) %>%
+  group_by(sub_id, trialDisplay, generation) %>%
+  summarise(.) %>%
+  bind_cols(target_store, .)
 
+bind_data <- bdm_data %>%
+  group_by(sub_id, trialDisplay, generation) %>%
+  summarise(.) %>%
+  bind_cols(bdm_store, .) %>%
+  bind_rows(. , bind_targets) %>%
+  group_by(trialDisplay, generation) %>%
+  mutate(bdm = as.numeric(bdm)) %>%
+  summarise(bdm_mean = mean(bdm))
+#%>%
+ # tidyboot_mean(bdm_mean) 
 
+```
+
+```{r display complexity values}
+ggplot(bind_data, aes(x = trialDisplay, y = bdm_mean, color = generation)) + 
+  geom_point() 
 ```
 
