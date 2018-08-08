@@ -21,6 +21,7 @@ library(directlabels)
 library(lme4)
 library(broom)
 library(acss)
+library(devtools)
 
 theme_set(theme_classic(base_size = 10))
 ```
@@ -28,14 +29,19 @@ theme_set(theme_classic(base_size = 10))
 ## Setup
 
 ```{r load csv}
-data2 <- read_csv("../data/anonymized_data.csv") 
+data2 <- read_csv("../data/anonymized_data.csv")
+kidData<-read_csv("iteratedstudyresults.csv")
+practice_data <- matrix(sample(0:1, 64, replace=TRUE), nrow=8, ncol=8)
+practice_data_2<-rbind(practice_data, matrix(sample(0:1,100, replace=TRUE), nrow=10, ncol=10))
 
 #filters out people who didn't complete 10 trials
 data <- data2 %>%
-  arrange(sub_id, trialDisplay) %>%
+#data<-kidData %>%
+ arrange(sub_id, trialDisplay) %>%
   group_by(sub_id) %>%
   mutate(n = n()) %>%
   filter(n >= 12 & condition != "test" & sub_id != 0) %>%
+ # filter(condition == "pilotkid" & sub_id != "Xx" & sub_id != "sdgd" & sub_id != 1) %>%
   select(-n) %>%
   ungroup() %>%
   filter(trialCount < 14)
@@ -55,7 +61,7 @@ calculate_data <- data %>%
 ## Descriptive
 Displays the actual grids that people made 
 ```{r plot_grids}
-pdf("trial_data.pdf", width = 10, height = 10)
+pdf("trial_data_adults.pdf", width = 10, height = 10)
 calculate_data %>%
   distinct(trialDisplay, row, col, target) %>%
   mutate(sub_id = "target") %>%
@@ -76,23 +82,37 @@ Percent accuracies calculated by %/10 targets placed correctly
 trial_data <- calculate_data %>%
   filter(target == 1) %>%
   filter(trialDisplay > 0) %>%
-  group_by(trialDisplay, sub_id) %>%
+ # filter(sub_id == 5 | sub_id == 2) %>%
+  group_by(trialCount, sub_id) %>%
   summarise(accuracy = mean(accuracy)) %>%
   tidyboot_mean(accuracy) 
 
-ggplot(trial_data, aes(x = trialDisplay, y = empirical_stat, 
+ggplot(trial_data, aes(x = trialCount, y = empirical_stat, 
                        ymin = ci_lower, ymax = ci_upper)) + 
   geom_pointrange() + 
   geom_smooth()
 ```
 
-Clustering: # of targets touching 
+Clustering: # of identifiable touching "parts"(excluding diagonals). This function was taken from Gauvrit et al 2017. 
+```{r}
+
+```
+
+Density: measured as edge length. Taken from Gauvrit et al 2017
 ```{r}
 
 ```
 
 Algorithmic Complexity: Block Decomposition Method [do you need to install the function every time?]
 ```{r}
+one_grid <- data %>%
+  filter(sub_id == 0.0666252233225888, trialCount == 4) %>%
+  select(input_0_0:input_7_7)
+
+#make a loop that looks at each 10 rows in data frame and computes the complexity bdm of each one and then spits it into data frame 
+bdm(practice_data) #this does work with a random 10x10 matrix; does not work with other sized matrices 
+
+
 
 ```
 
