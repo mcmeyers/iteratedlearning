@@ -32,8 +32,7 @@ theme_set(theme_classic(base_size = 10))
 ```{r load csv}
 data2 <- read_csv("../data/anonymized_data.csv")
 kidData<-read_csv("iteratedstudyresults.csv")
-practice_data <- matrix(sample(0:1, 100, replace=TRUE), nrow=10, ncol=10)
-practice_data_2<-rbind(practice_data, matrix(sample(0:1,100, replace=TRUE), nrow=10, ncol=10))
+practice_data <- matrix(sample(0:1, 64, replace=TRUE), nrow=8, ncol=8)
 
 #filters out people who didn't complete 10 trials
 data <- data2 %>%
@@ -125,7 +124,39 @@ bdm_function = function(m){
     data.matrix(df)
     x[k] = bdm(df)
     k = k +1
-    q=q+7
+    q=q+8
+  }
+  return(x) 
+}
+```
+
+```{r}
+nPart_function = function(m){
+  x = rep("x", nrow(m)/8)
+  k=1
+  q=1
+  for(i in 1:(nrow(m)/8)){
+    df = m[q:(q+7), 5:12]
+    data.matrix(df)
+    x[k] = nPart(df)
+    k = k +1
+    q=q+8
+  }
+  return(x) 
+}
+```
+
+```{r}
+edge_function = function(m){
+  x = rep("x", nrow(m)/8)
+  k=1
+  q=1
+  for(i in 1:(nrow(m)/8)){
+    df = m[q:(q+7), 5:12]
+    data.matrix(df)
+    x[k] = edge(df)
+    k = k +1
+    q=q+8
   }
   return(x) 
 }
@@ -159,7 +190,50 @@ target_data <- spread_data %>%
          target_1 = as.numeric(target_1),
          target_0 = as.numeric(target_0)) 
  
-target_store <- data.frame(bdm = bdm_function(target_data)) 
+target_store <- data.frame(bdm = bdm_function(target_data),
+                           chunking = nPart_function(target_data),
+                           edge = edge_function(target_data)) 
+bdm_store <- data.frame(bdm = bdm_function(bdm_data),
+                        chunking = nPart_function(bdm_data),
+                        edge = edge_function(bdm_data))
+
+bind_targets <- target_data %>%
+  mutate(generation = 0) %>%
+  group_by(sub_id, trialDisplay, generation) %>%
+  summarise(.) %>%
+  bind_cols(target_store, .)
+
+bind_data <- bdm_data %>%
+  group_by(sub_id, trialDisplay, generation) %>%
+  summarise(.) %>%
+  bind_cols(bdm_store, .) %>%
+  bind_rows(. , bind_targets) %>%
+  mutate(bdm = as.numeric(bdm),
+         chunking = as.numeric(chunking),
+         edge = as.numeric(edge)) %>%
+  group_by(sub_id, trialDisplay, generation)%>%
+  summarise(bdm_mean = mean(bdm),
+            chunking_mean = mean(chunking),
+            edge_mean = mean(edge)) %>%
+  group_by(trialDisplay, generation) %>%
+  #group_by(generation) %>%
+  #tidyboot_mean(bdm_mean) 
+  #tidyboot_mean(chunking_mean)
+  tidyboot_mean(edge_mean)
+
+```
+
+```{r display complexity values}
+ggplot(bind_data, aes(x = trialDisplay, y = empirical_stat, 
+                       ymin = ci_lower, ymax = ci_upper)) + 
+  geom_pointrange() + facet_wrap(~generation) + geom_smooth()
+
+
+ggplot(bind_data, aes(x=generation, y=bdm_mean)) + geom_point()
+```
+
+```{r}
+target_store <- data.frame(b = bdm_function(target_data)) 
 bdm_store <- data.frame(bdm = bdm_function(bdm_data))
 
 bind_targets <- target_data %>%
@@ -173,16 +247,12 @@ bind_data <- bdm_data %>%
   summarise(.) %>%
   bind_cols(bdm_store, .) %>%
   bind_rows(. , bind_targets) %>%
-  group_by(trialDisplay, generation) %>%
   mutate(bdm = as.numeric(bdm)) %>%
-  summarise(bdm_mean = mean(bdm))
-#%>%
- # tidyboot_mean(bdm_mean) 
+  group_by(sub_id, trialDisplay, generation)%>%
+  summarise(bdm_mean = mean(bdm)) %>%
+  group_by(trialDisplay, generation) %>%
+  #group_by(generation) %>%
+  tidyboot_mean(bdm_mean) 
 
-```
-
-```{r display complexity values}
-ggplot(bind_data, aes(x = trialDisplay, y = bdm_mean, color = generation)) + 
-  geom_point() 
 ```
 

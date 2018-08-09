@@ -224,7 +224,7 @@ var experiment = {
   subage:0,
   generation:1,
   //CHANGE FOR TURK
-  condition:"pilotkid",
+  condition:"kid_baseline",
   date: getCurrentDate(),
   timestamp: getCurrentTime(), 
   comments: ["NA"],
@@ -612,8 +612,8 @@ var experiment = {
             $(error).html('<font color="red"><strong>You must select 10 items before continuing. Please try again<strong></font>');
             return;   
           } else{
+            experiment.playSound();
             return;
-          //experiment.playSound();
         }} else{
           cellIndex = 0; 
         } 
@@ -622,7 +622,6 @@ var experiment = {
   },
 
   playSound: function(){
-    experiment.min10Items('trialInput');
     if(experiment.trialCount == 5){
         trial_1.play();
         clearInterval(timer);

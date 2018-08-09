@@ -61,7 +61,7 @@ mat=function(str,n=4){
 }
 
 #function for calculating chunking
-nPart<-function(m){
+nPart <-function(m){
   c<-ncol(m)
   l<-nrow(m)
   mcount<-matrix(c(1:(c*l)),nrow=l)*m
@@ -81,7 +81,8 @@ nPart<-function(m){
       }
     }
   }
-return(length(table(mcount))-1)}
+return(length(table(as.matrix(mcount)))-1)
+}
 
 #function for calculating edge number
 edge<-function(m){
@@ -91,5 +92,6 @@ edge<-function(m){
     for(j in 1:(n-1)){
       if(m[i,j]+m[i,j+1]==1){res<-res+1}
       if(m[i,j]+m[i+1,j]==1){res<-res+1}}}
-return(res)}
+return(res)
+  }
 
