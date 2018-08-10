@@ -41,7 +41,6 @@ function startTimer(duration, display) {
         }
     }, 1000);
 }
-
 function clearTimer(display){
   var duration = 0
     var timer = duration, seconds;
@@ -227,8 +226,9 @@ var experiment = {
   condition:"kid_baseline",
   date: getCurrentDate(),
   timestamp: getCurrentTime(), 
-  comments: ["NA"],
+  dataforRound:" ",
   data:[],
+  seed:0,
 
   //counts what trial you are on 
   trialCount:0,
@@ -237,6 +237,53 @@ var experiment = {
 
 
   //FUNCTIONS 
+  //CURRENTLY BROKEN 
+  loadIteratedData: function(){
+  /*request = $.ajax({
+      url: "https://script.google.com/macros/s/AKfycbym5ORQpTW0gSFmRQsNWuGdPyuXe55ewgS8Da-XBxUnRBlPlyjw/exec",
+      type: "get", 
+      dataType: "jsonp",
+      function(data) {
+        console.log(data);
+      }, 
+
+   }); 
+     request.done(function (response, textStatus, jqXHR){
+      // log a message to the console
+      console.log('Data has been retrieved');
+  }); */
+  /*$.get("https://script.google.com/macros/s/AKfycbym5ORQpTW0gSFmRQsNWuGdPyuXe55ewgS8Da-XBxUnRBlPlyjw/exec", function(data, status){
+        console.log(data);
+        //});
+    }); */
+    /*jQuery.getJSON("https://spreadsheets.google.com/feeds/list/2PACX-1vSxeTnB1sc4UXbVCxn7zLi4DLZVWhHlY_dutMfEZPQOm_QBJXAAXqmHwulOPC5LMv0CXFo68wEezKeb/od6/public/values?alt=json-in-script&callback=?").success(function(data) {
+        console.log(data); 
+    }).error(function(message) {
+        console.error('error' + message); 
+    }).complete(function() {
+         console.log('completed!'); 
+      }); */
+    
+    /*var url = "https://script.google.com/macros/s/AKfycbym5ORQpTW0gSFmRQsNWuGdPyuXe55ewgS8Da-XBxUnRBlPlyjw/exec?callback=ctrlq&name=";
+    var name = "tmp"
+
+    var request = jQuery.ajax({
+      crossDomain: true,
+      url: url + encodeURIComponent(name),
+      method: "GET",
+      dataType: "jsonp"
+    });
+
+  
+
+  // print the returned data
+  function ctrlq(e) {
+    console.log(e.result)
+  } */ 
+  },
+
+
+
   getRandomDisplay: function() {
    var randomIndex = Math.floor(Math.random()*displayNum.length);
    return displayNum.splice(randomIndex, 1)[0];
@@ -278,7 +325,7 @@ var experiment = {
   //starts training session 1 
   startTrain: function() {
     showSlide("training1");
-    experiment.data.push("sub_id, age, generation, condition, date, time, comments, trialCount, trialDisplay, inputTime, target_0_0, target_0_1, target_0_2, target_0_3, target_0_4, target_0_5, target_0_6, target_0_7, target_1_0, target_1_1, target_1_2, target_1_3, target_1_4, target_1_5, target_1_6, target_1_7, target_2_0, target_2_1, target_2_2, target_2_3, target_2_4, target_2_5, target_2_6, target_2_7, target_3_0, target_3_1, target_3_2, target_3_3, target_3_4, target_3_5, target_3_6, target_3_7, target_4_0, target_4_1, target_4_2, target_4_3, target_4_4, target_4_5, target_4_6, target_4_7, target_5_0, target_5_1, target_5_2, target_5_3, target_5_4, target_5_5, target_5_6, target_5_7, target_6_0, target_6_1, target_6_2, target_6_3, target_6_4, target_6_5, target_6_6, target_6_7, target_7_0, target_7_1, target_7_2, target_7_3, target_7_4, target_7_5, target_7_6, target_7_7, input_0_0, input_0_1, input_0_2, input_0_3, input_0_4, input_0_5, input_0_6, input_0_7, input_1_0, input_1_1, input_1_2, input_1_3, input_1_4, input_1_5, input_1_6, input_1_7, input_2_0, input_2_1, input_2_2, input_2_3, input_2_4, input_2_5, input_2_6, input_2_7, input_3_0, input_3_1, input_3_2, input_3_3, input_3_4, input_3_5, input_3_6, input_3_7, input_4_0, input_4_1, input_4_2, input_4_3, input_4_4, input_4_5, input_4_6, input_4_7, input_5_0, input_5_1, input_5_2, input_5_3, input_5_4, input_5_5, input_5_6, input_5_7, input_6_0, input_6_1, input_6_2, input_6_3, input_6_4, input_6_5, input_6_6, input_6_7, input_7_0, input_7_1, input_7_2, input_7_3, input_7_4, input_7_5, input_7_6, input_7_7");
+    experiment.data.push("sub_id, age, generation, seed, condition, date, time, trialCount, trialDisplay, inputTime, target_0_0, target_0_1, target_0_2, target_0_3, target_0_4, target_0_5, target_0_6, target_0_7, target_1_0, target_1_1, target_1_2, target_1_3, target_1_4, target_1_5, target_1_6, target_1_7, target_2_0, target_2_1, target_2_2, target_2_3, target_2_4, target_2_5, target_2_6, target_2_7, target_3_0, target_3_1, target_3_2, target_3_3, target_3_4, target_3_5, target_3_6, target_3_7, target_4_0, target_4_1, target_4_2, target_4_3, target_4_4, target_4_5, target_4_6, target_4_7, target_5_0, target_5_1, target_5_2, target_5_3, target_5_4, target_5_5, target_5_6, target_5_7, target_6_0, target_6_1, target_6_2, target_6_3, target_6_4, target_6_5, target_6_6, target_6_7, target_7_0, target_7_1, target_7_2, target_7_3, target_7_4, target_7_5, target_7_6, target_7_7, input_0_0, input_0_1, input_0_2, input_0_3, input_0_4, input_0_5, input_0_6, input_0_7, input_1_0, input_1_1, input_1_2, input_1_3, input_1_4, input_1_5, input_1_6, input_1_7, input_2_0, input_2_1, input_2_2, input_2_3, input_2_4, input_2_5, input_2_6, input_2_7, input_3_0, input_3_1, input_3_2, input_3_3, input_3_4, input_3_5, input_3_6, input_3_7, input_4_0, input_4_1, input_4_2, input_4_3, input_4_4, input_4_5, input_4_6, input_4_7, input_5_0, input_5_1, input_5_2, input_5_3, input_5_4, input_5_5, input_5_6, input_5_7, input_6_0, input_6_1, input_6_2, input_6_3, input_6_4, input_6_5, input_6_6, input_6_7, input_7_0, input_7_1, input_7_2, input_7_3, input_7_4, input_7_5, input_7_6, input_7_7");
     document.ontouchmove=function(event){
       event.preventDefault();
     };
@@ -289,26 +336,31 @@ var experiment = {
       experiment.max10items(this,'t1Input');
     });
   },
-  
-  realEnd: function(){
-    
-    experiment.comments = document.getElementById("comment").value.replace(","," "); 
-   // console.log(comment);
-   if(experiment.comments != ""){
-    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + experiment.comments; 
-    dataforRound += "," + 14 + "," + experiment.trial + "," + experiment.timeUsed + "," + targetArray + "," + dataArray + "\n"; 
-    // use line below for mmturkey version
-    //experiment.data.push(dataforRound); 
-    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
-  }
-    // Wait 1 seconds and then submit the whole experiment object to Mechanical Turk (mmturkey filters out the functions so we know we're just submitting properties [i.e. data])
-    //setTimeout(function() { turk.submit(experiment) }, 1000); 
+
+  submit: function(){
+  $("#result").html('Sending data...');
+   var allData = "sub_id="+experiment.subid + "&" + "sub_age="+experiment.subage + "&" + "generation="+experiment.generation + "&" + "seed="+ experiment.seed + "&" + "condition="+experiment.condition + "&" + "date="+experiment.date + "&" + "time="+experiment.timestamp + "&";
+   allData += experiment.dataforRound+"&"+"available="+1+"\n";
+
+   request = $.ajax({
+      url: "https://script.google.com/macros/s/AKfycbym5ORQpTW0gSFmRQsNWuGdPyuXe55ewgS8Da-XBxUnRBlPlyjw/exec",
+      type: "post", 
+      data: allData
+   });  
+
+  request.done(function (response, textStatus, jqXHR){
+      // log a message to the console
+      $("#result").html('Data has been submitted!');
+  });
+
   },
+
 
   end: function(){
     showSlide("end");
     end_sd.play();
-    setTimeout(function(){experiment.realEnd()}, 15000);
+    experiment.submit(); 
+   // setTimeout(function(){experiment.realEnd()}, 15000);
   },
 
   //function that fills the target grid with array coordinates 
@@ -411,17 +463,28 @@ var experiment = {
         }
       } 
     } 
+    targetArray = [].concat.apply([], targetArray);
+    dataArray = [].concat.apply([], dataArray);
+    targetArray = targetArray.join(" ");
+    dataArray = dataArray.join(" ");
 
+    var trialCount = experiment.trialCount.toString(); 
 
-    console.log(experiment.timeUsed);
-    
-    var dataforRound = experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + "," + experiment.comments; 
-    dataforRound += "," + experiment.trialCount + "," + experiment.trial + "," + experiment.timeUsed + "," + targetArray + "," + dataArray + "\n"; 
-    // use line below for mmturkey version
-    //experiment.data.push(dataforRound); 
-    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforRound}); 
+    if(experiment.trialCount < 10){
+    experiment.dataforRound += "&" + "trial"+trialCount+"Count="+experiment.trialCount + "&" + "trial"+trialCount+"Display="+experiment.trial + "&" + "time"+trialCount+"Used="+experiment.timeUsed + "&" + "target"+trialCount+"Array="+targetArray + "&" + "data"+trialCount+"Array="+dataArray + "\n"; 
+    }
+
+    //RN, also have the data send round by round to the server just in case this google sheets stuff glitches during the study 
+    var dataforServer= experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.seed + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + ","; 
+    dataforServer += experiment.trialCount + "," + experiment.trial + "," + experiment.timeUsed + "," + targetArray + "," + dataArray + "\n"; 
+
+    //use line below for writing to server
+    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforServer}); 
+
+   console.log(experiment.dataforRound);
   }
   },
+
   //function that creates input grid for trials
   input: function(){
     //clears data from previous input
@@ -724,20 +787,6 @@ var experiment = {
       return;
     }
     experiment.subage = parseInt(document.getElementById("age").value);
-
-    //condition
-   /* if (document.getElementById("condition").value.length < 1) {
-      $("#checkMessage").html('<font color="red">You must input a condition</font>');
-      return;
-    }
-    experiment.condition = parseInt(document.getElementById("condition").value);
-
-    //generation
-    if (document.getElementById("generation").value.length < 1) {
-      $("#checkMessage").html('<font color="red">You must input a generation</font>');
-      return;
-    }
-    experiment.generation = parseInt(document.getElementById("generation").value); */
 
     //goes to training slide
     experiment.startTrain();
