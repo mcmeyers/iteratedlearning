@@ -302,7 +302,13 @@ var experiment = {
       var gridElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
       if (gridElement.className == "clicked"){
         count++;
+        if(count < 11){
         document.querySelector('#blocksLeft').textContent = 10-count; 
+      } if (count > 10) {
+        document.querySelector('#blocksLeft').textContent = 0;
+        clicked.classList.remove("clicked");
+        errorSound.play();
+      } 
       }    
       cellIndex++;
       if(cellIndex == 8) {
@@ -312,14 +318,10 @@ var experiment = {
         } else{
           cellIndex = 0;
       } }
-      if(count > 10){
-        clicked.classList.remove("clicked");
-        errorSound.play();
-        document.querySelector('#blocksLeft').textContent = 0;
-      }
       if(count == 0){
-        document.querySelector('#blocksLeft').textContent = 10;
-      } }
+        document.querySelector('#blocksLeft').textContent = 10; 
+      }
+    }
   },
 
   //starts training session 1 
