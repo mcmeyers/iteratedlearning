@@ -196,8 +196,8 @@ var experiment = {
   timestamp: getCurrentTime(), 
   dataforRound:" ",
   data:[],
-  seed:0,
-  available:0,
+  seed:1,
+  available:1,
 
   //counts what trial you are on 
   trialCount:0,
@@ -218,12 +218,26 @@ var experiment = {
       // log a message to the console
       experiment.data = data; 
      // console.log(experiment.data);
-      experiment.changeTargets(); 
-      experiment.generation = experiment.data[2]+ 1;
-      console.log(experiment.generation);
+        //IF THERE IS AN AVAILABLE ROW WHERE GENERATION IS NOT MAXED OUT 
+      if(experiment.data != 0 & experiment.data[2] !=6 ){  
+        experiment.changeTargets(); 
+        experiment.generation = experiment.data[2]+ 1;
+        experiment.seed = experiment.data[3];
+        console.log("there was data available!")
+      } //IF GENERATIONS ARE MAXED OUT 
+      /*if(experiment.data[2] == 6){
+        experiment.seed = experiment.data[3]+1;
+        experiment.generation = 1; 
+        console.log("all the data generations were full, so going to fill in a new chain");
+      } */
+      //IF THERE ARE NO AVAILABLE ROWS AT ALL--ERROR MESSAGE 
+      if(experiment.data == 0){ 
+        console.log("there was no available data at all, spitting out an error message");
+        showSlide("limbo");
+      }
+
   });
   },
-
 
   //function to take data from excel sheet and fill it into the correct target array grid
   //make it so when you have the data it reads the write values into the right janx, splits to correspond to correct array and correct input run this function X times--maybe write separate function?
