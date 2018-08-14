@@ -1,22 +1,3 @@
-<!-- TO DO:
-	low priority: 
-	-add images instead of just colors??? probably not necessary FOR NOW 
-	-consolidate codes with colors 
-	-create draggable target elements?
-	-create function that makes blank arrays instead of creating them all manually 
-
-	medium priority:
-	-figure out how to feed input (produced) grids into next iteration of study trial (will be difficult but is most important) depending on study condition and generation number
-
-	high priority:
-	-fix ding glitch
-	-store target arrays in data file fix glitch
-	-submit data all at once instead of trial by trial
-	-figure out programming screenshots
-	-show displays in random order
-	-add practice memory section, take out 2 initial trials
-	-add comment section at the end for turkers 
--->
 <!DOCTYPE html>
 <html>
 
@@ -24,6 +5,7 @@
 <head>
 	<title>Iterated Learning</title>
 	<script src="mmturkey-0.6.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 	<link rel="stylesheet" href="style.css" />
 </head>
 
@@ -78,7 +60,7 @@
 	<div id="checkMessage"></div> 
 
 	<!--CHANGE FOR TURK Button to check if information has been inputted, proceed to next slide if yes-->
-		<button id="startButton" type="button" onclick="this.blur(), experiment.checkInput(); ">Start</button> 
+		<button id="startButton" type="button" onclick="this.blur(), experiment.checkInput(); experiment.loadIteratedData();">Start</button> 
 		<!-- <button type="button" onclick="this.blur(); experiment.checkInput()">Start</button>  -->
 	</div>
 
@@ -170,9 +152,9 @@
     		<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 	</table>
 	<div style="float:left; font-size:32px">
-<p > Blocks left to place: </p> 
+<p > Stickers left to place: </p> 
 	<div id="blockCount" style ="background-color: yellow; border:5px solid black; padding: 20px; display: inline-block; margin-left:75px"><span id="blocksLeft">10</span></div>
-	<br><br><br><button type="button" id="button" style="clear:both; margin-left:20px" onclick="this.blur(); experiment.playSound();">Ready for the Next Trial!</button>
+	<br><br><br><button type="button" id="button" style="clear:both; margin-left:20px" onclick="this.blur(); experiment.min10Items('trialInput');">Ready for the Next Trial!</button>
 </div>
 <div style="clear:both; margin-left: 400px">
 	<div id="error" style="float:left"></div> 
@@ -183,6 +165,7 @@
 <div class="slide" id="end">
 	<center>
 	<p class="block-text">Congrats, you're all finished! Thanks for contributing to science. <!--If you have any comments about what you just did, please leave them in the box below. When you're ready to submit, just click "Done".--></p> 
+	<p id="result"></p>
 		<img src="images/smiley.png" height=500 alt="smiley face">	
 			<!-- <p class="block-text">
 			comments:<br>
@@ -211,6 +194,21 @@
     }
 })();
 </script>
+<!-- SCRIPTS FOR MAKING THE STUDY ITERATED -->
+
+<!--Notice the URL, this is handled by socket.io on the server automatically, via express 
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+   Load the common game code. I think this should be the ill.js but need to implement things
+<script type="text/javascript" src="game.core.js"></script> 
+
+Finally, Load the game client code. 
+<script type="text/javascript" src="/sharedUtils/clientBase.js"></script>    
+<script type="text/javascript" src="game.client.js"></script>
+this isn't in Hawkins' stuff, but should be there to write information to the server. He probably just doesnt want clones writing to his server. -
+<script type="text/javascript" src="game.server.js"></script> -->
+
+
+
 
 
 </body>
