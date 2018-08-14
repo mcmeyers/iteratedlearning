@@ -239,19 +239,23 @@ var experiment = {
   //FUNCTIONS 
   //CURRENTLY BROKEN 
   loadIteratedData: function(){
-  /*request = $.ajax({
+  request = $.ajax({
       url: "https://script.google.com/macros/s/AKfycbym5ORQpTW0gSFmRQsNWuGdPyuXe55ewgS8Da-XBxUnRBlPlyjw/exec",
       type: "get", 
-      dataType: "jsonp",
-      function(data) {
-        console.log(data);
-      }, 
-
+      dataType: "json",
    }); 
-     request.done(function (response, textStatus, jqXHR){
+
+
+  request.done(function (data){
       // log a message to the console
-      console.log('Data has been retrieved');
-  }); */
+      console.log(data)
+  });
+
+
+     // request.done(function (response, textStatus, jqXHR){
+     //  // log a message to the console
+     //  console.log('Data has been retrieved');
+  //}); 
   /*$.get("https://script.google.com/macros/s/AKfycbym5ORQpTW0gSFmRQsNWuGdPyuXe55ewgS8Da-XBxUnRBlPlyjw/exec", function(data, status){
         console.log(data);
         //});
