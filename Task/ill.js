@@ -101,16 +101,8 @@ var trial1 = [[1,1,0,1,0,0,0,0],
               [0,0,0,0,0,0,1,0],
               [0,0,0,0,0,0,0,0]];
 
-var trial2 = [[0,0,0,0,0,0,1,0],
-              [0,0,0,0,0,1,0,0],
-              [0,0,0,0,0,0,0,0],
-              [1,0,0,0,1,0,0,0],
-              [0,1,1,0,0,0,0,0],
-              [0,1,1,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,1,1,0,0]]; 
 
-var trial3 = [[1,0,0,0,0,0,0,0],
+var trial2 = [[1,0,0,0,0,0,0,0],
               [0,0,1,0,0,0,1,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,1,0,1,0,0],
@@ -119,16 +111,8 @@ var trial3 = [[1,0,0,0,0,0,0,0],
               [0,0,0,1,1,0,0,1],
               [0,0,1,0,0,0,0,0]];
 
-var trial4 = [[0,1,0,0,0,0,1,0],
-              [0,0,0,1,0,0,0,1],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,1,0,0,0],
-              [0,0,0,0,0,0,0,1],
-              [0,0,0,0,0,0,0,1],
-              [0,0,0,0,0,0,0,0],
-              [0,0,1,0,1,1,0,0]]; 
 
-var trial5 = [[1,0,1,0,0,0,0,0],
+var trial3 = [[1,0,1,0,0,0,0,0],
               [0,0,0,1,0,0,0,0],
               [0,0,1,0,0,0,0,1],
               [0,0,0,0,0,0,0,0],
@@ -137,7 +121,7 @@ var trial5 = [[1,0,1,0,0,0,0,0],
               [0,0,0,1,0,0,0,0],
               [0,0,0,0,0,0,1,0]];
 
-var trial6 = [[0,0,0,0,0,0,0,0],
+var trial4 = [[0,0,0,0,0,0,0,0],
               [0,0,0,0,1,0,0,0],
               [1,0,0,0,0,1,0,0],
               [0,1,1,1,0,0,0,0],
@@ -146,16 +130,7 @@ var trial6 = [[0,0,0,0,0,0,0,0],
               [0,0,0,0,1,0,0,0],
               [0,0,1,1,0,0,0,0]];
 
-var trial7 = [[0,0,1,0,0,0,1,0],
-              [0,0,0,0,0,0,1,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,1,1,0,1,0],
-              [1,0,0,0,0,0,0,0],
-              [0,0,0,0,0,1,1,1],
-              [0,0,0,0,0,0,0,0]];
-
-var trial8 = [[0,0,1,0,0,0,0,1],
+var trial5 = [[0,0,1,0,0,0,0,1],
               [0,1,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,1,0,0,0,0],
@@ -164,7 +139,7 @@ var trial8 = [[0,0,1,0,0,0,0,1],
               [0,0,0,0,1,0,1,0],
               [0,0,0,0,1,1,0,0]];
 
-var trial9 = [[1,0,0,0,0,0,1,0],
+var trial6 = [[1,0,0,0,0,0,1,0],
               [1,0,0,1,0,0,1,0],
               [0,0,0,0,0,0,0,1],
               [1,0,0,0,0,1,0,0],
@@ -173,14 +148,6 @@ var trial9 = [[1,0,0,0,0,0,1,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0]];
 
-var trial10 = [[1,0,0,0,1,0,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,1,0,0],
-              [0,0,0,0,0,0,0,0],
-              [0,0,1,0,0,1,1,0],
-              [0,0,0,0,0,0,0,1],
-              [0,1,0,0,0,0,1,0],
-              [0,0,0,0,0,0,0,1]];
 
 var dataArray= [[0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
@@ -200,7 +167,8 @@ var targetArray= [[0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0]];
 
-var displayNum= [1, 8, 3, 5, 6, 9];
+var displayNum= [1, 2, 3, 4, 5, 6];
+var practiceArray = ["1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1"];
 
 var ding = document.getElementById("ding");
 var end_sd = document.getElementById("end_sd");
@@ -229,6 +197,7 @@ var experiment = {
   dataforRound:" ",
   data:[],
   seed:0,
+  available:0,
 
   //counts what trial you are on 
   trialCount:0,
@@ -237,7 +206,7 @@ var experiment = {
 
 
   //FUNCTIONS 
-  //CURRENTLY BROKEN 
+  
   loadIteratedData: function(){
   request = $.ajax({
       url: "https://script.google.com/macros/s/AKfycbym5ORQpTW0gSFmRQsNWuGdPyuXe55ewgS8Da-XBxUnRBlPlyjw/exec",
@@ -245,45 +214,39 @@ var experiment = {
       dataType: "json",
    }); 
 
-
   request.done(function (data){
       // log a message to the console
-      console.log(data)
+      experiment.data = data; 
+     // console.log(experiment.data);
+      experiment.changeTargets(); 
+      experiment.generation = experiment.data[2]+ 1;
+      console.log(experiment.generation);
   });
+  },
 
 
-     // request.done(function (response, textStatus, jqXHR){
-     //  // log a message to the console
-     //  console.log('Data has been retrieved');
-  //}); 
-  /*$.get("https://script.google.com/macros/s/AKfycbym5ORQpTW0gSFmRQsNWuGdPyuXe55ewgS8Da-XBxUnRBlPlyjw/exec", function(data, status){
-        console.log(data);
-        //});
-    }); */
-    /*jQuery.getJSON("https://spreadsheets.google.com/feeds/list/2PACX-1vSxeTnB1sc4UXbVCxn7zLi4DLZVWhHlY_dutMfEZPQOm_QBJXAAXqmHwulOPC5LMv0CXFo68wEezKeb/od6/public/values?alt=json-in-script&callback=?").success(function(data) {
-        console.log(data); 
-    }).error(function(message) {
-        console.error('error' + message); 
-    }).complete(function() {
-         console.log('completed!'); 
-      }); */
-    
-    /*var url = "https://script.google.com/macros/s/AKfycbym5ORQpTW0gSFmRQsNWuGdPyuXe55ewgS8Da-XBxUnRBlPlyjw/exec?callback=ctrlq&name=";
-    var name = "tmp"
+  //function to take data from excel sheet and fill it into the correct target array grid
+  //make it so when you have the data it reads the write values into the right janx, splits to correspond to correct array and correct input run this function X times--maybe write separate function?
+  //use SLICE function to get correct strings? 
+  createGrid: function(data) {
+    var oneRow = [];
+    var newArray = [];
+    array = data.split(" ");
+    for(var i=0; i<array.length;i++) array[i] = +array[i]; 
+    for (i=0; i<8; i++){
+      oneRow = array.slice(8*i, (8*i+8));
+      newArray.push(oneRow); 
+    }
+    return(newArray);  
+  },
 
-    var request = jQuery.ajax({
-      crossDomain: true,
-      url: url + encodeURIComponent(name),
-      method: "GET",
-      dataType: "jsonp"
-    });
-
-  
-
-  // print the returned data
-  function ctrlq(e) {
-    console.log(e.result)
-  } */ 
+  changeTargets: function(){
+    trial1 = experiment.createGrid(experiment.data[21]);
+    trial2 = experiment.createGrid(experiment.data[26]);
+    trial3 = experiment.createGrid(experiment.data[31]);
+    trial4 = experiment.createGrid(experiment.data[36]);
+    trial5 = experiment.createGrid(experiment.data[41]);
+    trial6 = experiment.createGrid(experiment.data[46]);
   },
 
 
@@ -344,9 +307,14 @@ var experiment = {
   },
 
   submit: function(){
+  if(experiment.generation != 6){
+    experiment.available = 1; 
+  }
+
   $("#result").html('Sending data...');
+
    var allData = "sub_id="+experiment.subid + "&" + "sub_age="+experiment.subage + "&" + "generation="+experiment.generation + "&" + "seed="+ experiment.seed + "&" + "condition="+experiment.condition + "&" + "date="+experiment.date + "&" + "time="+experiment.timestamp + "&";
-   allData += experiment.dataforRound+"&"+"available="+1+"\n";
+   allData += experiment.dataforRound+"&"+"available="+experiment.available+"\n";
 
    request = $.ajax({
       url: "https://script.google.com/macros/s/AKfycbym5ORQpTW0gSFmRQsNWuGdPyuXe55ewgS8Da-XBxUnRBlPlyjw/exec",
@@ -604,52 +572,32 @@ var experiment = {
         experiment.ding();
         experiment.colorRemove();
         experiment.colorAdd("purple");
-      } if (experiment.trial == 2){
+      } if (experiment.trial ==2){
           experiment.fillGrid("trialGrid", trial2);
           experiment.ding();
           experiment.colorRemove();
-          experiment.colorAdd("olive");
-      } if (experiment.trial ==3){
+          experiment.colorAdd("green");
+      }  if(experiment.trial == 3){
           experiment.fillGrid("trialGrid", trial3);
           experiment.ding();
           experiment.colorRemove();
-          experiment.colorAdd("green");
+          experiment.colorAdd("maroon");
       } if(experiment.trial == 4){
           experiment.fillGrid("trialGrid", trial4);
           experiment.ding();
           experiment.colorRemove();
-          experiment.colorAdd("navy");
-      } if(experiment.trial == 5){
+          experiment.colorAdd("orange");
+      }  if(experiment.trial== 5){
           experiment.fillGrid("trialGrid", trial5);
           experiment.ding();
           experiment.colorRemove();
-          experiment.colorAdd("maroon");
-      } if(experiment.trial == 6){
+          experiment.colorAdd("teal");
+      } if(experiment.trial==6){
           experiment.fillGrid("trialGrid", trial6);
           experiment.ding();
           experiment.colorRemove();
-          experiment.colorAdd("orange");
-      } if(experiment.trial == 7){
-          experiment.fillGrid("trialGrid", trial7);
-          experiment.ding();
-          experiment.colorRemove();
-          experiment.colorAdd("lime");
-      } if(experiment.trial== 8){
-          experiment.fillGrid("trialGrid", trial8);
-          experiment.ding();
-          experiment.colorRemove();
-          experiment.colorAdd("teal");
-      } if(experiment.trial==9){
-          experiment.fillGrid("trialGrid", trial9);
-          experiment.ding();
-          experiment.colorRemove();
-          experiment.colorAdd("pink");
-      } if(experiment.trial ==10){
-          experiment.fillGrid("trialGrid", trial10);
-          experiment.ding();
-          experiment.colorRemove();
           experiment.colorAdd("blue");
-      }
+      } 
     }
   },
   keepGoing: function(){
