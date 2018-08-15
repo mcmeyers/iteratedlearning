@@ -255,12 +255,12 @@ var experiment = {
   },
 
   changeTargets: function(){
-    trial1 = experiment.createGrid(experiment.data[21]);
-    trial2 = experiment.createGrid(experiment.data[26]);
-    trial3 = experiment.createGrid(experiment.data[31]);
-    trial4 = experiment.createGrid(experiment.data[36]);
-    trial5 = experiment.createGrid(experiment.data[41]);
-    trial6 = experiment.createGrid(experiment.data[46]);
+    trial1 = experiment.createGrid(experiment.data[22]);
+    trial2 = experiment.createGrid(experiment.data[27]);
+    trial3 = experiment.createGrid(experiment.data[32]);
+    trial4 = experiment.createGrid(experiment.data[37]);
+    trial5 = experiment.createGrid(experiment.data[42]);
+    trial6 = experiment.createGrid(experiment.data[47]);
   },
 
 
