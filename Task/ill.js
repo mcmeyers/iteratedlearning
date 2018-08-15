@@ -56,6 +56,9 @@ function clearTimer(display){
     }, 1000);
 }
 
+function randId() {
+  return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(2, 10);
+}
 
 
 //EXPERIMENT SETUP 
@@ -188,6 +191,7 @@ var experiment = {
 
   //things collected and stored from the intro slide
   subid: Math.random(1,100), 
+  unique_id: randId(),
   subage:0,
   generation:1,
   //CHANGE FOR TURK
@@ -219,11 +223,13 @@ var experiment = {
       experiment.data = data; 
      // console.log(experiment.data);
         //IF THERE IS AN AVAILABLE ROW WHERE GENERATION IS NOT MAXED OUT 
-      if(experiment.data != 0 & experiment.data[2] !=6 ){  
+      if(experiment.data != 0 & experiment.data[4] !=6 ){  
         experiment.changeTargets(); 
-        experiment.generation = experiment.data[2]+ 1;
-        experiment.seed = experiment.data[3];
+        experiment.generation = experiment.data[4]+ 1;
+        experiment.seed = experiment.data[5];
+        experiment.parent_id = data[0];
         console.log("there was data available!")
+        console.log(data)
       } //IF GENERATIONS ARE MAXED OUT 
       /*if(experiment.data[2] == 6){
         experiment.seed = experiment.data[3]+1;
@@ -255,12 +261,12 @@ var experiment = {
   },
 
   changeTargets: function(){
-    trial1 = experiment.createGrid(experiment.data[21]);
-    trial2 = experiment.createGrid(experiment.data[26]);
-    trial3 = experiment.createGrid(experiment.data[31]);
-    trial4 = experiment.createGrid(experiment.data[36]);
-    trial5 = experiment.createGrid(experiment.data[41]);
-    trial6 = experiment.createGrid(experiment.data[46]);
+    trial1 = experiment.createGrid(experiment.data[23]);
+    trial2 = experiment.createGrid(experiment.data[28]);
+    trial3 = experiment.createGrid(experiment.data[33]);
+    trial4 = experiment.createGrid(experiment.data[38]);
+    trial5 = experiment.createGrid(experiment.data[43]);
+    trial6 = experiment.createGrid(experiment.data[48]);
   },
 
 
@@ -308,7 +314,7 @@ var experiment = {
   //starts training session 1 
   startTrain: function() {
     showSlide("training1");
-    experiment.data.push("sub_id, age, generation, seed, condition, date, time, trialCount, trialDisplay, inputTime, target_0_0, target_0_1, target_0_2, target_0_3, target_0_4, target_0_5, target_0_6, target_0_7, target_1_0, target_1_1, target_1_2, target_1_3, target_1_4, target_1_5, target_1_6, target_1_7, target_2_0, target_2_1, target_2_2, target_2_3, target_2_4, target_2_5, target_2_6, target_2_7, target_3_0, target_3_1, target_3_2, target_3_3, target_3_4, target_3_5, target_3_6, target_3_7, target_4_0, target_4_1, target_4_2, target_4_3, target_4_4, target_4_5, target_4_6, target_4_7, target_5_0, target_5_1, target_5_2, target_5_3, target_5_4, target_5_5, target_5_6, target_5_7, target_6_0, target_6_1, target_6_2, target_6_3, target_6_4, target_6_5, target_6_6, target_6_7, target_7_0, target_7_1, target_7_2, target_7_3, target_7_4, target_7_5, target_7_6, target_7_7, input_0_0, input_0_1, input_0_2, input_0_3, input_0_4, input_0_5, input_0_6, input_0_7, input_1_0, input_1_1, input_1_2, input_1_3, input_1_4, input_1_5, input_1_6, input_1_7, input_2_0, input_2_1, input_2_2, input_2_3, input_2_4, input_2_5, input_2_6, input_2_7, input_3_0, input_3_1, input_3_2, input_3_3, input_3_4, input_3_5, input_3_6, input_3_7, input_4_0, input_4_1, input_4_2, input_4_3, input_4_4, input_4_5, input_4_6, input_4_7, input_5_0, input_5_1, input_5_2, input_5_3, input_5_4, input_5_5, input_5_6, input_5_7, input_6_0, input_6_1, input_6_2, input_6_3, input_6_4, input_6_5, input_6_6, input_6_7, input_7_0, input_7_1, input_7_2, input_7_3, input_7_4, input_7_5, input_7_6, input_7_7");
+    experiment.data.push("unique_id, parent_id, sub_id, age, generation, seed, condition, date, time, trialCount, trialDisplay, inputTime, target_0_0, target_0_1, target_0_2, target_0_3, target_0_4, target_0_5, target_0_6, target_0_7, target_1_0, target_1_1, target_1_2, target_1_3, target_1_4, target_1_5, target_1_6, target_1_7, target_2_0, target_2_1, target_2_2, target_2_3, target_2_4, target_2_5, target_2_6, target_2_7, target_3_0, target_3_1, target_3_2, target_3_3, target_3_4, target_3_5, target_3_6, target_3_7, target_4_0, target_4_1, target_4_2, target_4_3, target_4_4, target_4_5, target_4_6, target_4_7, target_5_0, target_5_1, target_5_2, target_5_3, target_5_4, target_5_5, target_5_6, target_5_7, target_6_0, target_6_1, target_6_2, target_6_3, target_6_4, target_6_5, target_6_6, target_6_7, target_7_0, target_7_1, target_7_2, target_7_3, target_7_4, target_7_5, target_7_6, target_7_7, input_0_0, input_0_1, input_0_2, input_0_3, input_0_4, input_0_5, input_0_6, input_0_7, input_1_0, input_1_1, input_1_2, input_1_3, input_1_4, input_1_5, input_1_6, input_1_7, input_2_0, input_2_1, input_2_2, input_2_3, input_2_4, input_2_5, input_2_6, input_2_7, input_3_0, input_3_1, input_3_2, input_3_3, input_3_4, input_3_5, input_3_6, input_3_7, input_4_0, input_4_1, input_4_2, input_4_3, input_4_4, input_4_5, input_4_6, input_4_7, input_5_0, input_5_1, input_5_2, input_5_3, input_5_4, input_5_5, input_5_6, input_5_7, input_6_0, input_6_1, input_6_2, input_6_3, input_6_4, input_6_5, input_6_6, input_6_7, input_7_0, input_7_1, input_7_2, input_7_3, input_7_4, input_7_5, input_7_6, input_7_7");
     document.ontouchmove=function(event){
       event.preventDefault();
     };
@@ -327,7 +333,7 @@ var experiment = {
 
   $("#result").html('Sending data...');
 
-   var allData = "sub_id="+experiment.subid + "&" + "sub_age="+experiment.subage + "&" + "generation="+experiment.generation + "&" + "seed="+ experiment.seed + "&" + "condition="+experiment.condition + "&" + "date="+experiment.date + "&" + "time="+experiment.timestamp + "&";
+   var allData = "unique_id="+experiment.unique_id + "&" + "parent_id="+experiment.parent_id + "&" + "sub_id="+experiment.subid + "&" + "sub_age="+experiment.subage + "&" + "generation="+experiment.generation + "&" + "seed="+ experiment.seed + "&" + "condition="+experiment.condition + "&" + "date="+experiment.date + "&" + "time="+experiment.timestamp + "&";
    allData += experiment.dataforRound+"&"+"available="+experiment.available+"\n";
 
    request = $.ajax({
