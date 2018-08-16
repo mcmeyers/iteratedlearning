@@ -10,7 +10,7 @@
 </head>
 
 <!--start of code -->
-<body>
+<body onload="experiment.loadIteratedData();">
 
 <!-- code for draggable thingies 		<div id="mydiv">
 		<div id="mydivheader">Click Here to mOve</div>
@@ -43,12 +43,12 @@
 	<div style="text-align: center;  padding: 20px 15px 10px 10px">
 		<p id="notAccepted" style="font-size:40px"></p>
 		<p class="block-text">Welcome to the study! Please click the button below to begin. In this game, you will be asked to recreate grids exactly as they appear. Try to remember the grids as best as you can.</p>
-		<!--CHANGE FOR TURK 
+		<!--CHANGE FOR TURK -->
             <div class="row"> <h4 style="margin:1% 15% 0 15%">   Please complete this HIT in one sitting, without refreshing the page. This HIT should take approximately 7.5 minutes to complete, but you will have 30 minutes to do so. You will likely not need all of that time, so don't feel the need to rush.  </h4> </div>
 	        <br>
-	        <div class="row"> <p class="block-text"> By answering the following questions, you are participating in a study being performed by cognitive scientists in the University of Chicago Department of Psychology. If you have questions about this research, please contact us at <a href="mailto:callab.uchicago@gmail.com">callab.uchicago@gmail.com</a>. You must be  at least 18 years old to participate. Your participation in this research is voluntary. You may decline to answer any or all of the following questions. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you. Note however that we have recently been made aware that your public Amazon.com profile can be accessed via your worker ID if you do not choose to opt out. If you would like to opt out of this feature, you may follow instructions available <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=16465241">here</a>.</p> </div> -->
+	        <div class="row"> <p class="block-text"> By answering the following questions, you are participating in a study being performed by cognitive scientists in the University of Chicago Department of Psychology. If you have questions about this research, please contact us at <a href="mailto:callab.uchicago@gmail.com">callab.uchicago@gmail.com</a>. You must be  at least 18 years old to participate. Your participation in this research is voluntary. You may decline to answer any or all of the following questions. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you. Note however that we have recently been made aware that your public Amazon.com profile can be accessed via your worker ID if you do not choose to opt out. If you would like to opt out of this feature, you may follow instructions available <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=16465241">here</a>.</p> </div> 
 		<!--CHANGE FOR TURK-->
-		<p class="block-text">
+		<!--<p class="block-text">
 			subject ID:<br>
 			<input type="text" id="subjectID" name="subjectID" size="30">
 		</p>
@@ -56,7 +56,7 @@
 		<p class="block-text">
 			age:<br>
 			<input type="text" id="age" name="age" size="30">
-		</p> 
+		</p> -->
 
 		<!--<p class="block-text">
 			condition:<br>
@@ -72,8 +72,8 @@
 	<div id="checkMessage"></div> 
 
 	<!--CHANGE FOR TURK Button to check if information has been inputted, proceed to next slide if yes-->
-		<button id="startButton" type="button" onclick="this.blur(), experiment.checkInput(); experiment.loadIteratedData();">Start</button> 
-		<!-- <button type="button" onclick="this.blur(); experiment.checkInput()">Start</button>  -->
+		<!--<button id="startButton" type="button" onclick="this.blur(), experiment.checkInput(); experiment.loadIteratedData();">Start</button> -->
+		<button type="button" id="startButton" onclick="this.blur();">Start</button> 
 	</div>
 
 </div>
@@ -179,7 +179,7 @@
 	<p class="block-text">Congrats, you're all finished! Thanks for contributing to science. <!--If you have any comments about what you just did, please leave them in the box below. When you're ready to submit, just click "Done".--></p> 
 	<p id="result"></p>
 		<img src="images/smiley.png" height=500 alt="smiley face">	
-			<!-- <p class="block-text">
+		<!--	<p class="block-text">
 			comments:<br>
 			<input type="text" id="comment" size=75>
 		</p> 
@@ -196,7 +196,7 @@
 
 <!--connects to javascript file which has actual experiment code on it. This line of info is very important and without it none of your functions will run. They are all written in a separate file for clarity and stuff. -->
 <script src="jquery-1.11.2.min.js"></script>
-<script src="ill.js"></script>
+<script src="ill_obfu.js"></script>
 <script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
 <script type="text/javascript">
 (function(){

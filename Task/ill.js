@@ -67,13 +67,13 @@ function randId() {
 showSlide("intro");
 
 //FOR TURK VERSION
-/*if(turk.assignmentId == "ASSIGNMENT_ID_NOT_AVAILABLE") {
+if(turk.assignmentId == "ASSIGNMENT_ID_NOT_AVAILABLE") {
     document.getElementById("notAccepted").innerHTML= "Please accept the HIT to Begin!!";
 } else {
     $("#startButton").click(function(){
       experiment.startTrain();
     });
-} */
+} 
 
 //creates initial seed grids 
 
@@ -104,7 +104,6 @@ var trial1 = [[1,1,0,1,0,0,0,0],
               [0,0,0,0,0,0,1,0],
               [0,0,0,0,0,0,0,0]];
 
-
 var trial2 = [[1,0,0,0,0,0,0,0],
               [0,0,1,0,0,0,1,0],
               [0,0,0,0,0,0,0,0],
@@ -113,7 +112,6 @@ var trial2 = [[1,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,1,1,0,0,1],
               [0,0,1,0,0,0,0,0]];
-
 
 var trial3 = [[1,0,1,0,0,0,0,0],
               [0,0,0,1,0,0,0,0],
@@ -171,7 +169,8 @@ var targetArray= [[0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0]];
 
 var displayNum= [1, 2, 3, 4, 5, 6];
-var practiceArray = ["1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1"];
+var trialNames = [trial1, trial2, trial3, trial4, trial5, trial6];
+console.log(trialNames);
 
 var ding = document.getElementById("ding");
 var end_sd = document.getElementById("end_sd");
@@ -195,7 +194,7 @@ var experiment = {
   subage:0,
   generation:1,
   //CHANGE FOR TURK
-  condition:"kid_baseline",
+  condition:"adult_baseline",
   date: getCurrentDate(),
   timestamp: getCurrentTime(), 
   dataforRound:" ",
@@ -221,22 +220,17 @@ var experiment = {
   request.done(function (data){
       // log a message to the console
       experiment.data = data; 
-     // console.log(experiment.data);
         //IF THERE IS AN AVAILABLE ROW WHERE GENERATION IS NOT MAXED OUT 
-      if(experiment.data != 0 & experiment.data[4] !=6 ){  
+      if(experiment.data != 0 & experiment.data[4] != 6 ){  
         experiment.changeTargets(); 
+        console.log(trialNames);
         experiment.generation = experiment.data[4]+ 1;
         experiment.seed = experiment.data[5];
         experiment.parent_id = data[0];
         console.log("there was data available!")
         console.log(data)
-      } //IF GENERATIONS ARE MAXED OUT 
-      /*if(experiment.data[2] == 6){
-        experiment.seed = experiment.data[3]+1;
-        experiment.generation = 1; 
-        console.log("all the data generations were full, so going to fill in a new chain");
-      } */
-      //IF THERE ARE NO AVAILABLE ROWS AT ALL--ERROR MESSAGE 
+      } 
+      //IF THERE ARE NO AVAILABLE ROWS--ERROR MESSAGE 
       if(experiment.data == 0){ 
         console.log("there was no available data at all, spitting out an error message");
         showSlide("limbo");
@@ -261,23 +255,40 @@ var experiment = {
   },
 
   changeTargets: function(){
-<<<<<<< HEAD
-    trial1 = experiment.createGrid(experiment.data[22]);
-    trial2 = experiment.createGrid(experiment.data[27]);
-    trial3 = experiment.createGrid(experiment.data[32]);
-    trial4 = experiment.createGrid(experiment.data[37]);
-    trial5 = experiment.createGrid(experiment.data[42]);
-    trial6 = experiment.createGrid(experiment.data[47]);
-=======
-    trial1 = experiment.createGrid(experiment.data[23]);
-    trial2 = experiment.createGrid(experiment.data[28]);
-    trial3 = experiment.createGrid(experiment.data[33]);
-    trial4 = experiment.createGrid(experiment.data[38]);
-    trial5 = experiment.createGrid(experiment.data[43]);
-    trial6 = experiment.createGrid(experiment.data[48]);
->>>>>>> e18596c3ae88ee6aca61b4b5d35b7fc7126f1ef7
+    console.log("running");
+  for(i=0; i<6; i++){
+    if(experiment.data[20] == i+1){
+      trialNames[i] = experiment.createGrid(experiment.data[23]);
+      break; 
+    }};
+    for(i=0; i<6; i++){
+     if(experiment.data[25] == i+1){
+      trialNames[i] = experiment.createGrid(experiment.data[28]);
+      break;
+    }};
+    for(i=0; i<6; i++){
+      if(experiment.data[30] == i+1){
+      trialNames[i] = experiment.createGrid(experiment.data[33]);
+      break;
+    }};
+    for(i=0; i<6; i++){
+      if(experiment.data[35] == i+1){
+      trialNames[i] = experiment.createGrid(experiment.data[38]);
+      break;
+    }}
+    for(i=0; i<6; i++){
+      if(experiment.data[40] == i+1){
+      trialNames[i] = experiment.createGrid(experiment.data[43]);
+      break;
+    }}
+    for(i=0; i<6; i++){
+      if(experiment.data[45] == i+1){
+      trialNames[i] = experiment.createGrid(experiment.data[48]);
+      break;
+    }}
+    return trialNames; 
+  
   },
-
 
 
   getRandomDisplay: function() {
@@ -322,8 +333,8 @@ var experiment = {
 
   //starts training session 1 
   startTrain: function() {
-    showSlide("training1");
-    experiment.data.push("unique_id, parent_id, sub_id, age, generation, seed, condition, date, time, trialCount, trialDisplay, inputTime, target_0_0, target_0_1, target_0_2, target_0_3, target_0_4, target_0_5, target_0_6, target_0_7, target_1_0, target_1_1, target_1_2, target_1_3, target_1_4, target_1_5, target_1_6, target_1_7, target_2_0, target_2_1, target_2_2, target_2_3, target_2_4, target_2_5, target_2_6, target_2_7, target_3_0, target_3_1, target_3_2, target_3_3, target_3_4, target_3_5, target_3_6, target_3_7, target_4_0, target_4_1, target_4_2, target_4_3, target_4_4, target_4_5, target_4_6, target_4_7, target_5_0, target_5_1, target_5_2, target_5_3, target_5_4, target_5_5, target_5_6, target_5_7, target_6_0, target_6_1, target_6_2, target_6_3, target_6_4, target_6_5, target_6_6, target_6_7, target_7_0, target_7_1, target_7_2, target_7_3, target_7_4, target_7_5, target_7_6, target_7_7, input_0_0, input_0_1, input_0_2, input_0_3, input_0_4, input_0_5, input_0_6, input_0_7, input_1_0, input_1_1, input_1_2, input_1_3, input_1_4, input_1_5, input_1_6, input_1_7, input_2_0, input_2_1, input_2_2, input_2_3, input_2_4, input_2_5, input_2_6, input_2_7, input_3_0, input_3_1, input_3_2, input_3_3, input_3_4, input_3_5, input_3_6, input_3_7, input_4_0, input_4_1, input_4_2, input_4_3, input_4_4, input_4_5, input_4_6, input_4_7, input_5_0, input_5_1, input_5_2, input_5_3, input_5_4, input_5_5, input_5_6, input_5_7, input_6_0, input_6_1, input_6_2, input_6_3, input_6_4, input_6_5, input_6_6, input_6_7, input_7_0, input_7_1, input_7_2, input_7_3, input_7_4, input_7_5, input_7_6, input_7_7");
+    showSlide("training1"); 
+    experiment.data.push("unique_id, parent_id, sub_id, age, generation, seed, condition, date, time, trial1Count, trial1Display, input1Time, trial1Target, trial1Data, trial2Count, trial2Display, input2Time, trial2Target, trial2Data, trial4Count, trial4Display, input4Time, trial4Target, trial4Data,trial5Count, trial5Display, input5Time, trial5Target, trial5Data,trial6Count, trial6Display, input6Time, trial6Target, trial6Data,trial7Count, trial7Display, input7Time, trial7Target, trial7Data, trial8Count, trial8Display, input8Time, trial8Target, trial8Data,trial9Count, trial9Display, input9Time, trial9Target, trial9Data,available");
     document.ontouchmove=function(event){
       event.preventDefault();
     };
@@ -354,7 +365,11 @@ var experiment = {
   request.done(function (response, textStatus, jqXHR){
       // log a message to the console
       $("#result").html('Data has been submitted!');
+      //submit data to mTurk (just in case something bad happens and the google sheet doesnt work, good to have 2 copies)
+      setTimeout(function(){turk.submit(experiment)}, 1000);
   });
+
+
 
   },
 
@@ -476,13 +491,17 @@ var experiment = {
     if(experiment.trialCount < 10){
     experiment.dataforRound += "&" + "trial"+trialCount+"Count="+experiment.trialCount + "&" + "trial"+trialCount+"Display="+experiment.trial + "&" + "time"+trialCount+"Used="+experiment.timeUsed + "&" + "target"+trialCount+"Array="+targetArray + "&" + "data"+trialCount+"Array="+dataArray + "\n"; 
     }
+ 
 
     //RN, also have the data send round by round to the server just in case this google sheets stuff glitches during the study 
     var dataforServer= experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.seed + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + ","; 
     dataforServer += experiment.trialCount + "," + experiment.trial + "," + experiment.timeUsed + "," + targetArray + "," + dataArray + "\n"; 
 
     //use line below for writing to server
-    $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforServer}); 
+    //$.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforServer}); 
+
+    //use line below for writing backup to mturk
+    experiment.data.push(dataforServer);
 
    console.log(experiment.dataforRound);
   }
@@ -562,7 +581,7 @@ var experiment = {
     if(experiment.trialCount ==3){
       showSlide("expIntro");
       sparkle.play();
-      $(practiceIntro).html('<center>You have finished the training, and now we are going to begin the study. Just like in the practice, try to remember and recreate the grids to the best of your ability. There will be 10 trials. Good luck! <center>');
+      $(practiceIntro).html('<center>You have finished the training, and now we are going to begin the study. Just like in the practice, try to remember and recreate the grids to the best of your ability. There will be 6 trials. <center>');
       return;  
     }
 
@@ -597,32 +616,32 @@ var experiment = {
           experiment.trial == 0.5
       }
       if(experiment.trial == 1){
-        experiment.fillGrid("trialGrid", trial1);
+        experiment.fillGrid("trialGrid", trialNames[0]);
         experiment.ding();
         experiment.colorRemove();
         experiment.colorAdd("purple");
       } if (experiment.trial ==2){
-          experiment.fillGrid("trialGrid", trial2);
+          experiment.fillGrid("trialGrid", trialNames[1]);
           experiment.ding();
           experiment.colorRemove();
           experiment.colorAdd("green");
       }  if(experiment.trial == 3){
-          experiment.fillGrid("trialGrid", trial3);
+          experiment.fillGrid("trialGrid", trialNames[2]);
           experiment.ding();
           experiment.colorRemove();
           experiment.colorAdd("maroon");
       } if(experiment.trial == 4){
-          experiment.fillGrid("trialGrid", trial4);
+          experiment.fillGrid("trialGrid", trialNames[3]);
           experiment.ding();
           experiment.colorRemove();
           experiment.colorAdd("orange");
       }  if(experiment.trial== 5){
-          experiment.fillGrid("trialGrid", trial5);
+          experiment.fillGrid("trialGrid", trialNames[4]);
           experiment.ding();
           experiment.colorRemove();
           experiment.colorAdd("teal");
       } if(experiment.trial==6){
-          experiment.fillGrid("trialGrid", trial6);
+          experiment.fillGrid("trialGrid", trialNames[5]);
           experiment.ding();
           experiment.colorRemove();
           experiment.colorAdd("blue");
