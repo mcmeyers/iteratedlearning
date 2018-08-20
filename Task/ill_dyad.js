@@ -56,6 +56,8 @@ function clearTimer(display){
   }, 1000);
 }
 
+showSlide("intro_child");
+
 //generates a random id for subject
 function randId() {
   return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(2, 10);
@@ -65,16 +67,16 @@ function randId() {
 //EXPERIMENT SETUP 
 
 // FIRST THING DISPLAYED, show the instructions slide 
-showSlide("intro");
+//showSlide("intro");
 
-//FOR TURK VERSION
-if(turk.assignmentId == "ASSIGNMENT_ID_NOT_AVAILABLE") { //if person has not accepted HIT
+//FOR TURK VERSION 
+/*if(turk.assignmentId == "ASSIGNMENT_ID_NOT_AVAILABLE") { //if person has not accepted HIT
   document.getElementById("notAccepted").innerHTML= "Please accept the HIT to Begin!!";
 } else { //if person has accepted HIT
   $("#startButton").click(function(){
     experiment.startTrain();
   });
-} 
+} */
 
 //creates initial seed grids; just in case although these should be read in from the Google Sheet 
 
@@ -88,6 +90,24 @@ var train1 = [[1,1,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0]];
 
 var train2 = [[1,0,0,0,0,0,0,0],
+              [0,1,0,0,0,0,0,0],
+              [0,0,1,0,0,0,0,0],
+              [0,0,0,1,0,0,0,0],
+              [0,0,0,0,1,0,0,0],
+              [0,0,0,0,0,1,0,0],
+              [0,0,0,0,0,0,1,0],
+              [0,0,0,0,0,1,1,1]];
+
+var trainInput1 = [[1,1,0,0,0,0,0,0],
+              [1,1,0,0,0,0,0,0],
+              [1,1,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,1,1],
+              [0,0,0,0,0,0,1,1],
+              [0,0,0,0,0,0,0,0]];
+
+var trainInput2 = [[1,0,0,0,0,0,0,0],
               [0,1,0,0,0,0,0,0],
               [0,0,1,0,0,0,0,0],
               [0,0,0,1,0,0,0,0],
@@ -171,7 +191,8 @@ var targetArray= [[0,0,0,0,0,0,0,0],
 
 //for random order of trials
 var displayNum= [1, 2, 3, 4, 5, 6]; 
-var trialNames = [trial1, trial2, trial3, trial4, trial5, trial6];
+var targetNames = [trial1, trial2, trial3, trial4, trial5, trial6]; //TARGETS
+var inputNames = [trial1, trial2, trial3, trial4, trial5, trial6]; //FIXABLE, GOES INSTEAD OF BLANK INPUT GRID FOR PARENTS
 
 //inputs sounds 
 var ding = document.getElementById("ding");
@@ -204,8 +225,8 @@ var experiment = {
   available_onload:0,
   available_accepted:0,
 
-  //CHANGE FOR TURK
-  condition:"adult_baseline",
+  //IMPORTANT defaults to adult because otherwise input makes it == child 
+  condition:"adult",
 
   //storing data 
   dataforRound:" ",
@@ -222,17 +243,32 @@ var experiment = {
   loadIteratedData: function(){
   //makes request to sheet
     request = $.ajax({
-      url: "https://script.google.com/macros/s/AKfycbym5ORQpTW0gSFmRQsNWuGdPyuXe55ewgS8Da-XBxUnRBlPlyjw/exec",
+      url: "https://script.google.com/macros/s/AKfycbzBAzXejWWLpkhKrzloWEKyCK8KfN51M5Deu3uoFJxm-vnk2A/exec",
       type: "get", 
       dataType: "json",
     }); 
     request.done(function (data){
       // log a message to the console
       experiment.data = data; 
-      //IF THERE IS AN AVAILABLE ROW WHERE GENERATION IS NOT MAXED OUT 
-      if(experiment.data != 0 & experiment.data[4] != 6 ){  
-        experiment.changeTargets(); 
-        experiment.generation = experiment.data[4]+ 1;
+      //THIS IS WRONG FIX ME
+      if(experiment.data[6]=="child"){
+        experiment.condition = "adult";
+      } else {
+        experiment.condition = "child";
+      }
+      //IF THERE IS AN AVAILABLE ROW WHERE GENERATION IS NOT MAXED OUT AND THE ADULT READS IN CHILD, CHILD READS IN ADULT  
+      if(experiment.data != 0 & experiment.data[4] != 6){  
+        //CHANGE MEEEEEE
+        if(experiment.condition=="child") {
+          //showSlide("intro_child");
+          experiment.generation = experiment.data[4]+1;
+          experiment.changeTargets(); //loads in target grids (which should be previous adult's input grids)
+        } if(experiment.condition=="adult"){
+         // showSlide("intro_adult")
+          experiment.loadTargetInputs(); //loads in target grids (which should be previous child's target grids)
+          experiment.loadFixInputs(); //loads in fixable grids (which should be previous child's input grids)
+          experiment.generation = experiment.data[4];
+        }
         experiment.seed = experiment.data[5];
         experiment.parent_id = data[0];
         console.log("there was data available!");
@@ -259,45 +295,128 @@ var experiment = {
     return(newArray);  
   },
 
-  //takes in data read from Google Sheet and creates correct target grids from it 
-  changeTargets: function(){
+  //function to load in target displays for parent condition (PREVIOUS CHILD'S TARGETS)
+  loadTargetInputs: function(){
     for(i=0; i<6; i++){
       if(experiment.data[20] == i+1){
-        trialNames[i] = experiment.createGrid(experiment.data[23]);
+        targetNames[i] = experiment.createGrid(experiment.data[22]);
         break; 
       }
     };
     for(i=0; i<6; i++){
       if(experiment.data[25] == i+1){
-        trialNames[i] = experiment.createGrid(experiment.data[28]);
+        targetNames[i] = experiment.createGrid(experiment.data[27]);
         break;
       }
     };
     for(i=0; i<6; i++){
       if(experiment.data[30] == i+1){
-        trialNames[i] = experiment.createGrid(experiment.data[33]);
+        targetNames[i] = experiment.createGrid(experiment.data[32]);
         break;
       }
     };
     for(i=0; i<6; i++){
       if(experiment.data[35] == i+1){
-        trialNames[i] = experiment.createGrid(experiment.data[38]);
+        targetNames[i] = experiment.createGrid(experiment.data[37]);
         break;
       }
     };
     for(i=0; i<6; i++){
       if(experiment.data[40] == i+1){
-        trialNames[i] = experiment.createGrid(experiment.data[43]);
+        targetNames[i] = experiment.createGrid(experiment.data[42]);
         break;
       }
     };
     for(i=0; i<6; i++){
       if(experiment.data[45] == i+1){
-        trialNames[i] = experiment.createGrid(experiment.data[48]);
+        targetNames[i] = experiment.createGrid(experiment.data[47]);
         break;
       }
     };
-    return trialNames; 
+    return targetNames;
+  },
+
+  //function to load in input displays for parent condition, where parents will have to correct what the child did 
+  //NOTE TO SELF ALSO NEED TO CHANGE PARENT TARGET STORING DATA BECAUSE WHAT PARENT SEES AS TARGET IS WHAT CHILD SAW AS TARGET, AND INSTEAD OF INPUT PARENT SEES WHAT CHILD HAD MADE AS INPUT, AFTER PARENT EDITS THIS BECOMES NEXT CHILD'S TARGET; WANT TO SAVE CHILD'S CREATION = TARGET (EVEN THOUGH WAS NOT DISPLAYED ON TARGET GRID) AND PARENT INPUT (EDITS PARENT MADE TO CHILD'S PREVIOUS TARGET)
+  loadFixInputs: function(){
+    for(i=0; i<6; i++){
+      if(experiment.data[20] == i+1){
+        inputNames[i] = experiment.createGrid(experiment.data[23]);
+        break; 
+      }
+    };
+    for(i=0; i<6; i++){
+      if(experiment.data[25] == i+1){
+        inputNames[i] = experiment.createGrid(experiment.data[28]);
+        break;
+      }
+    };
+    for(i=0; i<6; i++){
+      if(experiment.data[30] == i+1){
+        inputNames[i] = experiment.createGrid(experiment.data[33]);
+        break;
+      }
+    };
+    for(i=0; i<6; i++){
+      if(experiment.data[35] == i+1){
+        inputNames[i] = experiment.createGrid(experiment.data[38]);
+        break;
+      }
+    };
+    for(i=0; i<6; i++){
+      if(experiment.data[40] == i+1){
+        inputNames[i] = experiment.createGrid(experiment.data[43]);
+        break;
+      }
+    };
+    for(i=0; i<6; i++){
+      if(experiment.data[45] == i+1){
+        inputNames[i] = experiment.createGrid(experiment.data[48]);
+        break;
+      }
+    };
+    return inputNames;
+  },
+
+  //takes in data read from Google Sheet and creates correct target grids from it; SHOULD WORK FOR CHILD CONDITIONS FINE  
+  changeTargets: function(){
+    for(i=0; i<6; i++){
+      if(experiment.data[20] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[23]);
+        break; 
+      }
+    };
+    for(i=0; i<6; i++){
+      if(experiment.data[25] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[28]);
+        break;
+      }
+    };
+    for(i=0; i<6; i++){
+      if(experiment.data[30] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[33]);
+        break;
+      }
+    };
+    for(i=0; i<6; i++){
+      if(experiment.data[35] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[38]);
+        break;
+      }
+    };
+    for(i=0; i<6; i++){
+      if(experiment.data[40] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[43]);
+        break;
+      }
+    };
+    for(i=0; i<6; i++){
+      if(experiment.data[45] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[48]);
+        break;
+      }
+    };
+    return targetNames; 
   },
 
   //function that gives us a random display number 
@@ -344,7 +463,11 @@ var experiment = {
 
   //starts training session 1 
   startTrain: function() {
-    showSlide("training1");
+    if(experiment.condition == "child"){
+      showSlide("training1_child");
+    } if(experiment.condition == "adult"){
+      showSlide("training1_adult");
+    }
     //puts in headers for Turk data file 
     experiment.data.push("unique_id, parent_id, sub_id, age, generation, seed, condition, date, time, trial1Count, trial1Display, input1Time, trial1Target, trial1Data, trial2Count, trial2Display, input2Time, trial2Target, trial2Data, trial4Count, trial4Display, input4Time, trial4Target, trial4Data,trial5Count, trial5Display, input5Time, trial5Target, trial5Data,trial6Count, trial6Display, input6Time, trial6Target, trial6Data,trial7Count, trial7Display, input7Time, trial7Target, trial7Data, trial8Count, trial8Display, input8Time, trial8Target, trial8Data,trial9Count, trial9Display, input9Time, trial9Target, trial9Data,available_onload, available_accepted");
     //disables scrolling
@@ -355,9 +478,15 @@ var experiment = {
     $("#t1Target td.clicked").click(function(){
       ding.play();
     });
+    $("#t1Target_adult td.clicked").click(function(){
+      ding.play();
+    });
     //highlights clicked cells, enables max 10 items
     $("#t1Input td").click(function(){
       experiment.max10items(this,'t1Input');
+    });
+    $("#t1Input_adult td").click(function(){
+      experiment.max10items(this,'t1Input_adult');
     });
   },
 
@@ -452,8 +581,8 @@ var experiment = {
     }); 
   },
 
-  //stores data in arrays
-  storeData: function(input, target, trialCount){
+  //stores data in arrays FIX MEEEEEEEE SO JUST STORES ONE AT A TIME SO THIS IS MORE VERSATILE 
+  storeData: function(input, target, trialCount){ 
     //trialcount 3 was used to display some instructions so we want to skip that 
     if(trialCount != 3){
       var dataArray= [[0,0,0,0,0,0,0,0],
@@ -522,8 +651,6 @@ var experiment = {
 
   //function that creates input grid for trials; sets up timer
   input: function(){
-    //clears data from previous input
-    experiment.clear("trialInput"); 
     showSlide("input");
     //creates clickable array 
     if(experiment.trialCount == 1){
@@ -557,7 +684,7 @@ var experiment = {
 
   //adds specific color for each trial
   colorAdd: function(color){
-  	var trialGrid = document.getElementById("trialGrid");
+    var trialGrid = document.getElementById("trialGrid");
     var trialInput = document.getElementById("trialInput");
     document.getElementById("blockCount").style.backgroundColor = color;
     trialGrid.classList.add(color);
@@ -566,7 +693,7 @@ var experiment = {
 
   //removes color (similar to clear function)
   colorRemove: function(){
-  	var trialGrid = document.getElementById("trialGrid");
+    var trialGrid = document.getElementById("trialGrid");
     var trialInput = document.getElementById("trialInput");
     trialGrid.classList.remove("aqua", "purple", "olive", "green", "pink", "blue", "orange", "lime", "teal", "navy", "maroon");
     trialInput.classList.remove("aqua", "purple", "olive", "green", "pink", "blue", "orange", "lime", "teal", "navy", "maroon");
@@ -587,18 +714,30 @@ var experiment = {
 
     //stores data by trial
     if(experiment.trialCount != 0){
+      if(experiment.condition == "child"){
       experiment.storeData("trialInput", "trialGrid", experiment.trialCount);
+      } if(experiment.condition == "adult"){
+        experiment.storeData("trialInput", "trialGrid", experiment.trialCount); //FIX MEEEEEEEE NOT RIGHT STORING THINGS 
+      }
+
     } 
     //increases trial #
     experiment.trialCount++;
-    //clears grid
+    //clears grids
     experiment.clear("trialGrid");
+    experiment.clear("trialInput");
 
     //trial 3 used for instructions; want to display those and skip this slide 
     if(experiment.trialCount ==3){
       showSlide("expIntro");
       sparkle.play();
-      $(practiceIntro).html('<center>You have finished the training, and now we are going to begin the study. Just like in the practice, try to remember and recreate the grids to the best of your ability. There will be 6 trials. <center>');
+      if(experiment.condition == "child"){
+        $(adultIntro).html('');
+      $(childIntro).html('<center>You have finished the training, and now we are going to begin the study. Just like in the practice, try to remember and recreate the grids to the best of your ability. There will be 6 trials. <center>');
+      } if(experiment.condition == "adult"){
+        $(childIntro).html('');
+        $(adultIntro).html('<center>You have finished the training, and now we are going to begin the study. Just like in the practice, try to remember the target grid and fix the one you see displayed. There will be 6 trials. <bold> The grids you will be charged with fixing were created by children aged 6-8 </bold><center>');
+      }
       return;  
     }
 
@@ -628,44 +767,68 @@ var experiment = {
         experiment.fillGrid("trialGrid", train1);
         experiment.ding();
         experiment.colorAdd("aqua");
+        if(experiment.condition == "adult"){
+          experiment.fillGrid("trialInput", trainInput1);
+        }
       } if(experiment.trialCount == 2){ 
           experiment.fillGrid("trialGrid", train2);
           experiment.ding();
           experiment.colorRemove();
           experiment.colorAdd("yellow");
           experiment.trial == 0.5
+        if(experiment.condition == "adult"){
+          experiment.fillGrid("trialInput", trainInput2);
+        }
       }
       //study trials
       if(experiment.trial == 1){
-        experiment.fillGrid("trialGrid", trialNames[0]);
+        experiment.fillGrid("trialGrid", targetNames[0]);
         experiment.ding();
         experiment.colorRemove();
         experiment.colorAdd("purple");
+        if(experiment.condition == "adult"){
+          experiment.fillGrid("trialInput", inputNames[0]);
+        }
       } if(experiment.trial ==2){
-          experiment.fillGrid("trialGrid", trialNames[1]);
+          experiment.fillGrid("trialGrid", targetNames[1]);
           experiment.ding();
           experiment.colorRemove();
           experiment.colorAdd("green");
+          if(experiment.condition == "adult"){
+          experiment.fillGrid("trialInput", inputNames[1]);
+        }
       } if(experiment.trial == 3){
-          experiment.fillGrid("trialGrid", trialNames[2]);
+          experiment.fillGrid("trialGrid", targetNames[2]);
           experiment.ding();
           experiment.colorRemove();
           experiment.colorAdd("maroon");
+          if(experiment.condition == "adult"){
+          experiment.fillGrid("trialInput", inputNames[2]);
+        }
       } if(experiment.trial == 4){
-          experiment.fillGrid("trialGrid", trialNames[3]);
+          experiment.fillGrid("trialGrid", targetNames[3]);
           experiment.ding();
           experiment.colorRemove();
           experiment.colorAdd("orange");
+                  if(experiment.condition == "adult"){
+          experiment.fillGrid("trialInput", inputNames[3]);
+        }
       } if(experiment.trial== 5){
-          experiment.fillGrid("trialGrid", trialNames[4]);
+          experiment.fillGrid("trialGrid", targetNames[4]);
           experiment.ding();
           experiment.colorRemove();
           experiment.colorAdd("teal");
+                  if(experiment.condition == "adult"){
+          experiment.fillGrid("trialInput", inputNames[4]);
+        }
       } if(experiment.trial==6){
-          experiment.fillGrid("trialGrid", trialNames[5]);
+          experiment.fillGrid("trialGrid", targetNames[5]);
           experiment.ding();
           experiment.colorRemove();
           experiment.colorAdd("blue");
+                  if(experiment.condition == "adult"){
+          experiment.fillGrid("trialInput", inputNames[5]);
+        }
         } 
     }
   },
@@ -766,14 +929,21 @@ var experiment = {
           cellIndex++;
         } 
       }
-	   //move onto next row if you need to
+     //move onto next row if you need to
       if(cellIndex == 8) {
         rowIndex++;
         //if you are at the end of the grid, either move on to the next training session (T2 or T3, or move onto the actual study trials)
         if(rowIndex == 8){
           showSlide("expIntro"); 
-          sparkle.play();     
-          $(practiceIntro).html('<center>Now you will try to recreate a grid from memory. A target grid will appear for <strong>12</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. <strong>Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
+          sparkle.play();  
+          if(experiment.condition == "adult"){
+            $(childIntro).html('');
+            $(adultIntro).html('<center>Now you will try to fix a grid from memory. A target grid will appear for <strong>12</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a grid. <strong>Your job is to correct this grid to make it match the target you previously saw. Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
+          } if(experiment.condition == "child"){
+            $(adultIntro).html('');
+            $(childIntro).html('<center>Now you will try to recreate a grid from memory. A target grid will appear for <strong>12</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. <strong>Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
+
+          }
         } else{
           cellIndex = 0; 
         }
@@ -798,6 +968,16 @@ var experiment = {
       return;
     }
     experiment.subage = parseInt(document.getElementById("age").value);
+
+    //subject ID
+    if (document.getElementById("condition").value.length < 1) {
+      $("#checkMessage").html('<font color="red">You must input a subject ID</font>');
+      errorSound.play();
+      return;
+    }
+    //stores info in variable
+    experiment.condition = document.getElementById("condition").value;
+
     //goes to training slide
     experiment.startTrain();
   },
@@ -811,5 +991,3 @@ var experiment = {
 //experiment.trialCount = 3;
 
 //experiment.begin();
-
-
