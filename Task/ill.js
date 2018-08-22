@@ -61,20 +61,32 @@ function randId() {
   return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(2, 10);
 }
 
+var unique_id = 0;  
+var ip = 0; 
+//gets IP address of user (temporary ID so when mturk page refreshes it doesn't mess everything up)
+
+function getIP(){
+  tmp = $.getJSON("https://api.ipify.org?format=jsonp&callback=?",
+      function(json) {
+      });
+  tmp.done(function(data){
+    ip = data.ip; 
+
+    if(turk.assignmentId == "ASSIGNMENT_ID_NOT_AVAILABLE") { //if person has not accepted HIT
+      document.getElementById("notAccepted").innerHTML= "Please accept the HIT to Begin!!";
+      experiment.reserveDate(ip, ip); //if assignment has not been accepted, unique_id = ip address and ip = ip address
+    } else { //if person has accepted HIT
+      unique_id = randId(); 
+      experiment.reserveDate(unique_id, ip); //if assignment has been accepted, unique_id = rand int and ip = ip address
+    } 
+  });
+}
 
 //EXPERIMENT SETUP 
 
 // FIRST THING DISPLAYED, show the instructions slide 
 showSlide("intro");
 
-//FOR TURK VERSION
-if(turk.assignmentId == "ASSIGNMENT_ID_NOT_AVAILABLE") { //if person has not accepted HIT
-  document.getElementById("notAccepted").innerHTML= "Please accept the HIT to Begin!!";
-} else { //if person has accepted HIT
-  $("#startButton").click(function(){
-    experiment.startTrain();
-  });
-} 
 
 //creates initial seed grids; just in case although these should be read in from the Google Sheet 
 
@@ -203,6 +215,7 @@ var experiment = {
   seed:1,
   available_onload:0,
   available_accepted:0,
+  parent_id:0, 
 
   //CHANGE FOR TURK
   condition:"adult_baseline",
@@ -218,22 +231,49 @@ var experiment = {
 
   ////////FUNCTIONS 
 
+
+  reserveDate: function(unique_id, ip) {
+    console.log(unique_id); 
+    console.log(ip);
+   // console.log(experiment.unique_id);
+    request = $.ajax({
+      url: "https://script.google.com/macros/s/AKfycbym5ORQpTW0gSFmRQsNWuGdPyuXe55ewgS8Da-XBxUnRBlPlyjw/exec",
+      type: "get", 
+      dataType: "json",
+      data: {type: "reserve", unique_id: unique_id, ip: ip} //CHANGE ME FOR KIDDOS 
+    }); 
+
+    request.done(function (data){
+      // log a message to the console
+      experiment.parent_id = data; 
+      //IF THERE IS AN AVAILABLE ROW WHERE GENERATION IS NOT MAXED OUT 
+      console.log(data);
+      //IF THERE ARE NO AVAILABLE ROWS--ERROR MESSAGE 
+      if(data == 0){ 
+        console.log("there was no available data at all, spitting out an error message");
+        showSlide("limbo");
+      }
+    });
+  }, 
+
   //reads in data from Google Sheet 
   loadIteratedData: function(){
+    console.log("running");
   //makes request to sheet
     request = $.ajax({
       url: "https://script.google.com/macros/s/AKfycbym5ORQpTW0gSFmRQsNWuGdPyuXe55ewgS8Da-XBxUnRBlPlyjw/exec",
       type: "get", 
       dataType: "json",
+      data: {type: experiment.parent_id, unique_id: unique_id}, 
     }); 
     request.done(function (data){
       // log a message to the console
       experiment.data = data; 
       //IF THERE IS AN AVAILABLE ROW WHERE GENERATION IS NOT MAXED OUT 
-      if(experiment.data != 0 & experiment.data[4] != 6 ){  
+      if(experiment.data != 0 & experiment.data[5] != 6 ){  
         experiment.changeTargets(); 
-        experiment.generation = experiment.data[4]+ 1;
-        experiment.seed = experiment.data[5];
+        experiment.generation = experiment.data[5]+ 1;
+        experiment.seed = experiment.data[6];
         experiment.parent_id = data[0];
         console.log("there was data available!");
         console.log(data);
@@ -243,7 +283,8 @@ var experiment = {
         console.log("there was no available data at all, spitting out an error message");
         showSlide("limbo");
       }
-    });
+    }); 
+    experiment.startTrain();
   },
 
   //function to create grid from string
@@ -262,38 +303,38 @@ var experiment = {
   //takes in data read from Google Sheet and creates correct target grids from it 
   changeTargets: function(){
     for(i=0; i<6; i++){
-      if(experiment.data[20] == i+1){
-        trialNames[i] = experiment.createGrid(experiment.data[23]);
+      if(experiment.data[21] == i+1){
+        trialNames[i] = experiment.createGrid(experiment.data[24]);
         break; 
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[25] == i+1){
-        trialNames[i] = experiment.createGrid(experiment.data[28]);
+      if(experiment.data[26] == i+1){
+        trialNames[i] = experiment.createGrid(experiment.data[29]);
         break;
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[30] == i+1){
-        trialNames[i] = experiment.createGrid(experiment.data[33]);
+      if(experiment.data[31] == i+1){
+        trialNames[i] = experiment.createGrid(experiment.data[34]);
         break;
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[35] == i+1){
-        trialNames[i] = experiment.createGrid(experiment.data[38]);
+      if(experiment.data[36] == i+1){
+        trialNames[i] = experiment.createGrid(experiment.data[39]);
         break;
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[40] == i+1){
-        trialNames[i] = experiment.createGrid(experiment.data[43]);
+      if(experiment.data[41] == i+1){
+        trialNames[i] = experiment.createGrid(experiment.data[44]);
         break;
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[45] == i+1){
-        trialNames[i] = experiment.createGrid(experiment.data[48]);
+      if(experiment.data[46] == i+1){
+        trialNames[i] = experiment.createGrid(experiment.data[49]);
         break;
       }
     };
@@ -346,7 +387,7 @@ var experiment = {
   startTrain: function() {
     showSlide("training1");
     //puts in headers for Turk data file 
-    experiment.data.push("unique_id, parent_id, sub_id, age, generation, seed, condition, date, time, trial1Count, trial1Display, input1Time, trial1Target, trial1Data, trial2Count, trial2Display, input2Time, trial2Target, trial2Data, trial4Count, trial4Display, input4Time, trial4Target, trial4Data,trial5Count, trial5Display, input5Time, trial5Target, trial5Data,trial6Count, trial6Display, input6Time, trial6Target, trial6Data,trial7Count, trial7Display, input7Time, trial7Target, trial7Data, trial8Count, trial8Display, input8Time, trial8Target, trial8Data,trial9Count, trial9Display, input9Time, trial9Target, trial9Data,available_onload, available_accepted");
+    experiment.data.push("unique_id, parent_id, child_id, sub_id, age, generation, seed, condition, date, time, trial1Count, trial1Display, input1Time, trial1Target, trial1Data, trial2Count, trial2Display, input2Time, trial2Target, trial2Data, trial4Count, trial4Display, input4Time, trial4Target, trial4Data,trial5Count, trial5Display, input5Time, trial5Target, trial5Data,trial6Count, trial6Display, input6Time, trial6Target, trial6Data,trial7Count, trial7Display, input7Time, trial7Target, trial7Data, trial8Count, trial8Display, input8Time, trial8Target, trial8Data,trial9Count, trial9Display, input9Time, trial9Target, trial9Data,available_onload, available_accepted");
     //disables scrolling
     document.ontouchmove=function(event){
       event.preventDefault();
@@ -360,6 +401,10 @@ var experiment = {
       experiment.max10items(this,'t1Input');
     });
   },
+  
+  sparkle: function(){
+    sparkle.play(); 
+  },
 
   //writes data to Google Sheet using ajax POST function
   submit: function(){
@@ -372,8 +417,8 @@ var experiment = {
     $("#result").html('Sending data...');
   
   //concatenates all important info into correct format to be posted 
-    var allData = "unique_id="+experiment.unique_id + "&" + "parent_id="+experiment.parent_id + "&" + "sub_id="+experiment.subid + "&" + "sub_age="+experiment.subage + "&" + "generation="+experiment.generation + "&" + "seed="+ experiment.seed + "&" + "condition="+experiment.condition + "&" + "date="+experiment.date + "&" + "time="+experiment.timestamp + "&";
-    allData += experiment.dataforRound+"&"+"available_onload="+experiment.available_onload+"available_accepted="+experiment.available_accepted+"\n";
+    var allData = "unique_id="+experiment.unique_id + "&" + "parent_id="+experiment.parent_id + "&" + "child_id="+""+"&"+"sub_id="+experiment.subid + "&" + "sub_age="+experiment.subage + "&" + "generation="+experiment.generation + "&" + "seed="+ experiment.seed + "&" + "condition="+experiment.condition + "&" + "date="+experiment.date + "&" + "time="+experiment.timestamp + "&";
+    allData += experiment.dataforRound+"&"+"available_onload="+experiment.available_onload+"&"+"available_accepted="+experiment.available_accepted+"\n";
 
   //ajax post request
     request = $.ajax({
@@ -386,14 +431,13 @@ var experiment = {
       // log a message to the console
       $("#result").html('Data has been submitted!');
       //submit data to mTurk (just in case something bad happens and the google sheet doesnt work, good to have 2 copies)
-      setTimeout(function(){turk.submit(experiment)}, 1000);
+      setTimeout(function(){turk.submit(experiment)}, 3000);
     });
   },
 
   //calls when experiment is finished; shows ending slide and submits data
   end: function(){
     showSlide("end");
-    end_sd.play();
     experiment.submit(); 
   },
 
@@ -601,9 +645,13 @@ var experiment = {
       $(practiceIntro).html('<center>You have finished the training, and now we are going to begin the study. Just like in the practice, try to remember and recreate the grids to the best of your ability. There will be 6 trials. <center>');
       return;  
     }
+    if(experiment.trialCount == 2){
+      experiment.trial = 0.5; 
+    }
 
     //ends experiment when 6 trials + 2 trainings + trial 3 weirdness = 9 completed, so when gets called a 10th time 
     if(experiment.trialCount == 10){
+      end_sd.play(); 
       experiment.end();
     } else {  //if experiment is not done
       if(experiment.trialCount != 1 && experiment.trialCount != 2){ //if we are not in the trial rounds, which have pre-specified grids in pre-specified order
@@ -633,7 +681,6 @@ var experiment = {
           experiment.ding();
           experiment.colorRemove();
           experiment.colorAdd("yellow");
-          experiment.trial == 0.5
       }
       //study trials
       if(experiment.trial == 1){

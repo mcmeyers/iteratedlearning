@@ -10,7 +10,7 @@
 </head>
 
 <!--start of code -->
-<body onload="experiment.loadIteratedData();">
+<body onload="getIP();">
 
 <!-- load sound effect files -->
 <audio id="ding" src="sounds/ding.m4a"></audio>
@@ -178,18 +178,19 @@
 
 <!--connects to javascript file which has actual experiment code on it. This line of info is very important and without it none of your functions will run. They are all written in a separate file for clarity and stuff. -->
 <script src="jquery-1.11.2.min.js"></script>
-<script src="ill.js"></script> <!--CHANGE TO ILL_OBFU ON TURK WHEN READY -->
-
 <!-- UNIQUE TURKER REQUIREMENT, COMMENT OUT FOR DEBUGGING OR CHILD CONDITION -->
-<!--<script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
+<script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
 <script type="text/javascript">
 (function(){
     var ut_id = "53ae4ea04173428d22d2c34c58eca39a";
     if (UTWorkerLimitReached(ut_id)) {
         document.getElementsByTagName('body')[0].innerHTML = "You have already completed the maximum number of HITs allowed by this requester. Please click 'Return HIT' to avoid any impact on your approval rating.";
     }
-})(); -->
-</script>
+})(); 
+</script> 
+<script src="ill_obfu.js"></script> <!--CHANGE TO ILL_OBFU ON TURK WHEN READY -->
+
+
 
 </body>
 </html>

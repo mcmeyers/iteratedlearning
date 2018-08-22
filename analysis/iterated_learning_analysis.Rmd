@@ -29,6 +29,7 @@ theme_set(theme_classic(base_size = 10))
 
 ## Setup
 
+Loading functions -- OLD 
 ```{r load csv}
 data2 <- read_csv("../data/anonymized_data.csv")
 kidData<-read_csv("iteratedstudyresults.csv")
@@ -46,7 +47,7 @@ data <- data2 %>%
   ungroup() %>%
   filter(trialCount < 14)
 ```
-
+format data -- OLD
 ```{r}
 spread_data <- data %>%
   gather(row, value, -sub_id, -age, -condition, -generation, -date, -time, -trialDisplay, -trialCount, -comments)%>%
@@ -56,7 +57,7 @@ spread_data <- data %>%
   spread(ty_col, value) %>%
   filter(is.na(row)==F)
 ```
-
+--Format data OLD
 ```{r formats data}
 calculate_data <- data %>%
   gather(row, value,-sub_id:-trialDisplay)%>%
@@ -68,21 +69,67 @@ calculate_data <- data %>%
   mutate(accuracy = input == target,
          sub_id = as.character(sub_id)) 
 ```
+
+
+## Read in Data - New
+```{r read in data from google sheet}
+data_sheet <- gs_ls() %>%
+  filter(sheet_title == "Kid Generations") %>%
+  pull(sheet_key) %>%
+  gs_key() %>%
+  gs_read(ws = "Sheet1") %>%
+  filter(seed == 1) #filter to just this pilot seed data 
+```
+
+## Format Data for Display & Grid Analysis - New
+```{r}
+calculate_data <- data_sheet %>% #puts each trial and either target or display in a separate row
+  select(-available_onload, -available_accepted, -sub_age) %>%
+  gather(display, array, -unique_id, -parent_id, -child_id, -sub_id, -generation, -seed, -condition, -date, -time, -trial1Count, -time1Used, -trial1Display, -trial2Count, -time2Used, -trial2Display, -trial4Count, -trial4Display, -time4Used, -trial5Count, -trial5Display, -time5Used, -trial6Count, -trial6Display, -time6Used, -trial7Count, -trial7Display, -time7Used, -trial8Count, -trial8Display, -time8Used, -trial9Count, -trial9Display, -time9Used) %>%
+  arrange(sub_id) %>%
+  unique() %>%
+  separate(display, c("type", "trialCountArray"), -6) %>%
+  separate(trialCountArray, c("trialCount", "arrayCount"), 1) %>%
+  select(-arrayCount, -trial1Count, -trial2Count, -trial4Count, -trial5Count, -trial6Count, -trial7Count, -trial8Count, -trial9Count) %>%
+  gather(trialDisplay, display, -unique_id, -parent_id, -child_id, -sub_id, -generation, -seed, -condition, -date, -time, -time1Used, -time2Used, -time4Used, -time5Used, -time6Used, -time7Used,  -time8Used,-time9Used, -type, -trialCount, -array) %>%
+  separate(trialDisplay, c("type2", "tmp"), -7) %>%
+  select(-tmp) %>%
+  separate(type2, c("tmp", "trialCount2"), -1) %>%
+  select(-tmp) %>%
+  filter(trialCount2 == trialCount) %>%
+  select(-trialCount2, trialDisplay = display) %>%
+  gather(trialTime, timeUsed, -unique_id, -parent_id, -child_id, -sub_id, -generation, -seed, -condition, -date, -time, -type, -trialCount, -trialDisplay, -array) %>%
+  separate(trialTime, c("tmp", "trialCount3"), -5) %>%
+  separate(trialCount3, c("trialCount3", "tmp2"), 1) %>%
+  select(-tmp, -tmp2) %>%
+  filter(trialCount == trialCount3) %>%
+  select(unique_id, parent_id, child_id, sub_id, generation, seed, condition, date, time, trialCount, trialDisplay, timeUsed, type, array) %>%
+  spread(type, array) %>%
+  separate(data, c("input_0_0", "input_0_1", "input_0_2", "input_0_3", "input_0_4", "input_0_5", "input_0_6", "input_0_7", "input_1_0", "input_1_1", "input_1_2", "input_1_3", "input_1_4", "input_1_5", "input_1_6", "input_1_7", "input_2_0", "input_2_1", "input_2_2", "input_2_3", "input_2_4", "input_2_5", "input_2_6", "input_2_7", "input_3_0", "input_3_1", "input_3_2", "input_3_3", "input_3_4", "input_3_5", "input_3_6", "input_3_7", "input_4_0", "input_4_1", "input_4_2", "input_4_3", "input_4_4", "input_4_5", "input_4_6", "input_4_7", "input_5_0", "input_5_1", "input_5_2", "input_5_3", "input_5_4", "input_5_5", "input_5_6", "input_5_7", "input_6_0", "input_6_1", "input_6_2", "input_6_3", "input_6_4", "input_6_5", "input_6_6", "input_6_7", "input_7_0", "input_7_1", "input_7_2", "input_7_3", "input_7_4", "input_7_5", "input_7_6", "input_7_7"), sep = " ") %>%
+    separate(target, c("target_0_0", "target_0_1", "target_0_2", "target_0_3", "target_0_4", "target_0_5", "target_0_6", "target_0_7", "target_1_0", "target_1_1", "target_1_2", "target_1_3", "target_1_4", "target_1_5", "target_1_6", "target_1_7", "target_2_0", "target_2_1", "target_2_2", "target_2_3", "target_2_4", "target_2_5", "target_2_6", "target_2_7", "target_3_0", "target_3_1", "target_3_2", "target_3_3", "target_3_4", "target_3_5", "target_3_6", "target_3_7", "target_4_0", "target_4_1", "target_4_2", "target_4_3", "target_4_4", "target_4_5", "target_4_6", "target_4_7", "target_5_0", "target_5_1", "target_5_2", "target_5_3", "target_5_4", "target_5_5", "target_5_6", "target_5_7", "target_6_0", "target_6_1", "target_6_2", "target_6_3", "target_6_4", "target_6_5", "target_6_6", "target_6_7", "target_7_0", "target_7_1", "target_7_2", "target_7_3", "target_7_4", "target_7_5", "target_7_6", "target_7_7"), sep = " ") %>%
+    gather(row, value,-unique_id:-timeUsed)%>%
+  arrange(sub_id, trialDisplay) %>%
+  separate(row, c("type","row", "col")) %>%
+  spread(type,value) %>%
+  mutate(input = as.numeric(input), target = as.numeric(target),
+         row = as.numeric(row), column = as.numeric(col)) %>%
+  mutate(accuracy = input == target,
+         sub_id = as.character(sub_id)) %>%
+  arrange(generation) 
+```
+
 ## Descriptive
 Displays the actual grids that people made 
 ```{r plot_grids}
 pdf("trial_data_adults.pdf", width = 10, height = 10)
 calculate_data %>%
-  distinct(trialDisplay, row, col, target) %>%
-  mutate(sub_id = "target") %>%
-  rename(input = target) %>%
-  bind_rows(select(calculate_data, sub_id, trialDisplay, row, col, input)) %>%
-  mutate(input = factor(input), sub_id = factor(sub_id, levels = unique(.$sub_id))) %>%
+  bind_rows(select(calculate_data, generation, trialDisplay, row, col, input)) %>%
+  mutate(input = factor(input), generation = factor(generation, levels = unique(.$generation))) %>%
   mutate(row = 7 - row) %>%
   ggplot(aes(x = col, y = row, fill = input)) +
-  facet_grid(trialDisplay ~ sub_id) +
+  facet_grid(trialDisplay ~ generation) +
   geom_tile(color = "black") +
-  scale_fill_manual(values = c("0" = "white", "1" = "black"), guide = F)
+  scale_fill_manual(values = c("0" = "white", "1" = "black"), guide = F) 
 dev.off()
 ```
 
