@@ -61,10 +61,10 @@ function randId() {
   return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(2, 10);
 }
 
+
 var unique_id = 0;  
 var ip = 0; 
 //gets IP address of user (temporary ID so when mturk page refreshes it doesn't mess everything up)
-
 function getIP(){
   tmp = $.getJSON("https://api.ipify.org?format=jsonp&callback=?",
       function(json) {
@@ -230,6 +230,16 @@ var experiment = {
   timeUsed:0, //time used from timer
 
   ////////FUNCTIONS 
+uniqueTurker: function(){
+    var ut_id = "53ae4ea04173428d22d2c34c58eca39a";
+    if (UTWorkerLimitReached(ut_id)) {
+      console.log("not unique");
+        document.getElementsByTagName('body')[0].innerHTML = "You have already completed the maximum number of HITs allowed by this requester. Please click 'Return HIT' to avoid any impact on your approval rating.";
+    } else {
+      getIP(); 
+      console.log("unique");
+    }
+},
 
 
   reserveDate: function(unique_id, ip) {
@@ -596,7 +606,7 @@ var experiment = {
   mask: function(){
     showSlide("mask");
     //CHANGE ME BEFORE PILOT ******
-    setTimeout(function(){ experiment.input() }, 2000);
+    setTimeout(function(){ experiment.input() }, 3000);
   },
 
   //adds specific color for each trial
@@ -660,7 +670,7 @@ var experiment = {
       //shows target slide for X seconds 
       showSlide("trial");  
       //CHANGE ME BEFORE PILOT ******                              
-      setTimeout(function(){ experiment.mask() }, 12000);
+      setTimeout(function(){ experiment.mask() }, 10000);
 
       if(experiment.trialCount > 3 & experiment.trialCount < 10){ //if in the study trials, not training
         //displays how many trials you have left before being done
@@ -820,7 +830,7 @@ var experiment = {
         if(rowIndex == 8){
           showSlide("expIntro"); 
           sparkle.play();     
-          $(practiceIntro).html('<center>Now you will try to recreate a grid from memory. A target grid will appear for <strong>12</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. <strong>Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
+          $(practiceIntro).html('<center>Now you will try to recreate a grid from memory. A target grid will appear for <strong>10</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. <strong>Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
         } else{
           cellIndex = 0; 
         }

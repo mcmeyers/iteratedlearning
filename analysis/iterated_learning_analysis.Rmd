@@ -71,19 +71,27 @@ calculate_data <- data %>%
 ```
 
 
-## Read in Data - New
+## Read in Data from Google Sheet (Pilot)
 ```{r read in data from google sheet}
 data_sheet <- gs_ls() %>%
   filter(sheet_title == "Kid Generations") %>%
   pull(sheet_key) %>%
   gs_key() %>%
   gs_read(ws = "Sheet1") %>%
-  filter(seed == 1) #filter to just this pilot seed data 
+  filter(seed == 1 & condition == "adult_baseline_pilot") #filter to just this pilot seed data 
 ```
+
+## Read in Adult Baseline Data (saved as .csv taken from Google Sheet, includes only full chains)
+```{r read in data}
+adult_baseline <- read_csv("../data/adult_baseline.csv") %>%
+  select(-sum_timeUsed)
+
+```
+
 
 ## Format Data for Display & Grid Analysis - New
 ```{r}
-calculate_data <- data_sheet %>% #puts each trial and either target or display in a separate row
+tmp_data <- adult_baseline %>% #puts each trial and either target or display in a separate row
   select(-available_onload, -available_accepted, -sub_age) %>%
   gather(display, array, -unique_id, -parent_id, -child_id, -sub_id, -generation, -seed, -condition, -date, -time, -trial1Count, -time1Used, -trial1Display, -trial2Count, -time2Used, -trial2Display, -trial4Count, -trial4Display, -time4Used, -trial5Count, -trial5Display, -time5Used, -trial6Count, -trial6Display, -time6Used, -trial7Count, -trial7Display, -time7Used, -trial8Count, -trial8Display, -time8Used, -trial9Count, -trial9Display, -time9Used) %>%
   arrange(sub_id) %>%
@@ -106,7 +114,9 @@ calculate_data <- data_sheet %>% #puts each trial and either target or display i
   select(unique_id, parent_id, child_id, sub_id, generation, seed, condition, date, time, trialCount, trialDisplay, timeUsed, type, array) %>%
   spread(type, array) %>%
   separate(data, c("input_0_0", "input_0_1", "input_0_2", "input_0_3", "input_0_4", "input_0_5", "input_0_6", "input_0_7", "input_1_0", "input_1_1", "input_1_2", "input_1_3", "input_1_4", "input_1_5", "input_1_6", "input_1_7", "input_2_0", "input_2_1", "input_2_2", "input_2_3", "input_2_4", "input_2_5", "input_2_6", "input_2_7", "input_3_0", "input_3_1", "input_3_2", "input_3_3", "input_3_4", "input_3_5", "input_3_6", "input_3_7", "input_4_0", "input_4_1", "input_4_2", "input_4_3", "input_4_4", "input_4_5", "input_4_6", "input_4_7", "input_5_0", "input_5_1", "input_5_2", "input_5_3", "input_5_4", "input_5_5", "input_5_6", "input_5_7", "input_6_0", "input_6_1", "input_6_2", "input_6_3", "input_6_4", "input_6_5", "input_6_6", "input_6_7", "input_7_0", "input_7_1", "input_7_2", "input_7_3", "input_7_4", "input_7_5", "input_7_6", "input_7_7"), sep = " ") %>%
-    separate(target, c("target_0_0", "target_0_1", "target_0_2", "target_0_3", "target_0_4", "target_0_5", "target_0_6", "target_0_7", "target_1_0", "target_1_1", "target_1_2", "target_1_3", "target_1_4", "target_1_5", "target_1_6", "target_1_7", "target_2_0", "target_2_1", "target_2_2", "target_2_3", "target_2_4", "target_2_5", "target_2_6", "target_2_7", "target_3_0", "target_3_1", "target_3_2", "target_3_3", "target_3_4", "target_3_5", "target_3_6", "target_3_7", "target_4_0", "target_4_1", "target_4_2", "target_4_3", "target_4_4", "target_4_5", "target_4_6", "target_4_7", "target_5_0", "target_5_1", "target_5_2", "target_5_3", "target_5_4", "target_5_5", "target_5_6", "target_5_7", "target_6_0", "target_6_1", "target_6_2", "target_6_3", "target_6_4", "target_6_5", "target_6_6", "target_6_7", "target_7_0", "target_7_1", "target_7_2", "target_7_3", "target_7_4", "target_7_5", "target_7_6", "target_7_7"), sep = " ") %>%
+    separate(target, c("target_0_0", "target_0_1", "target_0_2", "target_0_3", "target_0_4", "target_0_5", "target_0_6", "target_0_7", "target_1_0", "target_1_1", "target_1_2", "target_1_3", "target_1_4", "target_1_5", "target_1_6", "target_1_7", "target_2_0", "target_2_1", "target_2_2", "target_2_3", "target_2_4", "target_2_5", "target_2_6", "target_2_7", "target_3_0", "target_3_1", "target_3_2", "target_3_3", "target_3_4", "target_3_5", "target_3_6", "target_3_7", "target_4_0", "target_4_1", "target_4_2", "target_4_3", "target_4_4", "target_4_5", "target_4_6", "target_4_7", "target_5_0", "target_5_1", "target_5_2", "target_5_3", "target_5_4", "target_5_5", "target_5_6", "target_5_7", "target_6_0", "target_6_1", "target_6_2", "target_6_3", "target_6_4", "target_6_5", "target_6_6", "target_6_7", "target_7_0", "target_7_1", "target_7_2", "target_7_3", "target_7_4", "target_7_5", "target_7_6", "target_7_7"), sep = " ") 
+
+calculate_data <-tmp_data %>%
     gather(row, value,-unique_id:-timeUsed)%>%
   arrange(sub_id, trialDisplay) %>%
   separate(row, c("type","row", "col")) %>%
@@ -115,13 +125,31 @@ calculate_data <- data_sheet %>% #puts each trial and either target or display i
          row = as.numeric(row), column = as.numeric(col)) %>%
   mutate(accuracy = input == target,
          sub_id = as.character(sub_id)) %>%
-  arrange(generation) 
+  arrange(seed, generation) 
+
+
+spread_data <- tmp_data %>%
+  gather(row, value, -unique_id, -parent_id, -child_id, -sub_id, -condition, -generation, -seed, -date, -time, -trialDisplay, -trialCount, -timeUsed)%>%
+  arrange(sub_id, trialDisplay) %>%
+  separate(row, c("type","row", "col")) %>%
+  unite(ty_col, type, col) %>%
+  spread(ty_col, value) %>%
+  filter(is.na(row)==F)
+
+
+tmp <- tmp_data %>%
+  #select(-(unique_id:time)) %>%
+#  select(-timeUsed, -trialCount) %>%
+  select(-trialCount) %>%
+  unique() %>%
+  ungroup() %>%
+  arrange(trialDisplay, generation)
 ```
 
 ## Descriptive
 Displays the actual grids that people made 
 ```{r plot_grids}
-pdf("trial_data_adults.pdf", width = 10, height = 10)
+pdf("trial_data_adults_s22.pdf", width = 10, height = 10)
 calculate_data %>%
   bind_rows(select(calculate_data, generation, trialDisplay, row, col, input)) %>%
   mutate(input = factor(input), generation = factor(generation, levels = unique(.$generation))) %>%
@@ -137,7 +165,7 @@ dev.off()
 Percent accuracies calculated by %/10 targets placed correctly 
 ```{r accuracy}
 trial_data <- calculate_data %>%
-  filter(target == 1) %>%
+  filter(generation != 0) %>%
   filter(trialDisplay > 0) %>%
  # filter(sub_id == 5 | sub_id == 2) %>%
   group_by(trialCount, sub_id) %>%
@@ -212,7 +240,7 @@ edge_function = function(m){
 Algorithmic Complexity: Block Decomposition Method [do you need to install the function every time?]
 ```{r}
 bdm_data <- spread_data %>%
-  filter(trialDisplay != 0) %>%
+  filter(trialDisplay != 0, is.na(sub_id)==FALSE) %>%
   select(sub_id, generation, trialDisplay, row, input_0:input_7) %>%
   mutate(input_7 = as.numeric(input_7),
          input_6 = as.numeric(input_6),
@@ -224,18 +252,20 @@ bdm_data <- spread_data %>%
          input_0 = as.numeric(input_0)) 
 
 target_data <- spread_data %>%
-  filter(trialDisplay != 0) %>%
-  select(sub_id, generation, trialDisplay, row, target_0:target_7) %>%
-  mutate(sub_id = 0, generation = 0) %>%
-  unique(.) %>%
-  mutate(target_7 = as.numeric(target_7),
-         target_6 = as.numeric(target_6),
-         target_5 = as.numeric(target_5),
-         target_4 = as.numeric(target_4),
-         target_3 = as.numeric(target_3),
-         target_2 = as.numeric(target_2),
-         target_1 = as.numeric(target_1),
-         target_0 = as.numeric(target_0)) 
+  filter(trialDisplay != 0 & trialDisplay != 0.5 & generation == 0)  %>%
+  select(sub_id, generation, trialDisplay, row, input_0:input_7) %>%
+  mutate(sub_id = 0) %>%
+  mutate(target_0 = as.numeric(input_7),
+         target_1 = as.numeric(input_6),
+         target_2 = as.numeric(input_5),
+         target_3 = as.numeric(input_4),
+         target_4 = as.numeric(input_3),
+         target_5 = as.numeric(input_2),
+         target_6 = as.numeric(input_1),
+         target_7 = as.numeric(input_0)) %>%
+  select(-(input_0:input_7)) %>%
+  arrange(trialDisplay,row) %>%
+  unique()
  
 target_store <- data.frame(bdm = bdm_function(target_data),
                            chunking = nPart_function(target_data),
