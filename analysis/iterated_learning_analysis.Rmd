@@ -215,7 +215,7 @@ bdm_function = function(m){
   k=1
   q=1
   for(i in 1:(nrow(m)/8)){
-    df = m[q:(q+7), 5:12]
+    df = m[q:(q+7), 5:12] #CHANGE IF CHANGE INPUT COLUMNS
     data.matrix(df)
     x[k] = bdm(df)
     k = k +1
@@ -232,7 +232,7 @@ nPart_function = function(m){
   k=1
   q=1
   for(i in 1:(nrow(m)/8)){
-    df = m[q:(q+7), 5:12]
+    df = m[q:(q+7), 5:12] #CHANGE IF CHANGE INPUT COLUMNS
     data.matrix(df)
     x[k] = nPart(df)
     k = k +1
@@ -249,7 +249,7 @@ edge_function = function(m){
   k=1
   q=1
   for(i in 1:(nrow(m)/8)){
-    df = m[q:(q+7), 5:12]
+    df = m[q:(q+7), 5:12] #CHANGE IF CHANGE INPUT COLUMNS
     data.matrix(df)
     x[k] = edge(df)
     k = k +1
@@ -275,7 +275,7 @@ bdm_data <- spread_data %>%
          input_0 = as.numeric(input_0)) 
 
 target_data <- spread_data %>%
-  filter(trialDisplay != 0 & trialDisplay != 0.5 & generation == 0)  %>%
+  filter(trialDisplay != 0 & trialDisplay != 0.5 & generation == 0 & seed !=20)  %>%
   select(sub_id, generation,trialDisplay, row, input_0:input_7) %>%
   mutate(sub_id = 0) %>%
   mutate(target_0 = as.numeric(input_7),
@@ -298,20 +298,19 @@ bdm_store <- data.frame(bdm = bdm_function(bdm_data),
                         edge = edge_function(bdm_data))
 
 bind_targets <- target_data %>%
-  mutate(generation = 0) %>%
-  group_by(sub_id, trialDisplay, generation) %>%
+  group_by(sub_id,trialDisplay, generation) %>%
   summarise(.) %>%
   bind_cols(target_store, .)
 
 bind_data <- bdm_data %>%
-  group_by(sub_id, trialDisplay, generation) %>%
+  group_by(sub_id,trialDisplay, generation) %>%
   summarise(.) %>%
   bind_cols(bdm_store, .) %>%
   bind_rows(. , bind_targets) %>%
   mutate(bdm = as.numeric(bdm),
          chunking = as.numeric(chunking),
          edge = as.numeric(edge)) %>%
-  group_by(sub_id, trialDisplay, generation)%>%
+  group_by(sub_id,trialDisplay, generation)%>%
   summarise(bdm_mean = mean(bdm),
             chunking_mean = mean(chunking),
             edge_mean = mean(edge)) 
@@ -320,19 +319,151 @@ bind_data <- bdm_data %>%
 
 ```{r graphs}
 #algorithmic complexity decreases linearly by generation; same amount decrease as Kempe
-ggplot(bind_data %>% group_by(generation) %>% tidyboot_mean(bdm_mean), aes(x = generation, y = empirical_stat, 
+ggplot(bind_data %>%group_by(generation) %>% tidyboot_mean(bdm_mean), aes(x = generation, y = empirical_stat, 
                        ymin = ci_lower, ymax = ci_upper)) + 
-  geom_pointrange()+geom_line()+ylab("algorithmic complexity")
+  geom_pointrange()+geom_line()+ylab("algorithmic complexity")+ggtitle("algorithmic complexity over generations")
 
+#seems to be variation by trial display but same general trend
+ggplot(bind_data %>%group_by(generation, trialDisplay) %>% tidyboot_mean(bdm_mean), aes(x = generation, y = empirical_stat, 
+                       ymin = ci_lower, ymax = ci_upper)) + 
+  geom_pointrange()+geom_smooth()+ylab("algorithmic complexity")+facet_wrap(~trialDisplay)+ggtitle("algoritmic complexity over generations by trial display")
 
 #number of chunks decreases linearly by generation
 ggplot(bind_data %>% group_by(generation) %>% tidyboot_mean(chunking_mean), aes(x = generation, y = empirical_stat, 
                        ymin = ci_lower, ymax = ci_upper)) + 
-  geom_pointrange()+geom_line()+ylab("number of chunks")
+  geom_pointrange()+geom_line()+ylab("number of chunks")+ggtitle("chunking over generations")
 
 #edge length decreases linearly by generation
 ggplot(bind_data %>% group_by(generation) %>% tidyboot_mean(edge_mean), aes(x = generation, y = empirical_stat, 
                        ymin = ci_lower, ymax = ci_upper)) + 
-  geom_pointrange()+geom_line()+ylab("edge length")
+  geom_pointrange()+geom_line()+ylab("edge length")+ggtitle("edge length over generations")
 
 ```
+
+
+Block Decomposition Method for Algorithmic Complexity 
+```{r}
+bdm_seed_function = function(m){
+  x = rep("x", nrow(m)/8)
+  k=1
+  q=1
+  for(i in 1:(nrow(m)/8)){
+    df = m[q:(q+7), 6:13] #CHANGE IF CHANGE INPUT COLUMNS
+    data.matrix(df)
+    x[k] = bdm(df)
+    k = k +1
+    q=q+8
+  }
+  return(x) 
+}
+```
+
+## Chunking
+```{r}
+nPart_seed_function = function(m){
+  x = rep("x", nrow(m)/8)
+  k=1
+  q=1
+  for(i in 1:(nrow(m)/8)){
+    df = m[q:(q+7), 6:13] #CHANGE IF CHANGE INPUT COLUMNS
+    data.matrix(df)
+    x[k] = nPart(df)
+    k = k +1
+    q=q+8
+  }
+  return(x) 
+}
+```
+
+## Edge Length
+```{r}
+edge_seed_function = function(m){
+  x = rep("x", nrow(m)/8)
+  k=1
+  q=1
+  for(i in 1:(nrow(m)/8)){
+    df = m[q:(q+7), 6:13] #CHANGE IF CHANGE INPUT COLUMNS
+    data.matrix(df)
+    x[k] = edge(df)
+    k = k +1
+    q=q+8
+  }
+  return(x) 
+}
+```
+
+```{r}
+bdm_seed_data <- spread_data %>%
+  filter(trialCount > 3, generation != 0, seed != 20) %>%
+  select(sub_id=unique_id, generation,seed,trialDisplay, row, input_0:input_7) %>%
+  mutate(input_7 = as.numeric(input_7),
+         input_6 = as.numeric(input_6),
+         input_5 = as.numeric(input_5),
+         input_4 = as.numeric(input_4),
+         input_3 = as.numeric(input_3),
+         input_2 = as.numeric(input_2),
+         input_1 = as.numeric(input_1),
+         input_0 = as.numeric(input_0)) %>%
+  arrange(trialDisplay, sub_id)
+
+target_seed_data <- spread_data %>%
+  filter(trialDisplay != 0 & trialDisplay != 0.5 & generation == 0 & seed !=20)  %>%
+  select(sub_id = unique_id, generation,seed,trialDisplay, row, input_0:input_7) %>%
+  mutate(target_0 = as.numeric(input_7),
+         target_1 = as.numeric(input_6),
+         target_2 = as.numeric(input_5),
+         target_3 = as.numeric(input_4),
+         target_4 = as.numeric(input_3),
+         target_5 = as.numeric(input_2),
+         target_6 = as.numeric(input_1),
+         target_7 = as.numeric(input_0)) %>%
+  select(-(input_0:input_7)) %>%
+  arrange(trialDisplay,sub_id) %>%
+  unique()
+ 
+target_seed_store <- data.frame(bdm = bdm_seed_function(target_seed_data),
+                           chunking = nPart_seed_function(target_seed_data),
+                           edge = edge_seed_function(target_seed_data)) 
+bdm_seed_store <- data.frame(bdm = bdm_seed_function(bdm_seed_data),
+                        chunking = nPart_seed_function(bdm_seed_data),
+                        edge = edge_seed_function(bdm_seed_data))
+
+bind_seed_targets <- target_seed_data %>%
+  group_by(trialDisplay,sub_id,generation,seed) %>%
+  summarise(.) %>%
+  bind_cols(target_seed_store, .)
+
+bind_seed_data <- bdm_seed_data %>%
+  group_by(trialDisplay, sub_id, generation,seed) %>%
+  summarise(.) %>%
+  bind_cols(bdm_seed_store, .) %>%
+  bind_rows(. , bind_seed_targets) %>%
+  mutate(bdm = as.numeric(bdm),
+         chunking = as.numeric(chunking),
+         edge = as.numeric(edge)) %>%
+  group_by(sub_id,trialDisplay, generation,seed)%>%
+  summarise(bdm_mean = mean(bdm),
+            chunking_mean = mean(chunking),
+            edge_mean = mean(edge)) 
+
+```
+
+```{r graphs}
+#shows complexity by seed, see variation but same general trend across seeds 
+ggplot(bind_seed_data %>%group_by(generation, seed) %>% tidyboot_mean(bdm_mean), aes(x = generation, y = empirical_stat,  
+                       ymin = ci_lower, ymax = ci_upper)) + 
+  geom_pointrange()+geom_line()+ylab("algorithmic complexity")+facet_wrap(~seed)+scale_y_continuous(limits = c(160,250))+ggtitle("algorithmic complexity over generations by distinct chain #")
+
+#these trends seem to be more dramatic here! There's one chain that doesn't decrease, but some very dramatic
+ggplot(bind_seed_data %>% group_by(generation,seed) %>% tidyboot_mean(chunking_mean), aes(x = generation, y = empirical_stat, 
+                       ymin = ci_lower, ymax = ci_upper)) + 
+  geom_pointrange()+geom_line()+ylab("number of chunks")+facet_wrap(~seed)+ggtitle("chunking over generations by distinct chain #")
+
+#trends are same
+ggplot(bind_seed_data %>% group_by(generation,seed) %>% tidyboot_mean(edge_mean), aes(x = generation, y = empirical_stat, 
+                       ymin = ci_lower, ymax = ci_upper)) + 
+  geom_pointrange()+geom_line()+ylab("edge length")+facet_wrap(~seed)+ggtitle("edge length over generations by distinct chain #")
+```
+
+## Identifiability
+Kempe et al defined this as the proportion of within-chain similarity / (within-chain)+(across-chain similarity). We will define "similarity" as the percent of same cells highlighted (like we did for % accuracy between target/input, but just with input of gen 1 seed 1 compared to input of gen 1 seed 2). 

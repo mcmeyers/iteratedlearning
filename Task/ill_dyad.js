@@ -56,7 +56,6 @@ function clearTimer(display){
   }, 1000);
 }
 
-showSlide("intro_child");
 
 //generates a random id for subject
 function randId() {
@@ -64,19 +63,25 @@ function randId() {
 }
 
 
-//EXPERIMENT SETUP 
+var unique_id = 0;  
+var ip = 0; 
+//gets IP address of user (temporary ID so when mturk page refreshes it doesn't mess everything up)
+function getIP(){
+  tmp = $.getJSON("https://api.ipify.org?format=jsonp&callback=?",
+      function(json) {
+      });
+  tmp.done(function(data){
+    ip = data.ip; 
 
-// FIRST THING DISPLAYED, show the instructions slide 
-//showSlide("intro");
-
-//FOR TURK VERSION 
-/*if(turk.assignmentId == "ASSIGNMENT_ID_NOT_AVAILABLE") { //if person has not accepted HIT
-  document.getElementById("notAccepted").innerHTML= "Please accept the HIT to Begin!!";
-} else { //if person has accepted HIT
-  $("#startButton").click(function(){
-    experiment.startTrain();
+    if(turk.assignmentId == "ASSIGNMENT_ID_NOT_AVAILABLE") { //if person has not accepted HIT
+      document.getElementById("notAccepted").innerHTML= "Please accept the HIT to Begin!!";
+      experiment.reserveDate(ip, ip); //if assignment has not been accepted, unique_id = ip address and ip = ip address
+    } else { //if person has accepted HIT
+      unique_id = randId(); 
+      experiment.reserveDate(unique_id, ip); //if assignment has been accepted, unique_id = rand int and ip = ip address
+    } 
   });
-} */
+}
 
 //creates initial seed grids; just in case although these should be read in from the Google Sheet 
 
@@ -238,48 +243,91 @@ var experiment = {
   timeUsed:0, //time used from timer
 
   ////////FUNCTIONS 
+  uniqueTurker: function(){
+    var ut_id = "53ae4ea04173428d22d2c34c58eca39a";
+   /* if (UTWorkerLimitReached(ut_id)) {
+      console.log("not unique");
+        document.getElementsByTagName('body')[0].innerHTML = "You have already completed the maximum number of HITs allowed by this requester. Please click 'Return HIT' to avoid any impact on your approval rating.";
+    } else { */
+      getIP(); 
+      console.log("unique");
+    //}
+  },
+
+  reserveDate: function(unique_id, ip) {
+    console.log(unique_id); 
+    console.log(ip);
+   // console.log(experiment.unique_id);
+    request = $.ajax({
+      url: "https://script.google.com/macros/s/AKfycbzBAzXejWWLpkhKrzloWEKyCK8KfN51M5Deu3uoFJxm-vnk2A/exec",
+      type: "get", 
+      dataType: "json",
+      data: {type: "reserve", unique_id: unique_id, ip: ip} //CHANGE ME FOR KIDDOS 
+    }); 
+
+    request.done(function (data){
+      // log a message to the console
+      experiment.data = data; 
+      //IF THERE IS AN AVAILABLE ROW WHERE GENERATION IS NOT MAXED OUT 
+      console.log(data);
+
+      if(experiment.data[7]=="initial"){
+        showSlide("intro_child");
+        experiment.condition = "child";
+      } if(experiment.data[7]=="child"){
+        showSlide("intro_adult");
+        experiment.condition = "adult"
+      } if(experiment.data[7]=="adult"){
+        showSlide("intro_child");
+        experiment.condition = "child"
+      }
+      //IF THERE ARE NO AVAILABLE ROWS--ERROR MESSAGE 
+      if(data == 0){ 
+        console.log("there was no available data at all, spitting out an error message");
+        showSlide("limbo");
+      }
+    });
+  }, 
 
   //reads in data from Google Sheet 
   loadIteratedData: function(){
+    console.log("running");
   //makes request to sheet
     request = $.ajax({
       url: "https://script.google.com/macros/s/AKfycbzBAzXejWWLpkhKrzloWEKyCK8KfN51M5Deu3uoFJxm-vnk2A/exec",
       type: "get", 
       dataType: "json",
+      data: {type: experiment.parent_id, unique_id: unique_id}, 
     }); 
     request.done(function (data){
       // log a message to the console
       experiment.data = data; 
-      //THIS IS WRONG FIX ME
-      if(experiment.data[6]=="child"){
-        experiment.condition = "adult";
-      } else {
-        experiment.condition = "child";
-      }
-      //IF THERE IS AN AVAILABLE ROW WHERE GENERATION IS NOT MAXED OUT AND THE ADULT READS IN CHILD, CHILD READS IN ADULT  
-      if(experiment.data != 0 & experiment.data[4] != 6){  
-        //CHANGE MEEEEEE
-        if(experiment.condition=="child") {
-          //showSlide("intro_child");
-          experiment.generation = experiment.data[4]+1;
-          experiment.changeTargets(); //loads in target grids (which should be previous adult's input grids)
-        } if(experiment.condition=="adult"){
-         // showSlide("intro_adult")
-          experiment.loadTargetInputs(); //loads in target grids (which should be previous child's target grids)
-          experiment.loadFixInputs(); //loads in fixable grids (which should be previous child's input grids)
-          experiment.generation = experiment.data[4];
-        }
-        experiment.seed = experiment.data[5];
-        experiment.parent_id = data[0];
+      //IF THERE IS AN AVAILABLE ROW WHERE GENERATION IS NOT MAXED OUT 
+      if(experiment.data != 0 & experiment.data[5] != 6 ){ 
+        experiment.seed = experiment.data[6];
         console.log("there was data available!");
         console.log(data);
+        experiment.parent_id = data[0];
+
+        if(experiment.data[7]=="initial"){ //the first generation target seed (only called once per chain), goes to child
+          experiment.changeTargets(); //read in targets that were previous inputs
+          experiment.generation = experiment.data[5]+1;
+        } if(experiment.data[7]=="child"){ //if the previous row was a child, currently adult who has to fix child grids
+          experiment.generation = experiment.data[5]; 
+          experiment.loadTargetInputs();
+          experiment.loadFixInputs();
+        } if(experiment.data[7]=="adult"){ //previously was adult who fixed child's inputs, now is a new child who takes adult inputs as targets
+          experiment.generation = experiment.data[5]+1;
+          experiment.changeTargets(); //read in targets that were previous inputs 
+        }
       } 
       //IF THERE ARE NO AVAILABLE ROWS--ERROR MESSAGE 
       if(experiment.data == 0){ 
         console.log("there was no available data at all, spitting out an error message");
         showSlide("limbo");
       }
-    });
+    }); 
+    experiment.startTrain();
   },
 
   //function to create grid from string
@@ -298,38 +346,38 @@ var experiment = {
   //function to load in target displays for parent condition (PREVIOUS CHILD'S TARGETS)
   loadTargetInputs: function(){
     for(i=0; i<6; i++){
-      if(experiment.data[20] == i+1){
-        targetNames[i] = experiment.createGrid(experiment.data[22]);
+      if(experiment.data[21] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[23]);
         break; 
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[25] == i+1){
-        targetNames[i] = experiment.createGrid(experiment.data[27]);
+      if(experiment.data[26] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[28]);
         break;
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[30] == i+1){
-        targetNames[i] = experiment.createGrid(experiment.data[32]);
+      if(experiment.data[31] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[33]);
         break;
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[35] == i+1){
-        targetNames[i] = experiment.createGrid(experiment.data[37]);
+      if(experiment.data[36] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[38]);
         break;
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[40] == i+1){
-        targetNames[i] = experiment.createGrid(experiment.data[42]);
+      if(experiment.data[41] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[43]);
         break;
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[45] == i+1){
-        targetNames[i] = experiment.createGrid(experiment.data[47]);
+      if(experiment.data[46] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[48]);
         break;
       }
     };
@@ -340,38 +388,38 @@ var experiment = {
   //NOTE TO SELF ALSO NEED TO CHANGE PARENT TARGET STORING DATA BECAUSE WHAT PARENT SEES AS TARGET IS WHAT CHILD SAW AS TARGET, AND INSTEAD OF INPUT PARENT SEES WHAT CHILD HAD MADE AS INPUT, AFTER PARENT EDITS THIS BECOMES NEXT CHILD'S TARGET; WANT TO SAVE CHILD'S CREATION = TARGET (EVEN THOUGH WAS NOT DISPLAYED ON TARGET GRID) AND PARENT INPUT (EDITS PARENT MADE TO CHILD'S PREVIOUS TARGET)
   loadFixInputs: function(){
     for(i=0; i<6; i++){
-      if(experiment.data[20] == i+1){
-        inputNames[i] = experiment.createGrid(experiment.data[23]);
+      if(experiment.data[21] == i+1){
+        inputNames[i] = experiment.createGrid(experiment.data[24]);
         break; 
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[25] == i+1){
-        inputNames[i] = experiment.createGrid(experiment.data[28]);
+      if(experiment.data[26] == i+1){
+        inputNames[i] = experiment.createGrid(experiment.data[29]);
         break;
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[30] == i+1){
-        inputNames[i] = experiment.createGrid(experiment.data[33]);
+      if(experiment.data[31] == i+1){
+        inputNames[i] = experiment.createGrid(experiment.data[34]);
         break;
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[35] == i+1){
-        inputNames[i] = experiment.createGrid(experiment.data[38]);
+      if(experiment.data[36] == i+1){
+        inputNames[i] = experiment.createGrid(experiment.data[39]);
         break;
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[40] == i+1){
-        inputNames[i] = experiment.createGrid(experiment.data[43]);
+      if(experiment.data[41] == i+1){
+        inputNames[i] = experiment.createGrid(experiment.data[44]);
         break;
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[45] == i+1){
-        inputNames[i] = experiment.createGrid(experiment.data[48]);
+      if(experiment.data[46] == i+1){
+        inputNames[i] = experiment.createGrid(experiment.data[49]);
         break;
       }
     };
@@ -381,38 +429,38 @@ var experiment = {
   //takes in data read from Google Sheet and creates correct target grids from it; SHOULD WORK FOR CHILD CONDITIONS FINE  
   changeTargets: function(){
     for(i=0; i<6; i++){
-      if(experiment.data[20] == i+1){
-        targetNames[i] = experiment.createGrid(experiment.data[23]);
+      if(experiment.data[21] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[24]);
         break; 
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[25] == i+1){
-        targetNames[i] = experiment.createGrid(experiment.data[28]);
+      if(experiment.data[26] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[29]);
         break;
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[30] == i+1){
-        targetNames[i] = experiment.createGrid(experiment.data[33]);
+      if(experiment.data[31] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[34]);
         break;
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[35] == i+1){
-        targetNames[i] = experiment.createGrid(experiment.data[38]);
+      if(experiment.data[36] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[39]);
         break;
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[40] == i+1){
-        targetNames[i] = experiment.createGrid(experiment.data[43]);
+      if(experiment.data[41] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[44]);
         break;
       }
     };
     for(i=0; i<6; i++){
-      if(experiment.data[45] == i+1){
-        targetNames[i] = experiment.createGrid(experiment.data[48]);
+      if(experiment.data[46] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[49]);
         break;
       }
     };
@@ -463,10 +511,13 @@ var experiment = {
 
   //starts training session 1 
   startTrain: function() {
+    console.log(experiment.condition);
     if(experiment.condition == "child"){
       showSlide("training1_child");
+      console.log("showing child training");
     } if(experiment.condition == "adult"){
       showSlide("training1_adult");
+      console.log("showing adult training");
     }
     //puts in headers for Turk data file 
     experiment.data.push("unique_id, parent_id, sub_id, age, generation, seed, condition, date, time, trial1Count, trial1Display, input1Time, trial1Target, trial1Data, trial2Count, trial2Display, input2Time, trial2Target, trial2Data, trial4Count, trial4Display, input4Time, trial4Target, trial4Data,trial5Count, trial5Display, input5Time, trial5Target, trial5Data,trial6Count, trial6Display, input6Time, trial6Target, trial6Data,trial7Count, trial7Display, input7Time, trial7Target, trial7Data, trial8Count, trial8Display, input8Time, trial8Target, trial8Data,trial9Count, trial9Display, input9Time, trial9Target, trial9Data,available_onload, available_accepted");
@@ -502,11 +553,11 @@ var experiment = {
   
   //concatenates all important info into correct format to be posted 
     var allData = "unique_id="+experiment.unique_id + "&" + "parent_id="+experiment.parent_id + "&" + "sub_id="+experiment.subid + "&" + "sub_age="+experiment.subage + "&" + "generation="+experiment.generation + "&" + "seed="+ experiment.seed + "&" + "condition="+experiment.condition + "&" + "date="+experiment.date + "&" + "time="+experiment.timestamp + "&";
-    allData += experiment.dataforRound+"&"+"available_onload="+experiment.available_onload+"available_accepted="+experiment.available_accepted+"\n";
+    allData += experiment.dataforRound+"&"+"available_onload="+experiment.available_onload+"&"+"available_accepted="+experiment.available_accepted+"\n";
 
   //ajax post request
     request = $.ajax({
-      url: "https://script.google.com/macros/s/AKfycbym5ORQpTW0gSFmRQsNWuGdPyuXe55ewgS8Da-XBxUnRBlPlyjw/exec",
+      url: "https://script.google.com/macros/s/AKfycbzBAzXejWWLpkhKrzloWEKyCK8KfN51M5Deu3uoFJxm-vnk2A/exec",
       type: "post", 
       data: allData
     });  
@@ -679,7 +730,7 @@ var experiment = {
   mask: function(){
     showSlide("mask");
     //CHANGE ME BEFORE PILOT ******
-    setTimeout(function(){ experiment.input() }, 2000);
+    setTimeout(function(){ experiment.input() }, 3000);
   },
 
   //adds specific color for each trial
@@ -736,7 +787,7 @@ var experiment = {
       $(childIntro).html('<center>You have finished the training, and now we are going to begin the study. Just like in the practice, try to remember and recreate the grids to the best of your ability. There will be 6 trials. <center>');
       } if(experiment.condition == "adult"){
         $(childIntro).html('');
-        $(adultIntro).html('<center>You have finished the training, and now we are going to begin the study. Just like in the practice, try to remember the target grid and fix the one you see displayed. There will be 6 trials. <bold> The grids you will be charged with fixing were created by children aged 6-8 </bold><center>');
+        $(adultIntro).html('<center>You have finished the training, and now we are going to begin the study. Just like in the practice, try to remember the target grid and fix the one you see displayed. There will be 6 trials. <strong> The grids you will be charged with fixing were created by children aged 6-8 </strong><center>');
       }
       return;  
     }
@@ -751,7 +802,7 @@ var experiment = {
       //shows target slide for X seconds 
       showSlide("trial");  
       //CHANGE ME BEFORE PILOT ******                              
-      setTimeout(function(){ experiment.mask() }, 12000);
+      setTimeout(function(){ experiment.mask() }, 10000);
 
       if(experiment.trialCount > 3 & experiment.trialCount < 10){ //if in the study trials, not training
         //displays how many trials you have left before being done
@@ -933,16 +984,17 @@ var experiment = {
       if(cellIndex == 8) {
         rowIndex++;
         //if you are at the end of the grid, either move on to the next training session (T2 or T3, or move onto the actual study trials)
-        if(rowIndex == 8){
-          showSlide("expIntro"); 
-          sparkle.play();  
+        if(rowIndex == 8){ 
+          sparkle.play(); 
+          console.log(experiment.condition); 
           if(experiment.condition == "adult"){
             $(childIntro).html('');
             $(adultIntro).html('<center>Now you will try to fix a grid from memory. A target grid will appear for <strong>12</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a grid. <strong>Your job is to correct this grid to make it match the target you previously saw. Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
+            showSlide("expIntro")
           } if(experiment.condition == "child"){
             $(adultIntro).html('');
             $(childIntro).html('<center>Now you will try to recreate a grid from memory. A target grid will appear for <strong>12</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. <strong>Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
-
+            showSlide("expIntro");
           }
         } else{
           cellIndex = 0; 
@@ -969,17 +1021,9 @@ var experiment = {
     }
     experiment.subage = parseInt(document.getElementById("age").value);
 
-    //subject ID
-    if (document.getElementById("condition").value.length < 1) {
-      $("#checkMessage").html('<font color="red">You must input a subject ID</font>');
-      errorSound.play();
-      return;
-    }
-    //stores info in variable
-    experiment.condition = document.getElementById("condition").value;
 
     //goes to training slide
-    experiment.startTrain();
+    experiment.loadIteratedData();
   },
 }
 

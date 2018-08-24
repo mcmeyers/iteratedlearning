@@ -10,7 +10,7 @@
 </head>
 
 <!--start of code -->
-<body onload="experiment.loadIteratedData();">
+<body onload="experiment.uniqueTurker();">
 
 <!-- load sound effect files -->
 <audio id="ding" src="sounds/ding.m4a"></audio>
@@ -60,17 +60,12 @@
 			age:<br>
 			<input type="text" id="age" name="age" size="30">
 		</p>
-
-		<p class="block-text">
-			condition:<br>
-			<input type="text" id="condition" name="condition" size="30">
-		</p>
 	<!--displays the results if someone included the necessary info or not (only necessary for child condition) -->
 	<div id="checkMessage"></div>
 
 	<!--Button to check if information has been inputted, proceed to next slide if yes-->
 		<!-- CHILD CONDITION -->
-		<button id="startButton" type="button" onclick="this.blur(), experiment.checkInput(); experiment.loadIteratedData();">Start</button> 
+		<button id="startButton" type="button" onclick="this.blur(), experiment.checkInput(); ">Start</button> 
 	</div>
 </div>
 

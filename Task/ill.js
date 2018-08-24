@@ -217,7 +217,7 @@ var experiment = {
   available_accepted:0,
   parent_id:0, 
 
-  //CHANGE FOR TURK
+  //CHANGE MEEEE
   condition:"adult_baseline",
 
   //storing data 
