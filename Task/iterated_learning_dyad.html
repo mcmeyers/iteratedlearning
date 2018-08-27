@@ -9,8 +9,8 @@
 	<link rel="stylesheet" href="style.css" />
 </head>
 
-<!--start of code -->
-<body onload="experiment.uniqueTurker();">
+<!--start of code CHANGE DEPENDING ON CONDITION--> 
+<body onload="runParticipants('turk');">
 
 <!-- load sound effect files -->
 <audio id="ding" src="sounds/ding.m4a"></audio>
@@ -127,7 +127,7 @@
 		</table> 
 		<!-- check answer accuracy -->
 		<div style="text-align: center">
-			<button type="button" onclick="this.blur(); experiment.checkGrid('t1Input_adult', 't1Target_adult', '#checkInput_adult');">Check My Answer</button>
+			<button id = "training_button" type="button" onclick="this.blur(); experiment.checkGrid('t1Input_adult', 't1Target_adult', '#checkInput_adult');">Check My Answer</button>
 	</div>
 </div>
 

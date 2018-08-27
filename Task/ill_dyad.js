@@ -10,6 +10,26 @@ function showSlide(id) {
   $("#"+id).show();
 }
 
+var participants = "";
+
+//function that makes it so you only read in adult data if you are running kids, or only read in kid data if you are running adults. turns off for turk condition where you read in next available row
+function runParticipants(people) {
+  if(people == "turk"){ //if running study on Mturk, want to read in data normally and take next available row 
+    //also want to change so here in the child coniditon you don't see the input slide, only in other condition
+    experiment.subage = "turk";
+    participants = "turk"; 
+  }
+  //if you are NOT running the mturk condition
+    if(people == "child"){
+      participants = "child";
+    } if(people == "adult"){
+      experiment.subage = "adult"; //otherwise would input in the child condition
+      participants = "adult";
+    }
+    //want to only take in available row based on the condition you are in -- in child condition, only take in available adult rows; in adult condition, only take in available child rows
+  experiment.uniqueTurker(); 
+}
+
 //gets current date
 getCurrentDate = function() {
   var currentDate = new Date();
@@ -104,22 +124,22 @@ var train2 = [[1,0,0,0,0,0,0,0],
               [0,0,0,0,0,1,1,1]];
 
 var trainInput1 = [[1,1,0,0,0,0,0,0],
-              [1,1,0,0,0,0,0,0],
+              [0,0,1,1,0,0,0,0],
               [1,1,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,1,1],
               [0,0,0,0,0,0,0,0],
-              [0,0,0,0,0,0,1,1],
-              [0,0,0,0,0,0,1,1],
-              [0,0,0,0,0,0,0,0]];
-
-var trainInput2 = [[1,0,0,0,0,0,0,0],
-              [0,1,0,0,0,0,0,0],
-              [0,0,1,0,0,0,0,0],
-              [0,0,0,1,0,0,0,0],
-              [0,0,0,0,1,0,0,0],
-              [0,0,0,0,0,1,0,0],
               [0,0,0,0,0,0,1,0],
-              [0,0,0,0,0,1,1,1]];
+              [0,0,0,0,0,0,0,1]];
+
+var trainInput2 = [[0,0,0,0,0,0,0,1],
+              [0,0,0,0,0,0,1,0],
+              [0,0,0,0,0,1,0,0],
+              [0,0,0,0,1,0,0,0],
+              [0,0,0,1,0,0,0,0],
+              [0,0,1,0,0,0,0,0],
+              [0,1,0,0,0,0,0,0],
+              [1,1,1,0,0,0,0,0]];
 
 var trial1 = [[1,1,0,1,0,0,0,0],
               [0,0,0,1,0,0,0,0],
@@ -227,8 +247,12 @@ var experiment = {
   date: getCurrentDate(),
   timestamp: getCurrentTime(), 
   seed:1,
-  available_onload:0,
-  available_accepted:0,
+  available_onload:1,
+  available_accepted:1,
+  timedOut: 0,
+  training_accuracy:1,
+  training_1_accuracy:1,
+  training_2_accuracy:1, 
 
   //IMPORTANT defaults to adult because otherwise input makes it == child 
   condition:"adult",
@@ -262,7 +286,7 @@ var experiment = {
       url: "https://script.google.com/macros/s/AKfycbzBAzXejWWLpkhKrzloWEKyCK8KfN51M5Deu3uoFJxm-vnk2A/exec",
       type: "get", 
       dataType: "json",
-      data: {type: "reserve", unique_id: unique_id, ip: ip} //CHANGE ME FOR KIDDOS 
+      data: {type: "reserve", unique_id: unique_id, ip: ip, participants: participants} //CHANGE ME FOR KIDDOS 
     }); 
 
     request.done(function (data){
@@ -272,13 +296,21 @@ var experiment = {
       console.log(data);
 
       if(experiment.data[7]=="initial"){
-        showSlide("intro_child");
+        if(participants == "child"){ //if its a human child
+          showSlide("intro_child");
+        } if(participants == "turk"){ //if its a fake child who is actually a turker
+          showSlide("intro_adult");
+        }
         experiment.condition = "child";
       } if(experiment.data[7]=="child"){
         showSlide("intro_adult");
         experiment.condition = "adult"
       } if(experiment.data[7]=="adult"){
-        showSlide("intro_child");
+        if(participants == "child"){
+          showSlide("intro_child");zen
+        } if(participants == "turk"){
+          showSlide("intro_adult");
+        }
         experiment.condition = "child"
       }
       //IF THERE ARE NO AVAILABLE ROWS--ERROR MESSAGE 
@@ -486,13 +518,17 @@ var experiment = {
       var gridElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
       if (gridElement.className == "clicked"){
         count++;
-        if(count < 11){
+        if(count <= 10 ){
         document.querySelector('#blocksLeft').textContent = 10-count; 
+        document.getElementById("button").disabled = false; 
+        document.getElementById("training_button").disabled = false; 
         }if (count > 10) {
         document.querySelector('#blocksLeft').textContent = 0;
-        clicked.classList.remove("clicked");
-        errorSound.play();
+        if(experiment.condition == "child"){
+          clicked.classList.remove("clicked");
+          errorSound.play();
         } 
+        }
       }    
       cellIndex++;
       if(cellIndex == 8) {
@@ -502,11 +538,15 @@ var experiment = {
         } else{
           cellIndex = 0;
         } 
-      }
-      if(count == 0){
+      }if(count == 0){
+        if(experiment.condition == "child"){
         document.querySelector('#blocksLeft').textContent = 10; 
+      } if(experiment.condition == "adult"){
+        document.querySelector('#blocksLeft').textContent = 0; 
       }
-    }
+      }
+      }
+    
   },
 
   //starts training session 1 
@@ -543,18 +583,22 @@ var experiment = {
 
   //writes data to Google Sheet using ajax POST function
   submit: function(){
-  //make maxed out generations unavailable
-    if(experiment.generation != 6){
-      experiment.available_onload = 1;
-      experiment.available_accepted = 1;  
-    }
+  console.log(experiment.training_1_accuracy);
+  console.log(experiment.training_2_accuracy);
+  experiment.training_accuracy = (experiment.training_1_accuracy + experiment.training_2_accuracy) / 2;
+  console.log(experiment.training_accuracy);
+  //make maxed out generations or people who timed out unavailable
+  if(experiment.timedOut == 1 || experiment.generation == 6 || experiment.training_accuracy < 0.75){
+    experiment.available_onload = 0;
+    experiment.available_accepted = 0; 
+  }
   //display whether data has been sent or not
     $("#result").html('Sending data...');
   
   //concatenates all important info into correct format to be posted 
     var allData = "unique_id="+experiment.unique_id + "&" + "parent_id="+experiment.parent_id + "&" + "sub_id="+experiment.subid + "&" + "sub_age="+experiment.subage + "&" + "generation="+experiment.generation + "&" + "seed="+ experiment.seed + "&" + "condition="+experiment.condition + "&" + "date="+experiment.date + "&" + "time="+experiment.timestamp + "&";
-    allData += experiment.dataforRound+"&"+"available_onload="+experiment.available_onload+"&"+"available_accepted="+experiment.available_accepted+"\n";
-
+    allData += experiment.dataforRound+"&"+"available_onload="+experiment.available_onload+"&"+"available_accepted="+experiment.available_accepted+"&"+"timedOut="+experiment.timedOut+"&"+"training_accuracy="+experiment.training_accuracy+"\n";
+    console.log(experiment.timedOut);
   //ajax post request
     request = $.ajax({
       url: "https://script.google.com/macros/s/AKfycbzBAzXejWWLpkhKrzloWEKyCK8KfN51M5Deu3uoFJxm-vnk2A/exec",
@@ -719,6 +763,7 @@ var experiment = {
       timeout.play();
     } 
     if(count == -1) {
+      experiment.timedOut = 1; 
       experiment.begin(); 
       clearInterval(timer);
       $("#count").html(60);
@@ -753,7 +798,11 @@ var experiment = {
   //displays target slide, stores data, handles counter for trials and ends study when 10 trials have passed 
   begin: function(){
     document.getElementById("button").disabled = false;
-    document.querySelector('#blocksLeft').textContent = 10; 
+    if(experiment.condition == "adult"){
+      document.querySelector('#blocksLeft').textContent = 0;
+    } if(experiment.condition == "child"){
+    document.querySelector('#blocksLeft').textContent = 10;
+  }
 
     //disables scrolling
     document.ontouchmove=function(event){
@@ -765,6 +814,10 @@ var experiment = {
 
     //stores data by trial
     if(experiment.trialCount != 0){
+      if(experiment.trialCount ==1 | experiment.trialCount == 2){
+        console.log("running");
+        experiment.checkGrid('trialInput', 'trialGrid');
+      }
       if(experiment.condition == "child"){
       experiment.storeData("trialInput", "trialGrid", experiment.trialCount);
       } if(experiment.condition == "adult"){
@@ -911,10 +964,15 @@ var experiment = {
             errorSound.play();
             $(error).html('<font color="red"><strong>You must select 10 items before continuing. Please try again<strong></font>');
             return;   
-          } else{
+          } if(count > 10) {
+            errorSound.play();
+            $(error).html('<font color="red"><strong>You may only select a maximum of 10 items at a time. Please try again<strong></font>');
+            return; 
+          } if(count==10){
             experiment.playSound();
             return;
-        }} else{
+          } 
+          } else {
           cellIndex = 0; 
         } 
       }
@@ -948,10 +1006,12 @@ var experiment = {
 
   //for very first training trial only; makes it so you cannot move on unless grids are exactly the same; so this checks the grids for accuracy 
   checkGrid: function(input, target, error){
+    console.log("running2");
     var rowIndex= 0;
     var cellIndex= 0;
     var i;
     var count=0;
+    var accuracy=0; 
     for(i=0; i<64; i++) {
       var inputElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
       var targetElement = document.getElementById(target).rows[rowIndex].cells[cellIndex];
@@ -961,20 +1021,29 @@ var experiment = {
         if(inputElement.className == 'clicked'){
           //if yes, increase cell index by 1 (search next cell)
           cellIndex++;
+          accuracy++; 
           //if no, display error message
         } else {
+          if(experiment.trialCount != 1 && experiment.trialCount != 2){
           training_1_error.play();
           $(error).html('<font color="red"><strong>The two grids should be the same. Please try again<strong></font>');
           return;
+          } else{
+            cellIndex++;
+          }
         }
       //if the target cell is NOT clicked
       } else {
         //and the input cell IS clicked [WRONG]
         if(inputElement.className =='clicked'){
           //display error message
+          if(experiment.trialCount != 1 && experiment.trialCount != 2){
           training_1_error.play();
           $(error).html('<font color="red"><strong>The two grids should be the same. Please try again<strong></font>');
           return;
+          } else{
+            cellIndex++; 
+          }
         } else {
           //move on!
           cellIndex++;
@@ -1001,6 +1070,15 @@ var experiment = {
         }
       }
     }
+    if(experiment.trialCount ==1){
+      experiment.training_1_accuracy = accuracy/10; 
+      console.log(accuracy);
+      console.log(experiment.training_1_accuracy);
+    } if(experiment.trialCount == 2){
+      experiment.training_2_accuracy = accuracy/10;
+      console.log(accuracy);
+      console.log(experiment.training_2_accuracy); 
+    }
   },
 
   //checks whether first slide is filled out completely [ONLY APPLICABLE ON CHILD TRIALS]
@@ -1019,19 +1097,10 @@ var experiment = {
       $("#checkMessage").html('<font color="red">You must input a subject age</font>');
       return;
     }
-    experiment.subage = parseInt(document.getElementById("age").value);
+    experiment.subage = document.getElementById("age").value;
 
 
     //goes to training slide
     experiment.loadIteratedData();
   },
 }
-
-// for debugging, jump to training
-//experiment.startTrain();
-//ju1mp to trials
-//showSlide("expIntro");
-//experiment.end();
-//experiment.trialCount = 3;
-
-//experiment.begin();

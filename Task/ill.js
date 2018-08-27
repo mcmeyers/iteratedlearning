@@ -56,6 +56,25 @@ function clearTimer(display){
   }, 1000);
 }
 
+var participants= "";
+
+function runCondition(people) {
+  if(people == "turk"){ //if running study on Mturk, want to read in data normally and take next available row 
+    //also want to change so here in the child coniditon you don't see the input slide, only in other condition
+    experiment.condition= "adult";
+    participants = "turk";
+    showSlide("intro_adult");
+  }
+  //if you are NOT running the mturk condition
+  if(people == "child"){
+    participants = "child";
+    experiment.condition = "child";
+    showSlide("intro_child");
+  } 
+  //want to only take in available row based on the condition you are in -- in child condition, only take in available adult rows; in adult condition, only take in available child rows
+  experiment.uniqueTurker(); 
+}
+
 //generates a random id for subject
 function randId() {
   return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(2, 10);
@@ -83,9 +102,6 @@ function getIP(){
 }
 
 //EXPERIMENT SETUP 
-
-// FIRST THING DISPLAYED, show the instructions slide 
-showSlide("intro");
 
 
 //creates initial seed grids; just in case although these should be read in from the Google Sheet 
@@ -213,12 +229,14 @@ var experiment = {
   date: getCurrentDate(),
   timestamp: getCurrentTime(), 
   seed:1,
-  available_onload:0,
-  available_accepted:0,
-  parent_id:0, 
-
-  //CHANGE MEEEE
-  condition:"adult_baseline",
+  available_onload:1,
+  available_accepted:1,
+  parent_id:0,
+  timedOut:0, 
+  condition:"",
+  training_accuracy:1,
+  training_1_accuracy:1,
+  training_2_accuracy:1, 
 
   //storing data 
   dataforRound:" ",
@@ -231,26 +249,30 @@ var experiment = {
 
   ////////FUNCTIONS 
 uniqueTurker: function(){
+  if(participants == "turk"){
     var ut_id = "53ae4ea04173428d22d2c34c58eca39a";
     if (UTWorkerLimitReached(ut_id)) {
       console.log("not unique");
         document.getElementsByTagName('body')[0].innerHTML = "You have already completed the maximum number of HITs allowed by this requester. Please click 'Return HIT' to avoid any impact on your approval rating.";
-    } else {
+    } else { 
       getIP(); 
       console.log("unique");
     }
+  } else {
+    getIP(); 
+    console.log("unique");
+  }
 },
 
 
   reserveDate: function(unique_id, ip) {
     console.log(unique_id); 
     console.log(ip);
-   // console.log(experiment.unique_id);
     request = $.ajax({
       url: "https://script.google.com/macros/s/AKfycbym5ORQpTW0gSFmRQsNWuGdPyuXe55ewgS8Da-XBxUnRBlPlyjw/exec",
       type: "get", 
       dataType: "json",
-      data: {type: "reserve", unique_id: unique_id, ip: ip} //CHANGE ME FOR KIDDOS 
+      data: {type: "reserve", unique_id: unique_id, ip: ip}  
     }); 
 
     request.done(function (data){
@@ -418,17 +440,20 @@ uniqueTurker: function(){
 
   //writes data to Google Sheet using ajax POST function
   submit: function(){
-  //make maxed out generations unavailable
-    if(experiment.generation != 6){
-      experiment.available_onload = 1;
-      experiment.available_accepted = 1;  
-    }
+  console.log(experiment.training_1_accuracy);
+  console.log(experiment.training_2_accuracy);
+  experiment.training_accuracy = (experiment.training_1_accuracy + experiment.training_2_accuracy) / 2;
+  //make maxed out generations or people who timed out unavailable
+  if(experiment.timedOut == 1 || experiment.generation == 6 || experiment.training_accuracy < 0.75){
+    experiment.available_onload = 0;
+    experiment.available_accepted = 0; 
+  }
   //display whether data has been sent or not
     $("#result").html('Sending data...');
   
   //concatenates all important info into correct format to be posted 
     var allData = "unique_id="+experiment.unique_id + "&" + "parent_id="+experiment.parent_id + "&" + "child_id="+""+"&"+"sub_id="+experiment.subid + "&" + "sub_age="+experiment.subage + "&" + "generation="+experiment.generation + "&" + "seed="+ experiment.seed + "&" + "condition="+experiment.condition + "&" + "date="+experiment.date + "&" + "time="+experiment.timestamp + "&";
-    allData += experiment.dataforRound+"&"+"available_onload="+experiment.available_onload+"&"+"available_accepted="+experiment.available_accepted+"\n";
+    allData += experiment.dataforRound+"&"+"available_onload="+experiment.available_onload+"&"+"available_accepted="+experiment.available_accepted+"&"+"timedOut="+experiment.timedOut+"&"+"training_accuracy="+experiment.training_accuracy+"\n";
 
   //ajax post request
     request = $.ajax({
@@ -441,7 +466,9 @@ uniqueTurker: function(){
       // log a message to the console
       $("#result").html('Data has been submitted!');
       //submit data to mTurk (just in case something bad happens and the google sheet doesnt work, good to have 2 copies)
+      if(participants == "adult"){
       setTimeout(function(){turk.submit(experiment)}, 3000);
+    }
     });
   },
 
@@ -566,11 +593,12 @@ uniqueTurker: function(){
       var dataforServer= experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.seed + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + ","; 
       dataforServer += experiment.trialCount + "," + experiment.trial + "," + experiment.timeUsed + "," + targetArray + "," + dataArray + "\n"; 
 
-    //use line below for writing to server; shouldnt need anymore unless want extra security in child conditions
-    //$.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforServer}); 
-
-    //use line below for writing backup to mturk
+    //use line below for writing backups to turk or server 
+    if(participants == "adult"){
       experiment.data.push(dataforServer);
+    } if(participants == "child"){
+      $.post("https://callab.uchicago.edu/experiments/iterated-learning/datasave.php", {postresult_string : dataforServer}); 
+    }
     }
   },
 
@@ -595,6 +623,7 @@ uniqueTurker: function(){
       timeout.play();
     } 
     if(count == -1) {
+      experiment.timedOut = 1;
       experiment.begin(); 
       clearInterval(timer);
       $("#count").html(60);
@@ -641,6 +670,9 @@ uniqueTurker: function(){
 
     //stores data by trial
     if(experiment.trialCount != 0){
+      if(experiment.trialCount ==1 || experiment.trialCount == 2){
+        experiment.checkGrid('trialInput', 'trialGrid');
+      }
       experiment.storeData("trialInput", "trialGrid", experiment.trialCount);
     } 
     //increases trial #
@@ -789,12 +821,15 @@ uniqueTurker: function(){
     } 
   },
 
+
   //for very first training trial only; makes it so you cannot move on unless grids are exactly the same; so this checks the grids for accuracy 
   checkGrid: function(input, target, error){
+    console.log("running2");
     var rowIndex= 0;
     var cellIndex= 0;
     var i;
     var count=0;
+    var accuracy=0; 
     for(i=0; i<64; i++) {
       var inputElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
       var targetElement = document.getElementById(target).rows[rowIndex].cells[cellIndex];
@@ -804,26 +839,35 @@ uniqueTurker: function(){
         if(inputElement.className == 'clicked'){
           //if yes, increase cell index by 1 (search next cell)
           cellIndex++;
+          accuracy++; 
           //if no, display error message
         } else {
+          if(experiment.trialCount != 1 && experiment.trialCount != 2){
           training_1_error.play();
           $(error).html('<font color="red"><strong>The two grids should be the same. Please try again<strong></font>');
           return;
+          } else{
+            cellIndex++;
+          }
         }
       //if the target cell is NOT clicked
       } else {
         //and the input cell IS clicked [WRONG]
         if(inputElement.className =='clicked'){
           //display error message
+          if(experiment.trialCount != 1 && experiment.trialCount != 2){
           training_1_error.play();
           $(error).html('<font color="red"><strong>The two grids should be the same. Please try again<strong></font>');
           return;
+          }else{
+            cellIndex++;
+          }
         } else {
           //move on!
           cellIndex++;
         } 
       }
-	   //move onto next row if you need to
+     //move onto next row if you need to
       if(cellIndex == 8) {
         rowIndex++;
         //if you are at the end of the grid, either move on to the next training session (T2 or T3, or move onto the actual study trials)
@@ -831,10 +875,17 @@ uniqueTurker: function(){
           showSlide("expIntro"); 
           sparkle.play();     
           $(practiceIntro).html('<center>Now you will try to recreate a grid from memory. A target grid will appear for <strong>10</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. <strong>Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
-        } else{
+        }  else{
           cellIndex = 0; 
         }
       }
+    }
+    if(experiment.trialCount == 1){
+      experiment.training_1_accuracy = accuracy/10; 
+      console.log(experiment.training_1_accuracy);
+    } if(experiment.trialCount == 2){
+      experiment.training_2_accuracy = accuracy/10;
+      console.log(experiment.training_2_accuracy); 
     }
   },
 
@@ -856,17 +907,9 @@ uniqueTurker: function(){
     }
     experiment.subage = parseInt(document.getElementById("age").value);
     //goes to training slide
-    experiment.startTrain();
+    experiment.loadIteratedData();
   },
 }
 
-// for debugging, jump to training
-//experiment.startTrain();
-//ju1mp to trials
-//showSlide("expIntro");
-//experiment.end();
-//experiment.trialCount = 3;
-
-//experiment.begin();
 
 
