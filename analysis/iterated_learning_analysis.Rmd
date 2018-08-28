@@ -29,52 +29,8 @@ source("analysis_functions.R")
 theme_set(theme_classic(base_size = 10))
 ```
 
-## Setup
-
-Loading functions -- OLD 
-```{r load csv, eval = F, include = F}
-data2 <- read_csv("../data/anonymized_data.csv")
-kidData<-read_csv("iteratedstudyresults.csv")
-practice_data <- matrix(sample(0:1, 64, replace=TRUE), nrow=8, ncol=8)
-
-#filters out people who didn't complete 10 trials
-data <- data2 %>%
-#data<-kidData %>%
- arrange(sub_id, trialDisplay) %>%
-  group_by(sub_id) %>%
-  mutate(n = n()) %>%
-  filter(n >= 12 & condition != "test" & sub_id != 0) %>%
- # filter(condition == "pilotkid" & sub_id != "Xx" & sub_id != "sdgd" & sub_id != 1) %>%
-  select(-n) %>%
-  ungroup() %>%
-  filter(trialCount < 14)
-```
-format data -- OLD
-```{r format_data_old, eval = F, include = F}
-spread_data <- data %>%
-  gather(row, value, -sub_id, -age, -condition, -generation, -date, -time, -trialDisplay, -trialCount, -comments)%>%
-  arrange(sub_id, trialDisplay) %>%
-  separate(row, c("type","row", "col")) %>%
-  unite(ty_col, type, col) %>%
-  spread(ty_col, value) %>%
-  filter(is.na(row)==F)
-```
---Format data OLD
-```{r formats_data, eval = F, include = F}
-calculate_data <- data %>%
-  gather(row, value,-sub_id:-trialDisplay)%>%
-  arrange(sub_id, trialDisplay) %>%
-  separate(row, c("type","row", "col")) %>%
-  spread(type,value) %>%
-  mutate(input = as.numeric(input), target = as.numeric(target),
-         row = as.numeric(row), column = as.numeric(col)) %>%
-  mutate(accuracy = input == target,
-         sub_id = as.character(sub_id)) 
-```
-
-
 ## Read in Data from Google Sheet (Pilot)
-```{r read_in_data_from_google_sheet, eval = F, include = F}
+```{r read_data_sheet, eval = F, include = F}
 data_sheet <- gs_ls() %>%
   filter(sheet_title == "Kid Generations") %>%
   pull(sheet_key) %>%
@@ -84,15 +40,14 @@ data_sheet <- gs_ls() %>%
 ```
 
 ## Read in Adult Baseline Data (saved as .csv taken from Google Sheet, includes only full chains)
-```{r read_in_data}
+```{r read_data}
 adult_baseline <- read_csv("../data/adult_baseline.csv") %>%
   select(-sum_timeUsed)
 
 ```
 
-
 ## Format Data for Display & Grid Analysis - New
-```{r}
+```{r format}
 data <- adult_baseline %>% #puts each trial and either target or display in a separate row
   select(-available_onload, -available_accepted, -sub_age) %>%
   gather(display, array, -unique_id, -parent_id, -child_id, -sub_id, 
@@ -140,7 +95,6 @@ calculate_data <-data %>%
          sub_id = as.character(sub_id)) %>%
   arrange(seed, generation) 
 
-
 spread_data <- data %>%
   gather(row, value, -unique_id, -parent_id, -child_id, -sub_id, -condition, -generation, -seed, -date, -time, -trialDisplay, -trialCount, -timeUsed)%>%
   arrange(sub_id, trialDisplay) %>%
@@ -149,7 +103,6 @@ spread_data <- data %>%
   spread(ty_col, value) %>%
   filter(is.na(row)==F)
 ```
-
 
 ```{r outlier_check}
 subject_accuracy <- calculate_data %>%
@@ -174,7 +127,7 @@ generation_accuracy <- subject_accuracy %>%
 ```
 
 ## Descriptive
-Displays the actual grids that people made; printed them and saved
+Displays the actual grids that people made; printed them and saved (have to do for each individual seed separately)
 ```{r plot_grids}
 pdf("trial_data_adults_s14.pdf", width = 10, height = 10)
 s14_data %>%
@@ -190,7 +143,7 @@ dev.off()
 ```
 
 ## Analysis
-```{r emd analysis}
+```{r emd_analysis}
 emd_helper <- function(df) {
   
   input <- df %>%
@@ -231,7 +184,7 @@ ggplot(generation_emds, aes(x = generation, y = empirical_stat,
 ```
 ## Time Used per trial
 How much time did people use on each trial? did this go down over generations?
-```{r time used data}
+```{r time_used}
 time_used <- data %>%
   filter(generation != 0)
 
@@ -258,6 +211,8 @@ Percent accuracies calculated by %/10 targets placed correctly
 trial_data <- calculate_data %>%
   filter(generation != 0, seed != 20) %>%
   filter(target == 1) 
+
+ggplot(trial_data %>% filter(trialCount == 1 | trialCount ==0) %>% group_by(sub_id) %>%summarise(accuracy = mean(accuracy)), aes(x=accuracy)) + geom_histogram() +scale_x_continuous()
 
 #no practice effects overall across trial order 
 ggplot(trial_data %>% group_by(trialCount, sub_id) %>% summarise(accuracy = mean(accuracy)) %>% tidyboot_mean(accuracy), aes(x = trialCount, y = empirical_stat, 
@@ -437,7 +392,6 @@ ggplot(bind_data %>% group_by(generation) %>% tidyboot_mean(edge_mean), aes(x = 
   geom_pointrange()+geom_line()+ylab("edge length")+ggtitle("edge length over generations")
 
 ```
-
 
 Block Decomposition Method for Algorithmic Complexity 
 ```{r}

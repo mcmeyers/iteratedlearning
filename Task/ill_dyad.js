@@ -511,6 +511,13 @@ var experiment = {
     var rowIndex = 0; 
     var cellIndex = 0; 
     var count = 0;
+    if(count == 0){
+      if(experiment.condition == "child"){
+        document.querySelector('#blocksLeft').textContent = 10; 
+      }if(experiment.condition == "adult"){
+        document.querySelector('#blocksLeft').textContent = 0; 
+      }
+    }
     //highlighs clicked cell
     $(clicked).toggleClass("clicked");
     //checks through grid to count how many cells are selected, disables selecting if there are 10 selected already
@@ -523,10 +530,12 @@ var experiment = {
         document.getElementById("button").disabled = false; 
         document.getElementById("training_button").disabled = false; 
         }if (count > 10) {
-        document.querySelector('#blocksLeft').textContent = 0;
         if(experiment.condition == "child"){
           clicked.classList.remove("clicked");
           errorSound.play();
+          document.querySelector('#blocksLeft').textContent = 0;
+        }if(experiment.condition == "adult"){
+          document.querySelector('#blocksLeft').textContent = 10-count; 
         } 
         }
       }    
@@ -538,14 +547,11 @@ var experiment = {
         } else{
           cellIndex = 0;
         } 
-      }if(count == 0){
-        if(experiment.condition == "child"){
+      }
+      if(count == 0){
         document.querySelector('#blocksLeft').textContent = 10; 
-      } if(experiment.condition == "adult"){
-        document.querySelector('#blocksLeft').textContent = 0; 
       }
-      }
-      }
+    }
     
   },
 
@@ -837,10 +843,10 @@ var experiment = {
       sparkle.play();
       if(experiment.condition == "child"){
         $(adultIntro).html('');
-      $(childIntro).html('<center>You have finished the training, and now we are going to begin the study. Just like in the practice, try to remember and recreate the grids to the best of your ability. There will be 6 trials. <center>');
+      $(childIntro).html('<p class = "block-text">You have finished the training, and now we are going to begin the study.</p><p class = "block-text"> Just like in the practice, try to remember and recreate the grids to the best of your ability. </p><p class = "block-text">There will be 6 trials. </p>');
       } if(experiment.condition == "adult"){
         $(childIntro).html('');
-        $(adultIntro).html('<center>You have finished the training, and now we are going to begin the study. Just like in the practice, try to remember the target grid and fix the one you see displayed. There will be 6 trials. <strong> The grids you will be charged with fixing were created by children aged 6-8 </strong><center>');
+        $(adultIntro).html('<p class = "block-text">You have finished the training, and now we are going to begin the study.</p><p class = "block-text"> Just like in the practice, try to remember the target grid and fix the one you see displayed. There will be 6 trials. </p>');
       }
       return;  
     }
@@ -1058,11 +1064,11 @@ var experiment = {
           console.log(experiment.condition); 
           if(experiment.condition == "adult"){
             $(childIntro).html('');
-            $(adultIntro).html('<center>Now you will try to fix a grid from memory. A target grid will appear for <strong>12</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a grid. <strong>Your job is to correct this grid to make it match the target you previously saw. Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
+            $(adultIntro).html('<p class = "block-text">Now you will try to fix a grid from memory.</p><p class = "block-text"> A target grid will appear for <strong>10</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a grid.</p><p class = "block-text"> <strong>Your job is to correct this grid to match the target you previously saw.</p></strong><p class = "block-text"> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.</p>'); 
             showSlide("expIntro")
           } if(experiment.condition == "child"){
             $(adultIntro).html('');
-            $(childIntro).html('<center>Now you will try to recreate a grid from memory. A target grid will appear for <strong>12</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. <strong>Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
+            $(childIntro).html('<p class = "block-text">Now you will try to recreate a grid from memory.</p> <p class = "block-text">A target grid will appear for <strong>10</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. </p><p class = "block-text"><strong>Fill in the colors on the blank grid just as they appeared on the target grid.</strong></p><p class = "block-text"> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.</p>'); 
             showSlide("expIntro");
           }
         } else{
