@@ -253,6 +253,7 @@ var experiment = {
   training_accuracy:1,
   training_1_accuracy:1,
   training_2_accuracy:1, 
+  more_than_10: 0, 
 
   //IMPORTANT defaults to adult because otherwise input makes it == child 
   condition:"adult",
@@ -275,7 +276,7 @@ var experiment = {
     } else { */
       getIP(); 
       console.log("unique");
-    //}
+   // }
   },
 
   reserveDate: function(unique_id, ip) {
@@ -594,7 +595,7 @@ var experiment = {
   experiment.training_accuracy = (experiment.training_1_accuracy + experiment.training_2_accuracy) / 2;
   console.log(experiment.training_accuracy);
   //make maxed out generations or people who timed out unavailable
-  if(experiment.timedOut == 1 || experiment.generation == 6 || experiment.training_accuracy < 0.75){
+  if(experiment.timedOut == 1 || experiment.generation == 6 || experiment.training_accuracy < 0.75 || experiment.more_than_10 != 0){
     experiment.available_onload = 0;
     experiment.available_accepted = 0; 
   }
@@ -603,7 +604,7 @@ var experiment = {
   
   //concatenates all important info into correct format to be posted 
     var allData = "unique_id="+experiment.unique_id + "&" + "parent_id="+experiment.parent_id + "&" + "sub_id="+experiment.subid + "&" + "sub_age="+experiment.subage + "&" + "generation="+experiment.generation + "&" + "seed="+ experiment.seed + "&" + "condition="+experiment.condition + "&" + "date="+experiment.date + "&" + "time="+experiment.timestamp + "&";
-    allData += experiment.dataforRound+"&"+"available_onload="+experiment.available_onload+"&"+"available_accepted="+experiment.available_accepted+"&"+"timedOut="+experiment.timedOut+"&"+"training_accuracy="+experiment.training_accuracy+"\n";
+    allData += experiment.dataforRound+"&"+"available_onload="+experiment.available_onload+"&"+"available_accepted="+experiment.available_accepted+"&"+"timedOut="+experiment.timedOut+"&"+"training_accuracy="+experiment.training_accuracy+"&"+"more_than_10="+experiment.more_than_10+"\n";
     console.log(experiment.timedOut);
   //ajax post request
     request = $.ajax({
@@ -707,11 +708,13 @@ var experiment = {
       var rowIndex = 0;
       var cellIndex = 0;
       var i;
+      var count;
       for(i=0; i<64; i++){
         var gridElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
         var targetElement = document.getElementById(target).rows[rowIndex].cells[cellIndex];
         if(gridElement.classList == "clicked"){
           dataArray[rowIndex][cellIndex] = 1;
+          count++;
         }
         if(targetElement.classList == "clicked"){
           targetArray[rowIndex][cellIndex] = 1; 
@@ -726,6 +729,9 @@ var experiment = {
         } 
       } 
     //gets arrays in string format of ("1 0 1 0 1 1 0 0 0 0 0"), necessary for posting to google sheet
+      if(count > 10){
+        experiment.more_than_10 = 1; 
+      }
       targetArray = [].concat.apply([], targetArray);
       dataArray = [].concat.apply([], dataArray);
       targetArray = targetArray.join(" ");
@@ -817,7 +823,9 @@ var experiment = {
 
     var trialGrid = document.getElementById("trialGrid");
     var trialInput = document.getElementById("trialInput");
-
+    if(experiment.trialCount == 2){
+      experiment.trial = 0.5; 
+    }
     //stores data by trial
     if(experiment.trialCount != 0){
       if(experiment.trialCount ==1 | experiment.trialCount == 2){

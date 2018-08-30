@@ -94,7 +94,8 @@ function getIP(){
     if(turk.assignmentId == "ASSIGNMENT_ID_NOT_AVAILABLE") { //if person has not accepted HIT
       document.getElementById("notAccepted").innerHTML= "Please accept the HIT to Begin!!";
       experiment.reserveDate(ip, ip); //if assignment has not been accepted, unique_id = ip address and ip = ip address
-    } else { //if person has accepted HIT
+    }
+     else { //if person has accepted HIT
       unique_id = randId(); 
       experiment.reserveDate(unique_id, ip); //if assignment has been accepted, unique_id = rand int and ip = ip address
     } 

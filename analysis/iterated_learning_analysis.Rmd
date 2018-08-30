@@ -570,7 +570,7 @@ bind_seed_data <- bdm_seed_data %>%
 ```
 
 Inlcuding seed information for complexity, chunking, and edge length yields similar results.
-```{r}
+```{r seed_graphs}
 #shows complexity by seed, see variation but same general trend across seeds 
 ggplot(bind_seed_data %>%group_by(generation, seed) %>% tidyboot_mean(bdm_mean), aes(x = generation, y = empirical_stat,  
                        ymin = ci_lower, ymax = ci_upper)) + 
@@ -592,10 +592,10 @@ Kempe et al defined this as the proportion of within-chain similarity / (within-
 
 ## DYAD TASK
 Want to see how much adults change the input grids they are given. Calculate this by % accuracy from child input to adult input 
-```{r}
+```{r include = F}
 dyad_data <- dyad_pilot %>%
-  mutate(targetFix1Array = ifelse(condition =="adult", dyad_pilot$data1Array[match(dyad_pilot$parent_id, dyad_pilot$unique_id)],data1Array),
-         targetFix2Array = ifelse(condition =="adult", dyad_pilot$data2Array[match(dyad_pilot$parent_id, dyad_pilot$unique_id)],data2Array),
+  mutate(targetFix1Array = ifelse(condition =="adult", "1 1 0 0 0 0 0 0 0 0 1 1 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1",data1Array),
+         targetFix2Array = ifelse(condition =="adult","0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 1 1 0 0 0 0 0",data2Array),
          targetFix4Array = ifelse(condition =="adult", dyad_pilot$data4Array[match(dyad_pilot$parent_id, dyad_pilot$unique_id)],data4Array),
          targetFix5Array = ifelse(condition =="adult", dyad_pilot$data5Array[match(dyad_pilot$parent_id, dyad_pilot$unique_id)],data5Array),
          targetFix6Array = ifelse(condition =="adult", dyad_pilot$data6Array[match(dyad_pilot$parent_id, dyad_pilot$unique_id)],data6Array),
@@ -657,13 +657,16 @@ calculate_data2 <-data2 %>%
 Here, accuracy is the number of points that were the same as the child's input. Therefore, number of changes made by the "adult" is 1-accuracy. It looks like people made 2-3 changes on average per trial.
 ```{r}
 fixed_data <- calculate_data2 %>%
-  filter(condition == "adult", trialDisplay != 0, trialDisplay !=0.5) %>%
+  filter(target ==1) %>%
+  filter(condition == "adult") %>%
   group_by(sub_id, trialDisplay) %>%
+  mutate(num_changes = sum(ifelse(accuracy ==FALSE, 1, 0)))%>%
   mutate(accuracy=1-mean(accuracy)) %>%
-  group_by(trialDisplay) %>%
-  tidyboot_mean(accuracy)
+  group_by(trialDisplay,generation) %>%
+  tidyboot_mean(accuracy) %>%
+  mutate(generation = as.factor(generation))
 
-ggplot(fixed_data, aes(x= trialDisplay, y=empirical_stat, ymin=ci_lower, ymax=ci_upper))+geom_pointrange()+ggtitle("Average number of changes made when fixing grids")
+ggplot(fixed_data, aes(x= generation, y=empirical_stat, ymin=ci_lower, ymax=ci_upper))+geom_pointrange()+facet_wrap(~trialDisplay)+ggtitle("Average number of changes made when fixing grids by trial display")+ylab("# of targets that were changed out of 10")
 ```
 
 
