@@ -52,10 +52,9 @@ dyad_pilot <- read_csv("../data/turk_dyad_pilot.csv") %>%
 ```
 
 
-## Format Data for Display & Grid Analysis - New DYAD TASK
+## Format Data for Display & Grid Analysis
 ```{r format, include=F}
-#data <- adult_baseline %>% #puts each trial and either target or display in a separate row
-data<-dyad_pilot %>%
+data <- adult_baseline %>% #puts each trial and either target or display in a separate row
   select(-available_onload, -available_accepted, -sub_age) %>%
   gather(display, array, -unique_id, -parent_id, -child_id, -sub_id, 
          -generation, -seed, -condition, -date, -time, -trial1Count,
@@ -192,15 +191,12 @@ trial_data <- calculate_data %>%
 ```
 
 % Accuracy on training trials. People did pretty well; used these results to exclude participants in future studies if the participant had < 75% accuracy on training trials. 
-#DYAD CONDITION
 ```{r trial_accuracy}
 trial_data %>%
   filter(trialCount ==1 | trialCount ==0) %>%
-  group_by(sub_id, condition) %>%
-  #group_by(sub_id) %>%
+  group_by(sub_id) %>%
   summarise(accuracy = mean(accuracy)) %>%
-  ggplot(aes(x=accuracy, fill = condition)) + 
- # ggplot(aes(x=accuracy))+
+  ggplot(aes(x=accuracy))+
   geom_histogram() +
   scale_x_continuous() 
 ```
@@ -230,16 +226,13 @@ trial_data %>%
 ```
 
 Percent accuracy over generations. It increases over gens 1-4 and then seems to level off(?). This is similar to what we would expect but interesting in context with the consistent complexity findings below. 
-#DYAD CONDITION
 ```{r}
 trial_data %>%
   filter(trialCount > 3) %>%
- # group_by(generation, sub_id) %>%
-  group_by(generation, condition) %>%
+  group_by(generation, sub_id) %>%
   summarise(accuracy = mean(accuracy)) %>%
-  group_by(generation, condition) %>%
   tidyboot_mean(accuracy) %>%
-  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, ymax = ci_upper, color=condition)) + 
+  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, ymax = ci_upper)) + 
   geom_pointrange()+
   ylab("average percent accuracy") 
 ```
@@ -314,10 +307,8 @@ edge_function = function(m){
 }
 ```
 
-#DYAD CONDITION
 ```{r format_data_complexity}
 bdm_data <- spread_data %>%
-  mutate(generation = ifelse(condition == "child", generation - 0.5, generation)) %>%
   filter(trialCount > 3, generation != 0, seed != 20) %>%
   select(sub_id, generation,trialDisplay, row, input_0:input_7) %>%
   mutate(input_7 = as.numeric(input_7),
@@ -373,13 +364,11 @@ bind_data <- bdm_data %>%
 ```
 
 Algorithmic complexity decreases linearly by generation. Kempe found a 30pt decrease in first 6 generations which is approximately the same seen here. When you divide by trial display you see a consistent trend with some variation.
-#DYAD CONDITION (first graph)
 ```{r complexity_graphs}
 bind_data %>%
   group_by(generation) %>% 
   tidyboot_mean(bdm_mean) %>%
-  mutate(condition = ifelse(generation == 0.5 | generation == 1.5 | generation == 2.5, "child", "adult")) %>%
-  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, ymax = ci_upper, color=condition)) + 
+  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, ymax = ci_upper)) + 
   geom_pointrange() + 
   ylab("algorithmic complexity") + 
   ggtitle("algorithmic complexity over generations")
@@ -651,12 +640,13 @@ calculate_data2 <-data2 %>%
   mutate(accuracy = input == target,
          sub_id = as.character(sub_id)) %>%
   arrange(seed, generation) 
+
 ```
 
 # of changes people made when fixing grids
 Here, accuracy is the number of points that were the same as the child's input. Therefore, number of changes made by the "adult" is 1-accuracy. It looks like people made 2-3 changes on average per trial.
 ```{r}
-fixed_data <- calculate_data2 %>%
+fixed2_data <- calculate_data2 %>%
   filter(target ==1) %>%
   filter(condition == "adult") %>%
   group_by(sub_id, trialDisplay) %>%
@@ -666,7 +656,175 @@ fixed_data <- calculate_data2 %>%
   tidyboot_mean(accuracy) %>%
   mutate(generation = as.factor(generation))
 
-ggplot(fixed_data, aes(x= generation, y=empirical_stat, ymin=ci_lower, ymax=ci_upper))+geom_pointrange()+facet_wrap(~trialDisplay)+ggtitle("Average number of changes made when fixing grids by trial display")+ylab("# of targets that were changed out of 10")
+ggplot(fixed2_data, aes(x= generation, y=empirical_stat, ymin=ci_lower, ymax=ci_upper))+geom_pointrange()+facet_wrap(~trialDisplay)+ggtitle("Average number of changes made when fixing grids by trial display")+ylab("# of targets that were changed out of 10")
 ```
 
+```{r}
+data3 <- dyad_pilot %>% #puts each trial and either target or display in a separate row
+  select(-available_onload, -available_accepted, -sub_age) %>%
+  gather(display, array, -unique_id, -parent_id, -child_id, -sub_id, 
+         -generation, -seed, -condition, -date, -time, -trial1Count,
+         -time1Used, -trial1Display, -trial2Count, -time2Used,
+         -trial2Display, -trial4Count, -trial4Display, -time4Used,
+         -trial5Count, -trial5Display, -time5Used, -trial6Count,
+         -trial6Display, -time6Used, -trial7Count, -trial7Display, 
+         -time7Used, -trial8Count, -trial8Display, -time8Used, 
+         -trial9Count, -trial9Display, -time9Used) %>%
+  arrange(sub_id) %>%
+  unique() %>%
+  separate(display, c("type", "trialCountArray"), -6) %>%
+  separate(trialCountArray, c("trialCount", "arrayCount"), 1) %>%
+  select(-arrayCount, -trial1Count, -trial2Count, -trial4Count, -trial5Count,
+         -trial6Count, -trial7Count, -trial8Count, -trial9Count) %>%
+  gather(trialDisplay, display, -unique_id, -parent_id, -child_id, -sub_id,
+         -generation, -seed, -condition, -date, -time, -time1Used, -time2Used,
+         -time4Used, -time5Used, -time6Used, -time7Used, -time8Used,
+         -time9Used, -type, -trialCount, -array) %>%
+  separate(trialDisplay, c("type2", "tmp"), -7) %>%
+  select(-tmp) %>%
+  separate(type2, c("tmp", "trialCount2"), -1) %>%
+  select(-tmp) %>%
+  filter(trialCount2 == trialCount) %>%
+  select(-trialCount2, trialDisplay = display) %>%
+  gather(trialTime, timeUsed, -unique_id, -parent_id, -child_id, -sub_id, -generation, -seed, -condition, -date, -time, -type, -trialCount, -trialDisplay, -array) %>%
+  separate(trialTime, c("tmp", "trialCount3"), -5) %>%
+  separate(trialCount3, c("trialCount3", "tmp2"), 1) %>%
+  select(-tmp, -tmp2) %>%
+  filter(trialCount == trialCount3) %>%
+  select(unique_id, parent_id, child_id, sub_id, generation, seed, condition, date, time, trialCount, trialDisplay, timeUsed, type, array) %>%
+  spread(type, array) %>%
+  separate(data, c("input_0_0", "input_0_1", "input_0_2", "input_0_3", "input_0_4", "input_0_5", "input_0_6", "input_0_7", "input_1_0", "input_1_1", "input_1_2", "input_1_3", "input_1_4", "input_1_5", "input_1_6", "input_1_7", "input_2_0", "input_2_1", "input_2_2", "input_2_3", "input_2_4", "input_2_5", "input_2_6", "input_2_7", "input_3_0", "input_3_1", "input_3_2", "input_3_3", "input_3_4", "input_3_5", "input_3_6", "input_3_7", "input_4_0", "input_4_1", "input_4_2", "input_4_3", "input_4_4", "input_4_5", "input_4_6", "input_4_7", "input_5_0", "input_5_1", "input_5_2", "input_5_3", "input_5_4", "input_5_5", "input_5_6", "input_5_7", "input_6_0", "input_6_1", "input_6_2", "input_6_3", "input_6_4", "input_6_5", "input_6_6", "input_6_7", "input_7_0", "input_7_1", "input_7_2", "input_7_3", "input_7_4", "input_7_5", "input_7_6", "input_7_7"), sep = " ") %>%
+    separate(target, c("target_0_0", "target_0_1", "target_0_2", "target_0_3", "target_0_4", "target_0_5", "target_0_6", "target_0_7", "target_1_0", "target_1_1", "target_1_2", "target_1_3", "target_1_4", "target_1_5", "target_1_6", "target_1_7", "target_2_0", "target_2_1", "target_2_2", "target_2_3", "target_2_4", "target_2_5", "target_2_6", "target_2_7", "target_3_0", "target_3_1", "target_3_2", "target_3_3", "target_3_4", "target_3_5", "target_3_6", "target_3_7", "target_4_0", "target_4_1", "target_4_2", "target_4_3", "target_4_4", "target_4_5", "target_4_6", "target_4_7", "target_5_0", "target_5_1", "target_5_2", "target_5_3", "target_5_4", "target_5_5", "target_5_6", "target_5_7", "target_6_0", "target_6_1", "target_6_2", "target_6_3", "target_6_4", "target_6_5", "target_6_6", "target_6_7", "target_7_0", "target_7_1", "target_7_2", "target_7_3", "target_7_4", "target_7_5", "target_7_6", "target_7_7"), sep = " ") 
+
+calculate_data_dyad <-data3 %>%
+  gather(row, value,-unique_id:-timeUsed)%>%
+  arrange(sub_id, trialDisplay) %>%
+  separate(row, c("type","row", "col")) %>%
+  spread(type,value) %>%
+  mutate(input = as.numeric(input), target = as.numeric(target),
+         row = as.numeric(row), column = as.numeric(col)) %>%
+  mutate(accuracy = input == target,
+         sub_id = as.character(sub_id)) %>%
+  arrange(seed, generation) 
+
+spread2_data <- data3 %>%
+  gather(row, value, -unique_id, -parent_id, -child_id, -sub_id, -condition, -generation, -seed, -date, -time, -trialDisplay, -trialCount, -timeUsed)%>%
+  arrange(sub_id, trialDisplay) %>%
+  separate(row, c("type","row", "col")) %>%
+  unite(ty_col, type, col) %>%
+  spread(ty_col, value) %>%
+  filter(is.na(row)==F)
+```
+
+
+Fix Grids Pilot Results
+# Percent Accuracy
+```{r}
+tria2l_data <- calculate_data_dyad %>%
+  filter(condition != "initial") %>%
+  filter(target == 1)
+
+tria2l_data  %>%
+  filter(trialCount ==1 | trialCount ==0) %>%
+  group_by(sub_id, condition) %>%
+  summarise(accuracy = mean(accuracy)) %>%
+  ggplot(aes(x=accuracy, fill = condition)) + 
+  geom_histogram() +
+  scale_x_continuous() 
+```
+
+```{r}
+tria2l_data %>%
+  filter(trialCount > 3) %>%
+  group_by(generation, condition) %>%
+  summarise(accuracy = mean(accuracy)) %>%
+  group_by(generation, condition) %>%
+  tidyboot_mean(accuracy) %>%
+  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, ymax = ci_upper, color=condition)) + 
+  geom_pointrange()+
+  ylab("average percent accuracy") 
+```
+
+#DYAD CONDITION
+```{r format_data_complexity2}
+bdm2_data <- spread2_data %>%
+  mutate(generation = ifelse(condition == "child", generation - 0.5, generation)) %>%
+  filter(trialCount > 3, generation != 0, seed != 20) %>%
+  select(sub_id, generation,trialDisplay, row, input_0:input_7) %>%
+  mutate(input_7 = as.numeric(input_7),
+         input_6 = as.numeric(input_6),
+         input_5 = as.numeric(input_5),
+         input_4 = as.numeric(input_4),
+         input_3 = as.numeric(input_3),
+         input_2 = as.numeric(input_2),
+         input_1 = as.numeric(input_1),
+         input_0 = as.numeric(input_0)) 
+
+target2_data <- spread2_data %>%
+  filter(trialDisplay != 0 & trialDisplay != 0.5 & generation == 0 & seed !=20)  %>%
+  select(sub_id, generation,trialDisplay, row, input_0:input_7) %>%
+  mutate(sub_id = 0) %>%
+  mutate(target_0 = as.numeric(input_7),
+         target_1 = as.numeric(input_6),
+         target_2 = as.numeric(input_5),
+         target_3 = as.numeric(input_4),
+         target_4 = as.numeric(input_3),
+         target_5 = as.numeric(input_2),
+         target_6 = as.numeric(input_1),
+         target_7 = as.numeric(input_0)) %>%
+  select(-(input_0:input_7)) %>%
+  arrange(trialDisplay,row) %>%
+  unique()
+ 
+target2_store <- data.frame(bdm = bdm_function(target2_data),
+                           chunking = nPart_function(target2_data),
+                           edge = edge_function(target2_data)) 
+bdm2_store <- data.frame(bdm = bdm_function(bdm2_data),
+                        chunking = nPart_function(bdm2_data),
+                        edge = edge_function(bdm2_data))
+
+bind2_targets <- target2_data %>%
+  group_by(sub_id,trialDisplay, generation) %>%
+  summarise(.) %>%
+  bind_cols(target2_store, .)
+
+bind2_data <- bdm2_data %>%
+  group_by(sub_id,trialDisplay, generation) %>%
+  summarise(.) %>%
+  bind_cols(bdm2_store, .) %>%
+  bind_rows(. , bind2_targets) %>%
+  mutate(bdm = as.numeric(bdm),
+         chunking = as.numeric(chunking),
+         edge = as.numeric(edge)) %>%
+  group_by(sub_id,trialDisplay, generation)%>%
+  summarise(bdm_mean = mean(bdm),
+            chunking_mean = mean(chunking),
+            edge_mean = mean(edge)) 
+
+```
+
+Algorithmic complexity decreases linearly by generation. Kempe found a 30pt decrease in first 6 generations which is approximately the same seen here. When you divide by trial display you see a consistent trend with some variation.
+#DYAD CONDITION (first graph)
+```{r complexity_graph2s}
+bind2_data %>%
+  group_by(generation) %>% 
+  tidyboot_mean(bdm_mean) %>%
+  mutate(condition = ifelse(generation == 0.5 | generation == 1.5 | generation == 2.5, "child", "adult")) %>%
+  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, ymax = ci_upper, color=condition)) + 
+  geom_pointrange() + 
+  ylab("algorithmic complexity") + 
+  ggtitle("algorithmic complexity over generations")
+
+#seems to be variation by trial display but same general trend
+bind2_data %>% 
+  group_by(generation, trialDisplay) %>% 
+  tidyboot_mean(bdm_mean) %>%
+  ggplot(aes(x = generation, y = empirical_stat, 
+                       ymin = ci_lower, ymax = ci_upper)) + 
+  geom_pointrange() + 
+  geom_smooth() + 
+  ylab("algorithmic complexity") + 
+  facet_wrap(~trialDisplay) + 
+  ggtitle("algoritmic complexity over generations by trial display")
+```
 

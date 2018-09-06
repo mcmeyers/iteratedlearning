@@ -149,6 +149,10 @@ button[disabled] {
     background-color:aqua;
 }
 
+.grid.red td.clicked{
+    background-color:red;
+}
+
 .clicked{
     background-color:yellow;
 }

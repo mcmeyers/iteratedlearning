@@ -123,6 +123,15 @@ var train2 = [[1,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,1,0],
               [0,0,0,0,0,1,1,1]];
 
+var train3 = [[0,0,0,1,1,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [1,1,1,1,1,1,1,1],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]];
+
 var trainInput1 = [[1,1,0,0,0,0,0,0],
               [0,0,1,1,0,0,0,0],
               [1,1,0,0,0,0,0,0],
@@ -140,6 +149,15 @@ var trainInput2 = [[0,0,0,0,0,0,0,1],
               [0,0,1,0,0,0,0,0],
               [0,1,0,0,0,0,0,0],
               [1,1,1,0,0,0,0,0]];
+
+var trainInput3 = [[0,0,0,1,1,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [1,1,1,1,1,1,1,1]];
 
 var trial1 = [[1,1,0,1,0,0,0,0],
               [0,0,0,1,0,0,0,0],
@@ -253,7 +271,6 @@ var experiment = {
   training_accuracy:1,
   training_1_accuracy:1,
   training_2_accuracy:1, 
-  more_than_10: 0, 
 
   //IMPORTANT defaults to adult because otherwise input makes it == child 
   condition:"adult",
@@ -512,6 +529,8 @@ var experiment = {
     var rowIndex = 0; 
     var cellIndex = 0; 
     var count = 0;
+    document.getElementById("button").style.backgroundColor = "white";
+
     if(count == 0){
       if(experiment.condition == "child"){
         document.querySelector('#blocksLeft').textContent = 10; 
@@ -538,7 +557,11 @@ var experiment = {
         }if(experiment.condition == "adult"){
           document.querySelector('#blocksLeft').textContent = 10-count; 
         } 
-        }
+        } if(document.querySelector('#blocksLeft').textContent == 0){
+          document.getElementById("button").style.backgroundColor = "lime";
+        } else{
+          document.getElementById("button").style.backgroundColor = "white";
+        } 
       }    
       cellIndex++;
       if(cellIndex == 8) {
@@ -595,7 +618,8 @@ var experiment = {
   experiment.training_accuracy = (experiment.training_1_accuracy + experiment.training_2_accuracy) / 2;
   console.log(experiment.training_accuracy);
   //make maxed out generations or people who timed out unavailable
-  if(experiment.timedOut == 1 || experiment.generation == 6 || experiment.training_accuracy < 0.75 || experiment.more_than_10 != 0){
+  if(experiment.timedOut == 1 || experiment.generation == 6 || experiment.training_accuracy < 0.75){
+    console.log("not available");
     experiment.available_onload = 0;
     experiment.available_accepted = 0; 
   }
@@ -604,7 +628,7 @@ var experiment = {
   
   //concatenates all important info into correct format to be posted 
     var allData = "unique_id="+experiment.unique_id + "&" + "parent_id="+experiment.parent_id + "&" + "sub_id="+experiment.subid + "&" + "sub_age="+experiment.subage + "&" + "generation="+experiment.generation + "&" + "seed="+ experiment.seed + "&" + "condition="+experiment.condition + "&" + "date="+experiment.date + "&" + "time="+experiment.timestamp + "&";
-    allData += experiment.dataforRound+"&"+"available_onload="+experiment.available_onload+"&"+"available_accepted="+experiment.available_accepted+"&"+"timedOut="+experiment.timedOut+"&"+"training_accuracy="+experiment.training_accuracy+"&"+"more_than_10="+experiment.more_than_10+"\n";
+    allData += experiment.dataforRound+"&"+"available_onload="+experiment.available_onload+"&"+"available_accepted="+experiment.available_accepted+"&"+"timedOut="+experiment.timedOut+"&"+"training_accuracy="+experiment.training_accuracy+"\n";
     console.log(experiment.timedOut);
   //ajax post request
     request = $.ajax({
@@ -723,15 +747,16 @@ var experiment = {
         if(cellIndex == 8) {
           rowIndex++;
         if(rowIndex == 8){
+          if(count > 10 || count < 10){
+            experiment.timedOut = 1; 
+          }
         } else{
           cellIndex = 0; 
         }
         } 
       } 
     //gets arrays in string format of ("1 0 1 0 1 1 0 0 0 0 0"), necessary for posting to google sheet
-      if(count > 10){
-        experiment.more_than_10 = 1; 
-      }
+
       targetArray = [].concat.apply([], targetArray);
       dataArray = [].concat.apply([], dataArray);
       targetArray = targetArray.join(" ");
@@ -741,8 +766,12 @@ var experiment = {
 
     //if experiment is not over, keep adding data to one big long string which can then be called (the data string) in submit function; in correct format for posting to google sheet
       if(experiment.trialCount < 10){
+        if(experiment.trialCount != 2.5){
         experiment.dataforRound += "&" + "trial"+trialCount+"Count="+experiment.trialCount + "&" + "trial"+trialCount+"Display="+experiment.trial + "&" + "time"+trialCount+"Used="+experiment.timeUsed + "&" + "target"+trialCount+"Array="+targetArray + "&" + "data"+trialCount+"Array="+dataArray + "\n"; 
+      } if(experiment.trialCount == 2.5){
+        experiment.dataforRound += "&" + "trial3Count="+experiment.trialCount + "&" + "trial3Display="+experiment.trial + "&" +"time3Used="+experiment.timeUsed + "&"+ "target3Array="+targetArray+"&"+"data3Array="+dataArray+"\n";
       }
+    }
  
     //RN, also have the data send round by round FOR TURK EXPERIMENTS just in case this google sheets stuff glitches during the study 
       var dataforServer= experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.seed + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + ","; 
@@ -775,7 +804,6 @@ var experiment = {
       timeout.play();
     } 
     if(count == -1) {
-      experiment.timedOut = 1; 
       experiment.begin(); 
       clearInterval(timer);
       $("#count").html(60);
@@ -803,12 +831,13 @@ var experiment = {
   colorRemove: function(){
     var trialGrid = document.getElementById("trialGrid");
     var trialInput = document.getElementById("trialInput");
-    trialGrid.classList.remove("aqua", "purple", "olive", "green", "pink", "blue", "orange", "lime", "teal", "navy", "maroon");
-    trialInput.classList.remove("aqua", "purple", "olive", "green", "pink", "blue", "orange", "lime", "teal", "navy", "maroon");
+    trialGrid.classList.remove("aqua", "purple", "olive", "green", "pink", "blue", "orange", "lime", "teal", "navy", "maroon", "yellow", "red");
+    trialInput.classList.remove("aqua", "purple", "olive", "green", "pink", "blue", "orange", "lime", "teal", "navy", "maroon", "yellow", "red");
   },
 
   //displays target slide, stores data, handles counter for trials and ends study when 10 trials have passed 
   begin: function(){
+    document.getElementById("button").style.backgroundColor = "white";
     document.getElementById("button").disabled = false;
     if(experiment.condition == "adult"){
       document.querySelector('#blocksLeft').textContent = 0;
@@ -825,10 +854,12 @@ var experiment = {
     var trialInput = document.getElementById("trialInput");
     if(experiment.trialCount == 2){
       experiment.trial = 0.5; 
+    } if(experiment.trialCount == 2.5){
+      experiment.trial = 0.75; 
     }
     //stores data by trial
     if(experiment.trialCount != 0){
-      if(experiment.trialCount ==1 | experiment.trialCount == 2){
+      if(experiment.trialCount ==1 || experiment.trialCount == 2 || experiment.trialCount == 2.5){
         console.log("running");
         experiment.checkGrid('trialInput', 'trialGrid');
       }
@@ -840,7 +871,15 @@ var experiment = {
 
     } 
     //increases trial #
+    var tmp =0; 
+     if(experiment.trialCount == 2) {
+    experiment.trialCount = 2.5; 
+    tmp = 1; 
+    } if(experiment.trialCount != 2 && experiment.trialCount != 2.5){
     experiment.trialCount++;
+    } if(experiment.trialCount == 2.5 && tmp != 1){
+      experiment.trialCount = 3; 
+    }
     //clears grids
     experiment.clear("trialGrid");
     experiment.clear("trialInput");
@@ -863,7 +902,7 @@ var experiment = {
     if(experiment.trialCount == 10){
       experiment.end();
     } else {  //if experiment is not done
-      if(experiment.trialCount != 1 && experiment.trialCount != 2){ //if we are not in the trial rounds, which have pre-specified grids in pre-specified order
+      if(experiment.trialCount != 1 && experiment.trialCount != 2 && experiment.trialCount != 2.5){ //if we are not in the trial rounds, which have pre-specified grids in pre-specified order
         experiment.trial = experiment.getRandomDisplay(experiment.displayNum); //get our random display
       }
       //shows target slide for X seconds 
@@ -897,6 +936,14 @@ var experiment = {
         if(experiment.condition == "adult"){
           experiment.fillGrid("trialInput", trainInput2);
         }
+      } if(experiment.trialCount == 2.5){ 
+          experiment.fillGrid("trialGrid", train3);
+          experiment.ding();
+          experiment.colorRemove();
+          experiment.colorAdd("red");
+          if(experiment.condition == "adult"){
+            experiment.fillGrid("trialInput", trainInput3);
+          }
       }
       //study trials
       if(experiment.trial == 1){
@@ -999,19 +1046,28 @@ var experiment = {
       trial_1.play();
       clearInterval(timer);
       document.getElementById("button").disabled = true;
+      if(experiment.condition == "adult"){
+      showSlide("blank");
+      }
       setTimeout(function() { experiment.keepGoing(); }, 3500); 
       return;
     } if(experiment.trialCount == 6){
       halfway.play();
       clearInterval(timer);
       document.getElementById("button").disabled = true;
+      if(experiment.condition == "adult"){
+      showSlide("blank");
+      }
       setTimeout(function() { experiment.keepGoing(); }, 3500); 
       return;
     } if(experiment.trialCount == 8){
       one_left.play();
       clearInterval(timer);
       document.getElementById("button").disabled = true;
-      setTimeout(function() { experiment.keepGoing(); }, 2500); 
+      if(experiment.condition == "adult"){
+      showSlide("blank");
+      }
+      setTimeout(function() {experiment.keepGoing(); }, 2500); 
       return;
     } if(experiment.trialCount != 5 & experiment.trialCount != 6 & experiment.trialCount !=8){
       experiment.keepGoing(); 
@@ -1038,7 +1094,7 @@ var experiment = {
           accuracy++; 
           //if no, display error message
         } else {
-          if(experiment.trialCount != 1 && experiment.trialCount != 2){
+          if(experiment.trialCount != 1 && experiment.trialCount != 2 && experiment.trialCount != 2.5){
           training_1_error.play();
           $(error).html('<font color="red"><strong>The two grids should be the same. Please try again<strong></font>');
           return;
@@ -1051,7 +1107,7 @@ var experiment = {
         //and the input cell IS clicked [WRONG]
         if(inputElement.className =='clicked'){
           //display error message
-          if(experiment.trialCount != 1 && experiment.trialCount != 2){
+          if(experiment.trialCount != 1 && experiment.trialCount != 2 && experiment.trialCount != 2.5){
           training_1_error.play();
           $(error).html('<font color="red"><strong>The two grids should be the same. Please try again<strong></font>');
           return;
@@ -1072,7 +1128,7 @@ var experiment = {
           console.log(experiment.condition); 
           if(experiment.condition == "adult"){
             $(childIntro).html('');
-            $(adultIntro).html('<p class = "block-text">Now you will try to fix a grid from memory.</p><p class = "block-text"> A target grid will appear for <strong>10</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a grid.</p><p class = "block-text"> <strong>Your job is to correct this grid to match the target you previously saw.</p></strong><p class = "block-text"> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.</p>'); 
+            $(adultIntro).html('<p class = "block-text">Now you will try to fix a grid from memory.</p><p class = "block-text"> A target grid will appear for <strong>10</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a grid.</p><p class = "block-text"> <strong>Your job is to correct this grid to match the target you previously saw.</p></strong><p class = "block-text"> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 3 practice trials before we start the study.</p>'); 
             showSlide("expIntro")
           } if(experiment.condition == "child"){
             $(adultIntro).html('');
@@ -1084,7 +1140,7 @@ var experiment = {
         }
       }
     }
-    if(experiment.trialCount ==1){
+    if(experiment.trialCount ==2.5){
       experiment.training_1_accuracy = accuracy/10; 
       console.log(accuracy);
       console.log(experiment.training_1_accuracy);

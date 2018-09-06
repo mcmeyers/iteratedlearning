@@ -125,6 +125,15 @@ var train2 = [[1,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,1,0],
               [0,0,0,0,0,1,1,1]];
 
+var train3 = [[0,0,0,1,1,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],
+              [1,1,1,1,1,1,1,1],
+              [0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0]];
+
 var trial1 = [[1,1,0,1,0,0,0,0],
               [0,0,0,1,0,0,0,0],
               [0,0,0,1,0,0,0,0],
@@ -388,6 +397,8 @@ uniqueTurker: function(){
     var count = 0;
     //highlighs clicked cell
     $(clicked).toggleClass("clicked");
+    document.getElementById("button").style.backgroundColor = "white";
+
     //checks through grid to count how many cells are selected, disables selecting if there are 10 selected already
     for(i=0; i<64; i++){
       var gridElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
@@ -399,6 +410,8 @@ uniqueTurker: function(){
         document.querySelector('#blocksLeft').textContent = 0;
         clicked.classList.remove("clicked");
         errorSound.play();
+        } if(document.querySelector('#blocksLeft').textContent == 0){
+          document.getElementById("button").style.backgroundColor = "lime";
         } 
       }    
       cellIndex++;
@@ -559,11 +572,13 @@ uniqueTurker: function(){
       var rowIndex = 0;
       var cellIndex = 0;
       var i;
+      var count=0; 
       for(i=0; i<64; i++){
         var gridElement = document.getElementById(input).rows[rowIndex].cells[cellIndex];
         var targetElement = document.getElementById(target).rows[rowIndex].cells[cellIndex];
         if(gridElement.classList == "clicked"){
           dataArray[rowIndex][cellIndex] = 1;
+          count++; 
         }
         if(targetElement.classList == "clicked"){
           targetArray[rowIndex][cellIndex] = 1; 
@@ -572,6 +587,9 @@ uniqueTurker: function(){
         if(cellIndex == 8) {
           rowIndex++;
         if(rowIndex == 8){
+          if(count > 10 || count < 10){
+            experiment.timedOut = 1; 
+          }
         } else{
           cellIndex = 0; 
         }
@@ -587,8 +605,12 @@ uniqueTurker: function(){
 
     //if experiment is not over, keep adding data to one big long string which can then be called (the data string) in submit function; in correct format for posting to google sheet
       if(experiment.trialCount < 10){
+        if(experiment.trialCount != 2.5){
         experiment.dataforRound += "&" + "trial"+trialCount+"Count="+experiment.trialCount + "&" + "trial"+trialCount+"Display="+experiment.trial + "&" + "time"+trialCount+"Used="+experiment.timeUsed + "&" + "target"+trialCount+"Array="+targetArray + "&" + "data"+trialCount+"Array="+dataArray + "\n"; 
+      } if(experiment.trialCount == 2.5){
+        experiment.dataforRound += "&" + "trial3Count="+experiment.trialCount + "&" + "trial3Display="+experiment.trial + "&" +"time3Used="+experiment.timeUsed + "&"+ "target3Array="+targetArray+"&"+"data3Array="+dataArray+"\n";
       }
+    }
  
     //RN, also have the data send round by round FOR TURK EXPERIMENTS just in case this google sheets stuff glitches during the study 
       var dataforServer= experiment.subid + "," + experiment.subage + "," + experiment.generation + "," + experiment.seed + "," + experiment.condition + "," + experiment.date + "," + experiment.timestamp + ","; 
@@ -624,7 +646,6 @@ uniqueTurker: function(){
       timeout.play();
     } 
     if(count == -1) {
-      experiment.timedOut = 1;
       experiment.begin(); 
       clearInterval(timer);
       $("#count").html(60);
@@ -652,12 +673,14 @@ uniqueTurker: function(){
   colorRemove: function(){
   	var trialGrid = document.getElementById("trialGrid");
     var trialInput = document.getElementById("trialInput");
-    trialGrid.classList.remove("aqua", "purple", "olive", "green", "pink", "blue", "orange", "lime", "teal", "navy", "maroon");
-    trialInput.classList.remove("aqua", "purple", "olive", "green", "pink", "blue", "orange", "lime", "teal", "navy", "maroon");
+    trialGrid.classList.remove("aqua", "purple", "olive", "green", "pink", "blue", "orange", "lime", "teal", "navy", "maroon", "red", "yellow");
+    trialInput.classList.remove("aqua", "purple", "olive", "green", "pink", "blue", "orange", "lime", "teal", "navy", "maroon", "red", "yellow");
   },
 
   //displays target slide, stores data, handles counter for trials and ends study when 10 trials have passed 
   begin: function(){
+    console.log(experiment.trialCount);
+    document.getElementById("button").style.backgroundColor = "white";
     document.getElementById("button").disabled = false;
     document.querySelector('#blocksLeft').textContent = 10; 
 
@@ -671,13 +694,21 @@ uniqueTurker: function(){
 
     //stores data by trial
     if(experiment.trialCount != 0){
-      if(experiment.trialCount ==1 || experiment.trialCount == 2){
+      if(experiment.trialCount == 1 || experiment.trialCount == 2 || experiment.trialCount == 2.5){
         experiment.checkGrid('trialInput', 'trialGrid');
       }
       experiment.storeData("trialInput", "trialGrid", experiment.trialCount);
     } 
     //increases trial #
+    var tmp =0; 
+     if(experiment.trialCount == 2) {
+    experiment.trialCount = 2.5; 
+    tmp = 1; 
+    } if(experiment.trialCount != 2 && experiment.trialCount != 2.5){
     experiment.trialCount++;
+    } if(experiment.trialCount == 2.5 && tmp != 1){
+      experiment.trialCount = 3; 
+    }
     //clears grid
     experiment.clear("trialGrid");
 
@@ -690,6 +721,8 @@ uniqueTurker: function(){
     }
     if(experiment.trialCount == 2){
       experiment.trial = 0.5; 
+    } if(experiment.trialCount == 2.5){
+      experiment.trial = 0.75; 
     }
 
     //ends experiment when 6 trials + 2 trainings + trial 3 weirdness = 9 completed, so when gets called a 10th time 
@@ -697,7 +730,7 @@ uniqueTurker: function(){
       end_sd.play(); 
       experiment.end();
     } else {  //if experiment is not done
-      if(experiment.trialCount != 1 && experiment.trialCount != 2){ //if we are not in the trial rounds, which have pre-specified grids in pre-specified order
+      if(experiment.trialCount != 1 && experiment.trialCount != 2 && experiment.trialCount != 2.5){ //if we are not in the trial rounds, which have pre-specified grids in pre-specified order
         experiment.trial = experiment.getRandomDisplay(experiment.displayNum); //get our random display
       }
       //shows target slide for X seconds 
@@ -724,6 +757,12 @@ uniqueTurker: function(){
           experiment.ding();
           experiment.colorRemove();
           experiment.colorAdd("yellow");
+          console.log("running");
+      } if(experiment.trialCount == 2.5){ 
+          experiment.fillGrid("trialGrid", train3);
+          experiment.ding();
+          experiment.colorRemove();
+          experiment.colorAdd("red");
       }
       //study trials
       if(experiment.trial == 1){
@@ -843,7 +882,7 @@ uniqueTurker: function(){
           accuracy++; 
           //if no, display error message
         } else {
-          if(experiment.trialCount != 1 && experiment.trialCount != 2){
+          if(experiment.trialCount != 1 && experiment.trialCount != 2 &&  experiment.trialCount != 2.5){
           training_1_error.play();
           $(error).html('<font color="red"><strong>The two grids should be the same. Please try again<strong></font>');
           return;
@@ -856,7 +895,7 @@ uniqueTurker: function(){
         //and the input cell IS clicked [WRONG]
         if(inputElement.className =='clicked'){
           //display error message
-          if(experiment.trialCount != 1 && experiment.trialCount != 2){
+          if(experiment.trialCount != 1 && experiment.trialCount != 2 && experiment.trialCount != 2.5){
           training_1_error.play();
           $(error).html('<font color="red"><strong>The two grids should be the same. Please try again<strong></font>');
           return;
@@ -875,16 +914,16 @@ uniqueTurker: function(){
         if(rowIndex == 8){
           showSlide("expIntro"); 
           sparkle.play();     
-          $(practiceIntro).html('<center>Now you will try to recreate a grid from memory. A target grid will appear for <strong>10</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. <strong>Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 2 practice trials before we start the study.<center>'); 
+          $(practiceIntro).html('<center>Now you will try to recreate a grid from memory. A target grid will appear for <strong>10</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. <strong>Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 3 practice trials before we start the study.<center>'); 
         }  else{
           cellIndex = 0; 
         }
       }
     }
-    if(experiment.trialCount == 1){
+    if(experiment.trialCount == 2){
       experiment.training_1_accuracy = accuracy/10; 
       console.log(experiment.training_1_accuracy);
-    } if(experiment.trialCount == 2){
+    } if(experiment.trialCount == 2.5){
       experiment.training_2_accuracy = accuracy/10;
       console.log(experiment.training_2_accuracy); 
     }
