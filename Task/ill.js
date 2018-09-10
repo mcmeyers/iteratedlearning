@@ -480,9 +480,7 @@ uniqueTurker: function(){
       // log a message to the console
       $("#result").html('Data has been submitted!');
       //submit data to mTurk (just in case something bad happens and the google sheet doesnt work, good to have 2 copies)
-      if(participants == "adult"){
       setTimeout(function(){turk.submit(experiment)}, 3000);
-    }
     });
   },
 
@@ -801,6 +799,11 @@ uniqueTurker: function(){
 
   //resets timer & calls function to begin again after each trial
   keepGoing: function(){
+    if(experiment.trialCount == 5 || experiment.trialCount == 6||experiment.trialCount == 8){
+      $("#trialInput td").click(function(){
+        experiment.max10items(this,'trialInput');
+      });
+    }
     clearInterval(timer);
     $("#count").html(60);
     experiment.begin();
@@ -842,18 +845,21 @@ uniqueTurker: function(){
       trial_1.play();
       clearInterval(timer);
       document.getElementById("button").disabled = true;
+      $('#trialInput td').off('click')
       setTimeout(function() { experiment.keepGoing(); }, 3500); 
       return;
     } if(experiment.trialCount == 6){
       halfway.play();
       clearInterval(timer);
       document.getElementById("button").disabled = true;
+      $('#trialInput td').off('click')
       setTimeout(function() { experiment.keepGoing(); }, 3500); 
       return;
     } if(experiment.trialCount == 8){
       one_left.play();
       clearInterval(timer);
       document.getElementById("button").disabled = true;
+      $('#trialInput td').off('click')
       setTimeout(function() { experiment.keepGoing(); }, 2500); 
       return;
     } if(experiment.trialCount != 5 & experiment.trialCount != 6 & experiment.trialCount !=8){

@@ -91,6 +91,7 @@ data <- adult_baseline %>% #puts each trial and either target or display in a se
     separate(target, c("target_0_0", "target_0_1", "target_0_2", "target_0_3", "target_0_4", "target_0_5", "target_0_6", "target_0_7", "target_1_0", "target_1_1", "target_1_2", "target_1_3", "target_1_4", "target_1_5", "target_1_6", "target_1_7", "target_2_0", "target_2_1", "target_2_2", "target_2_3", "target_2_4", "target_2_5", "target_2_6", "target_2_7", "target_3_0", "target_3_1", "target_3_2", "target_3_3", "target_3_4", "target_3_5", "target_3_6", "target_3_7", "target_4_0", "target_4_1", "target_4_2", "target_4_3", "target_4_4", "target_4_5", "target_4_6", "target_4_7", "target_5_0", "target_5_1", "target_5_2", "target_5_3", "target_5_4", "target_5_5", "target_5_6", "target_5_7", "target_6_0", "target_6_1", "target_6_2", "target_6_3", "target_6_4", "target_6_5", "target_6_6", "target_6_7", "target_7_0", "target_7_1", "target_7_2", "target_7_3", "target_7_4", "target_7_5", "target_7_6", "target_7_7"), sep = " ") 
 
 calculate_data <-data %>%
+  filter(seed != 20) %>% #removing outlier-containing seed
   gather(row, value,-unique_id:-timeUsed)%>%
   arrange(sub_id, trialDisplay) %>%
   separate(row, c("type","row", "col")) %>%
@@ -128,15 +129,27 @@ generation_accuracy <- subject_accuracy %>%
   summarise(mean = mean(accuracy), 
             lower_bound = mean - 2.5 * sd(accuracy),
             upper_bound = mean + 2.5 * sd(accuracy))
+```
 
+This analysis shows that in the adult baseline data we had 7 outliers by our new percent accuracy standards: 3 in seed 20, 2 in seed 2, one in seed 8 gen 6, and one in seed 11 gen 4. This means that we are going to throw out seed 20; and re-run the task for 9 participants to re-fill the other seeds with data 
+```{r identify_outliers}
+outlier<- calculate_data %>%
+  filter(target == 1) %>%
+  filter(trialDisplay == 0 | trialDisplay == 0.5) %>%
+  filter(generation != 0) %>%
+  group_by(seed, generation, unique_id, trialDisplay) %>%
+  summarise(accuracy = mean(accuracy)) %>%
+  group_by(seed, generation, unique_id) %>%
+  summarise(accuracy = mean(accuracy))%>%
+  mutate(outlier = ifelse(accuracy < 0.75, 1, 0))
 ```
 
 ## Descriptive
 Displays the actual grids that people made; printed them and saved (have to do for each individual seed separately)
 ```{r plot_grids, eval = F, include=F}
-pdf("dyad_pilot_adults_s1.pdf", width = 10, height = 10)
-s1_data %>%
-  bind_rows(select(s1_data, generation, trialDisplay, row, col, input)) %>%
+pdf("dyad_pilot_adults_s11.pdf", width = 10, height = 10)
+s11_data %>%
+  bind_rows(select(s11_data, generation, trialDisplay, row, col, input)) %>%
   mutate(input = factor(input), 
          generation = factor(generation, levels = unique(.$generation))) %>%
   mutate(row = 7 - row) %>%
@@ -170,8 +183,7 @@ time_used %>%
   group_by(trialDisplay) %>%
   mutate(totalTime = sum(timeUsed)) %>%
   ggplot(aes(x=trialDisplay, y=totalTime)) +
-  geom_point() +
-  geom_smooth(method="lm")
+  geom_point()
 
 time_used %>%
   group_by(trialCount) %>%
@@ -186,19 +198,8 @@ This is one of the methods we can look at to judge the grids that people produce
 Percent accuracies calculated by %/10 stickers placed correctly between target and input 
 ```{r accuracy}
 trial_data <- calculate_data %>%
- filter(generation != 0, seed != 20) %>% #takes out initial generations and seed 20 which seems to be an outlier
+ filter(generation != 0) %>% #takes out initial generations 
   filter(target == 1) #calculate out of 10 stickers placed correctly, not 64
-```
-
-% Accuracy on training trials. People did pretty well; used these results to exclude participants in future studies if the participant had < 75% accuracy on training trials. 
-```{r trial_accuracy}
-trial_data %>%
-  filter(trialCount ==1 | trialCount ==0) %>%
-  group_by(sub_id) %>%
-  summarise(accuracy = mean(accuracy)) %>%
-  ggplot(aes(x=accuracy))+
-  geom_histogram() +
-  scale_x_continuous() 
 ```
 
 We don't see any practice effects within individuals. 
@@ -215,11 +216,11 @@ trial_data %>%
 % accuracy by trial display. People found trial 6 to be easier than the other trials overall. 
 ```{r trial_display}
 trial_data %>%
-  group_by(trialDisplay, condition) %>%
+  group_by(trialDisplay) %>%
   summarise(accuracy=mean(accuracy)) %>%
-  group_by(trialDisplay, condition) %>%
+  group_by(trialDisplay) %>%
   tidyboot_mean(accuracy) %>%
-  ggplot(aes(x = trialDisplay, y = empirical_stat, ymin = ci_lower, ymax = ci_upper, color=condition)) + 
+  ggplot(aes(x = trialDisplay, y = empirical_stat, ymin = ci_lower, ymax = ci_upper)) + 
   geom_pointrange()+
   geom_line() +
   ylab("average percent accuracy")
@@ -749,7 +750,7 @@ tria2l_data %>%
 ```{r format_data_complexity2}
 bdm2_data <- spread2_data %>%
   mutate(generation = ifelse(condition == "child", generation - 0.5, generation)) %>%
-  filter(trialCount > 3, generation != 0, seed != 20) %>%
+  filter(trialCount > 3, generation != 0) %>%
   select(sub_id, generation,trialDisplay, row, input_0:input_7) %>%
   mutate(input_7 = as.numeric(input_7),
          input_6 = as.numeric(input_6),
@@ -761,7 +762,7 @@ bdm2_data <- spread2_data %>%
          input_0 = as.numeric(input_0)) 
 
 target2_data <- spread2_data %>%
-  filter(trialDisplay != 0 & trialDisplay != 0.5 & generation == 0 & seed !=20)  %>%
+  filter(trialDisplay != 0 & trialDisplay != 0.5 & generation == 0)  %>%
   select(sub_id, generation,trialDisplay, row, input_0:input_7) %>%
   mutate(sub_id = 0) %>%
   mutate(target_0 = as.numeric(input_7),

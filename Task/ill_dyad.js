@@ -1000,6 +1000,11 @@ var experiment = {
 
   //resets timer & calls function to begin again after each trial
   keepGoing: function(){
+    if(experiment.trialCount == 5 || experiment.trialCount == 6||experiment.trialCount == 8){
+      $("#trialInput td").click(function(){
+        experiment.max10items(this,'trialInput');
+      });
+    }
     clearInterval(timer);
     $("#count").html(60);
     experiment.begin();
@@ -1046,27 +1051,21 @@ var experiment = {
       trial_1.play();
       clearInterval(timer);
       document.getElementById("button").disabled = true;
-      if(experiment.condition == "adult"){
-      showSlide("blank");
-      }
+      $('#trialInput td').off('click')
       setTimeout(function() { experiment.keepGoing(); }, 3500); 
       return;
     } if(experiment.trialCount == 6){
       halfway.play();
       clearInterval(timer);
       document.getElementById("button").disabled = true;
-      if(experiment.condition == "adult"){
-      showSlide("blank");
-      }
+      $('#trialInput td').off('click')
       setTimeout(function() { experiment.keepGoing(); }, 3500); 
       return;
     } if(experiment.trialCount == 8){
       one_left.play();
       clearInterval(timer);
       document.getElementById("button").disabled = true;
-      if(experiment.condition == "adult"){
-      showSlide("blank");
-      }
+      $('#trialInput td').off('click')
       setTimeout(function() {experiment.keepGoing(); }, 2500); 
       return;
     } if(experiment.trialCount != 5 & experiment.trialCount != 6 & experiment.trialCount !=8){
