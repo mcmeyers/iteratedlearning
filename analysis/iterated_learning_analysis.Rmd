@@ -1,6 +1,6 @@
 ---
 title: "iterated_learning"
-author: "Maddie Meyers, Dan Yurovsky"
+author: "Madeline Meyers, Dan Yurovsky"
 date: "7/19/2018"
 output: html_document
 ---
@@ -11,26 +11,19 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r libraries, include = F}
 library(tidyverse)
-library(png)
-library(grid)
-library(xtable)
-library(feather)
-library(irr)
 library(tidyboot)
 library(directlabels)
 library(lme4)
-library(broom)
-library(acss)
 library(devtools)
 library(reshape2)
-library(EMD)
+library(emdist)
 
 source("analysis_functions.R")
+setwd("~/Documents/Github/iteratedlearning/analysis")
 
 theme_set(theme_classic(base_size = 10))
 ```
 
-## Read in Data from Google Sheet (Pilot)
 ```{r read_data_sheet, eval = F, include = F}
 data_sheet <- gs_ls() %>%
   filter(sheet_title == "Kid Generations") %>%
@@ -43,80 +36,239 @@ data_sheet <- gs_ls() %>%
 ## Read in Data (saved as .csv taken from Google Sheet, includes only full chains)
 ```{r read_data, include = F}
 adult_baseline <- read_csv("../data/adult_baseline.csv") %>%
-  select(-sum_timeUsed)
+  select(-sum_timeUsed)%>%
+  filter(is.na(unique_id)==F)
 
 dyad_pilot <- read_csv("../data/turk_dyad_pilot.csv") %>%
- # mutate(generation = ifelse(condition == "child", generation - 0.5, generation),
-         #trial2Display = 0.5) 
   mutate(trial2Display = 0.5)
+
+turk_dyad <- read_csv("../data/turk_dyad.csv")
 ```
 
-
 ## Format Data for Display & Grid Analysis
+```{r}
+input_labs <- c("input_0_0", "input_0_1", "input_0_2", "input_0_3", "input_0_4", "input_0_5", "input_0_6", "input_0_7", "input_1_0", "input_1_1", "input_1_2", "input_1_3", "input_1_4", "input_1_5", "input_1_6", "input_1_7", "input_2_0", "input_2_1", "input_2_2", "input_2_3", "input_2_4", "input_2_5", "input_2_6", "input_2_7", "input_3_0", "input_3_1", "input_3_2", "input_3_3", "input_3_4", "input_3_5", "input_3_6", "input_3_7", "input_4_0", "input_4_1", "input_4_2", "input_4_3", "input_4_4", "input_4_5", "input_4_6", "input_4_7", "input_5_0", "input_5_1", "input_5_2", "input_5_3", "input_5_4", "input_5_5", "input_5_6", "input_5_7", "input_6_0", "input_6_1", "input_6_2", "input_6_3", "input_6_4", "input_6_5", "input_6_6", "input_6_7", "input_7_0", "input_7_1", "input_7_2", "input_7_3", "input_7_4", "input_7_5", "input_7_6", "input_7_7")
+target_labs <- c("target_0_0", "target_0_1", "target_0_2", "target_0_3", "target_0_4", "target_0_5", "target_0_6", "target_0_7", "target_1_0", "target_1_1", "target_1_2", "target_1_3", "target_1_4", "target_1_5", "target_1_6", "target_1_7", "target_2_0", "target_2_1", "target_2_2", "target_2_3", "target_2_4", "target_2_5", "target_2_6", "target_2_7", "target_3_0", "target_3_1", "target_3_2", "target_3_3", "target_3_4", "target_3_5", "target_3_6", "target_3_7", "target_4_0", "target_4_1", "target_4_2", "target_4_3", "target_4_4", "target_4_5", "target_4_6", "target_4_7", "target_5_0", "target_5_1", "target_5_2", "target_5_3", "target_5_4", "target_5_5", "target_5_6", "target_5_7", "target_6_0", "target_6_1", "target_6_2", "target_6_3", "target_6_4", "target_6_5", "target_6_6", "target_6_7", "target_7_0", "target_7_1", "target_7_2", "target_7_3", "target_7_4", "target_7_5", "target_7_6", "target_7_7")
+```
+
+#Format Baseline Data
 ```{r format, include=F}
-data <- adult_baseline %>% #puts each trial and either target or display in a separate row
-  select(-available_onload, -available_accepted, -sub_age) %>%
-  gather(display, array, -unique_id, -parent_id, -child_id, -sub_id, 
-         -generation, -seed, -condition, -date, -time, -trial1Count,
-         -time1Used, -trial1Display, -trial2Count, -time2Used,
-         -trial2Display, -trial4Count, -trial4Display, -time4Used,
-         -trial5Count, -trial5Display, -time5Used, -trial6Count,
-         -trial6Display, -time6Used, -trial7Count, -trial7Display, 
-         -time7Used, -trial8Count, -trial8Display, -time8Used, 
-         -trial9Count, -trial9Display, -time9Used) %>%
-  arrange(sub_id) %>%
+a_data <- adult_baseline %>% #puts each trial and either target or display in a separate row
+  select(-(available_onload:available_accepted),  -sub_age) %>%
+  gather(display, array, -(unique_id:time1Used), -(trial2Count:time2Used),
+        -(trial4Count:time4Used), -(trial5Count:time5Used), -(trial6Count:time6Used),
+        -(trial7Count:time7Used), -(trial8Count:time8Used), -(trial9Count:time9Used)) %>%
   unique() %>%
   separate(display, c("type", "trialCountArray"), -6) %>%
   separate(trialCountArray, c("trialCount", "arrayCount"), 1) %>%
-  select(-arrayCount, -trial1Count, -trial2Count, -trial4Count, -trial5Count,
-         -trial6Count, -trial7Count, -trial8Count, -trial9Count) %>%
-  gather(trialDisplay, display, -unique_id, -parent_id, -child_id, -sub_id,
-         -generation, -seed, -condition, -date, -time, -time1Used, -time2Used,
-         -time4Used, -time5Used, -time6Used, -time7Used, -time8Used,
-         -time9Used, -type, -trialCount, -array) %>%
+  gather(trialDisplay, display, -(unique_id:time), -time1Used, -time2Used, -time4Used,                   -time5Used, -time6Used, -time7Used, -time8Used, -time9Used,  -type, -trialCount,
+         -array) %>%
   separate(trialDisplay, c("type2", "tmp"), -7) %>%
-  select(-tmp) %>%
-  separate(type2, c("tmp", "trialCount2"), -1) %>%
-  select(-tmp) %>%
+  separate(type2, c("tmp2", "trialCount2"), -1) %>%
   filter(trialCount2 == trialCount) %>%
-  select(-trialCount2, trialDisplay = display) %>%
-  gather(trialTime, timeUsed, -unique_id, -parent_id, -child_id, -sub_id, -generation, -seed, -condition, -date, -time, -type, -trialCount, -trialDisplay, -array) %>%
+  gather(trialTime, timeUsed, -(unique_id:time), -type, -trialCount, -display, -array) %>%
   separate(trialTime, c("tmp", "trialCount3"), -5) %>%
   separate(trialCount3, c("trialCount3", "tmp2"), 1) %>%
-  select(-tmp, -tmp2) %>%
   filter(trialCount == trialCount3) %>%
-  select(unique_id, parent_id, child_id, sub_id, generation, seed, condition, date, time, trialCount, trialDisplay, timeUsed, type, array) %>%
+  select(unique_id:time, trialCount, trialDisplay = display, timeUsed, type, array) %>%
   spread(type, array) %>%
-  separate(data, c("input_0_0", "input_0_1", "input_0_2", "input_0_3", "input_0_4", "input_0_5", "input_0_6", "input_0_7", "input_1_0", "input_1_1", "input_1_2", "input_1_3", "input_1_4", "input_1_5", "input_1_6", "input_1_7", "input_2_0", "input_2_1", "input_2_2", "input_2_3", "input_2_4", "input_2_5", "input_2_6", "input_2_7", "input_3_0", "input_3_1", "input_3_2", "input_3_3", "input_3_4", "input_3_5", "input_3_6", "input_3_7", "input_4_0", "input_4_1", "input_4_2", "input_4_3", "input_4_4", "input_4_5", "input_4_6", "input_4_7", "input_5_0", "input_5_1", "input_5_2", "input_5_3", "input_5_4", "input_5_5", "input_5_6", "input_5_7", "input_6_0", "input_6_1", "input_6_2", "input_6_3", "input_6_4", "input_6_5", "input_6_6", "input_6_7", "input_7_0", "input_7_1", "input_7_2", "input_7_3", "input_7_4", "input_7_5", "input_7_6", "input_7_7"), sep = " ") %>%
-    separate(target, c("target_0_0", "target_0_1", "target_0_2", "target_0_3", "target_0_4", "target_0_5", "target_0_6", "target_0_7", "target_1_0", "target_1_1", "target_1_2", "target_1_3", "target_1_4", "target_1_5", "target_1_6", "target_1_7", "target_2_0", "target_2_1", "target_2_2", "target_2_3", "target_2_4", "target_2_5", "target_2_6", "target_2_7", "target_3_0", "target_3_1", "target_3_2", "target_3_3", "target_3_4", "target_3_5", "target_3_6", "target_3_7", "target_4_0", "target_4_1", "target_4_2", "target_4_3", "target_4_4", "target_4_5", "target_4_6", "target_4_7", "target_5_0", "target_5_1", "target_5_2", "target_5_3", "target_5_4", "target_5_5", "target_5_6", "target_5_7", "target_6_0", "target_6_1", "target_6_2", "target_6_3", "target_6_4", "target_6_5", "target_6_6", "target_6_7", "target_7_0", "target_7_1", "target_7_2", "target_7_3", "target_7_4", "target_7_5", "target_7_6", "target_7_7"), sep = " ") 
+  separate(data, input_labs, sep = " ") %>%
+  separate(target, target_labs, sep = " ") %>%
+  mutate_at(c(input_labs, target_labs, "sub_id", "generation", "seed", "trialCount", "trialDisplay", "timeUsed"), as.numeric)
 
-calculate_data <-data %>%
-  filter(seed != 20) %>% #removing outlier-containing seed
+a_calculate_data <-a_data %>%
   gather(row, value,-unique_id:-timeUsed)%>%
-  arrange(sub_id, trialDisplay) %>%
   separate(row, c("type","row", "col")) %>%
   spread(type,value) %>%
-  mutate(input = as.numeric(input), target = as.numeric(target),
-         row = as.numeric(row), column = as.numeric(col)) %>%
-  mutate(accuracy = input == target,
-         sub_id = as.character(sub_id)) %>%
+  mutate(accuracy = input == target, sub_id = as.character(sub_id)) %>%
   arrange(seed, generation) 
 
-spread_data <- data %>%
-  gather(row, value, -unique_id, -parent_id, -child_id, -sub_id, -condition, -generation, -seed, -date, -time, -trialDisplay, -trialCount, -timeUsed)%>%
-  arrange(sub_id, trialDisplay) %>%
+a_spread_data <- a_data %>%
+  gather(row, value, -(unique_id:timeUsed))%>%
   separate(row, c("type","row", "col")) %>%
   unite(ty_col, type, col) %>%
   spread(ty_col, value) %>%
   filter(is.na(row)==F)
 ```
 
-```{r outlier_check}
-subject_accuracy <- calculate_data %>%
-  filter(target == 1) %>%
-  mutate(type = factor(trialDisplay > .5, labels = c("practice", "test"))) %>%
+#Format Dyad Data 
+```{r}
+t_data <- turk_dyad %>%
+  select(-(available_onload:available_accepted), -sub_age) %>%
+  gather(display, array, -(unique_id:time1Used), -(trial2Count:time2Used),                              -(trial3Count:time3Used),-(trial4Count:time4Used), -(trial5Count:time5Used),                     -(trial6Count:time6Used),-(trial7Count:time7Used), -(trial8Count:time8Used),                     -(trial9Count:time9Used)) %>%
+  unique() %>%
+  separate(display, c("type", "trialCountArray"), -6) %>%
+  separate(trialCountArray, c("trialCount", "arrayCount"), 1) %>%
+  gather(trialDisplay, display, -(unique_id:time), -time1Used, -time2Used, -time3Used,-time4Used,       -time5Used, -time6Used, -time7Used, -time8Used, -time9Used,  -type,-trialCount, -array) %>%
+  separate(trialDisplay, c("type2", "tmp"), -7) %>%
+  separate(type2, c("tmp2", "trialCount2"), -1) %>%
+  filter(trialCount2 == trialCount) %>%
+  gather(trialTime, timeUsed, -(unique_id:time), -type, -trialCount, -display, -array) %>%
+  separate(trialTime, c("tmp", "trialCount3"), -5) %>%
+  separate(trialCount3, c("trialCount3", "tmp2"), 1) %>%
+  filter(trialCount == trialCount3) %>%
+  select(unique_id:time, trialCount, trialDisplay = display, timeUsed, type, array) %>%
+  spread(type, array) %>%
+  separate(data, input_labs, sep = " ") %>%
+  separate(target, target_labs, sep = " ") %>%
+  mutate_at(c(input_labs, target_labs, "sub_id", "generation", "seed", "trialCount", "trialDisplay", "timeUsed"), as.numeric) %>%
+  mutate(generation = ifelse(condition == "child", generation-0.5, generation))
+
+t_calculate_data <-t_data %>%
+  gather(row, value,-unique_id:-timeUsed)%>%
+  separate(row, c("type","row", "col")) %>%
+  spread(type,value) %>%
+  mutate(accuracy = input == target, sub_id = as.character(sub_id)) %>%
+  arrange(seed, generation) 
+
+t_spread_data <- t_data %>%
+  gather(row, value, -(unique_id:timeUsed))%>%
+  separate(row, c("type","row", "col")) %>%
+  unite(ty_col, type, col) %>%
+  spread(ty_col, value) %>%
+  filter(is.na(row)==F)
+```
+
+#Calculate Complexity Measures
+Includes calculations for Algorithmic Complexity (BDM), Edge Length, Chunking, and Earth-Mover Distance
+```{r format_data_complexity}
+a_bdm_data <- a_spread_data %>%
+  filter(trialDisplay >=1, generation != 0) %>%
+  select(sub_id, generation,trialDisplay, row, input_0:input_7) %>%
+  arrange(sub_id,trialDisplay, row)
+
+a_target_data <- a_spread_data %>%
+  filter(trialDisplay >=1 & generation == 0)  %>%
+  select(sub_id, generation,trialDisplay, row, target_0 = input_0, target_1 = input_1, target_2 =input_2, target_3 = input_3, target_4 = input_4, target_5 = input_5, target_6 = input_6, target_7 =input_7) %>%
+  mutate(sub_id = 0) %>%
+  arrange(trialDisplay,row) %>%
+  unique()
+ 
+a_target_store <- data.frame(bdm = bdm_function(a_target_data),
+                           chunking = nPart_function(a_target_data),
+                           edge = edge_function(a_target_data)) 
+a_bdm_store <- data.frame(bdm = bdm_function(a_bdm_data),
+                        chunking = nPart_function(a_bdm_data),
+                        edge = edge_function(a_bdm_data))
+
+a_emds <- a_spread_data %>%
+  arrange(sub_id) %>%
+  filter(trialCount > 3) %>%
+  mutate(sub_id = ifelse(generation ==0, 0, sub_id)) %>%
+  split(paste0(.$sub_id, .$trialDisplay, sep="_")) %>%
+  map(emd_helper) %>%
+  bind_rows() %>%
+  arrange(sub_id) %>%
+  select(emd) %>%
+  mutate(emd = ifelse(emd == "NaN", 0, emd))
+
+a_bind_targets <- a_target_data %>%
+  group_by(sub_id,trialDisplay, generation) %>%
+  summarise(.) %>%
+  bind_cols(a_target_store, .)
+
+a_bind_data <- a_bdm_data %>%
+  group_by(sub_id,trialDisplay, generation) %>%
+  summarise(.) %>%
+  bind_cols(a_bdm_store, .) %>%
+  bind_rows(. , a_bind_targets) %>%
+  mutate_all(as.numeric) %>%
+  group_by(sub_id,trialDisplay, generation)%>%
+  summarise(bdm_mean = mean(bdm),
+            chunking_mean = mean(chunking),
+            edge_mean = mean(edge)) %>%
+  bind_cols(.,a_emds)
+```
+
+#Dyad condition
+```{r format_data_complexity2}
+t_bdm_data <- t_spread_data %>%
+  filter(trialDisplay >=1, generation != 0) %>%
+  select(sub_id, generation,trialDisplay, row, input_0:input_7) %>%
+  arrange(sub_id,trialDisplay, row)
+
+t_target_data <- t_spread_data %>%
+  filter(trialDisplay >=1 & generation == 0)  %>%
+  select(sub_id, generation,trialDisplay, row, target_0 = input_0, target_1 = input_1, target_2 =input_2, target_3 = input_3, target_4 = input_4, target_5 = input_5, target_6 = input_6, target_7 =input_7) %>%
+  mutate(sub_id = 0) %>%
+  arrange(trialDisplay,row) %>%
+  unique()
+ 
+t_target_store <- data.frame(bdm = bdm_function(t_target_data),
+                           chunking = nPart_function(t_target_data),
+                           edge = edge_function(t_target_data)) 
+t_bdm_store <- data.frame(bdm = bdm_function(t_bdm_data),
+                        chunking = nPart_function(t_bdm_data),
+                        edge = edge_function(t_bdm_data))
+
+t_emds <- t_spread_data %>%
+  arrange(sub_id) %>%
+  filter(trialDisplay >=1) %>%
+  mutate(sub_id = ifelse(generation ==0, 0, sub_id)) %>%
+  split(paste0(.$sub_id, .$trialDisplay, sep="_")) %>%
+  map(emd_helper) %>%
+  bind_rows() %>%
+  select(emd) %>%
+  mutate(emd = ifelse(emd == "NaN", 0, emd))
+
+t_bind_targets <- t_target_data %>%
+  group_by(sub_id,trialDisplay, generation) %>%
+  summarise(.) %>%
+  bind_cols(t_target_store, .)
+
+t_bind_data <- t_bdm_data %>%
+  group_by(sub_id,trialDisplay, generation) %>%
+  summarise(.) %>%
+  bind_cols(t_bdm_store, .) %>%
+  bind_rows(. , t_bind_targets) %>%
+  mutate_all(as.numeric) %>%
+  group_by(sub_id,trialDisplay, generation)%>%
+  summarise(bdm_mean = mean(bdm),
+            chunking_mean = mean(chunking),
+            edge_mean = mean(edge)) %>%
+  bind_cols(.,t_emds) %>%
+  ungroup() %>%
+  arrange(generation)
+```
+
+#All Data 
+```{r}
+all_data <- a_data %>%
+  mutate(type = "baseline", condition = "adult") %>%
+  bind_rows(mutate(t_data, type="dyad"))
+
+all_calculate_data <- a_calculate_data %>%
+  mutate(type = "baseline", condition = "adult") %>%
+  bind_rows(mutate(t_calculate_data, type="dyad"))
+
+all_spread_data <- a_spread_data %>%
+  mutate(type = "baseline", condition = "adult") %>%
+  bind_rows(mutate(t_spread_data, type="dyad"))
+
+all_bind_data <- a_bind_data %>%
+  mutate(type = "baseline") %>%
+  bind_rows(mutate(t_bind_data, type="dyad")) %>%
+  mutate(condition = if_else(floor(generation) != generation, "child", "adult"))
+```
+
+#Outlier Check
+Even though our outliers were tested for as the study was running, this graphs percent accuracy for practice and training trials to make sure everything worked as expected.
+```{r, eval = F, include = F}
+thrown <- read.csv("../data/thrown_turk_dyad.csv") 
+not_thrown <- thrown %>%
+  filter(THROWN != 1)
+thrown <- thrown %>%
+  filter(THROWN == 1, seed != 1, timedOut != 1, !(unique_id %in% not_thrown$unique_id) )
+```
+
+```{r outlier_check, eval = F, include = F}
+subject_accuracy <- thrown_calculate_data %>%
+  filter(target == 1, trialDisplay != 0) %>% #for dyad task, calculated accuracy on second 2 training trials, not first one
+  mutate(type = factor(trialDisplay<1, labels = c("test", "practice"))) %>%
   group_by(type, generation, unique_id, trialDisplay) %>%
-  summarise(accuracy = mean(accuracy))
+  summarise(accuracy = mean(accuracy)) %>%
+  mutate(condition = if_else(floor(generation) != generation, "child", "adult"))
+
 
 subject_accuracy %>%
   summarise(accuracy = mean(accuracy)) %>%
@@ -124,32 +276,38 @@ subject_accuracy %>%
   facet_grid(generation~type) + 
   geom_histogram()
 
+not_thrown <- subject_accuracy %>%
+  summarise(accuracy = mean(accuracy)) %>%
+  filter(accuracy > 0.75) 
+
 generation_accuracy <- subject_accuracy %>%
   summarise(accuracy = mean(accuracy)) %>%
   summarise(mean = mean(accuracy), 
             lower_bound = mean - 2.5 * sd(accuracy),
             upper_bound = mean + 2.5 * sd(accuracy))
-```
 
-This analysis shows that in the adult baseline data we had 7 outliers by our new percent accuracy standards: 3 in seed 20, 2 in seed 2, one in seed 8 gen 6, and one in seed 11 gen 4. This means that we are going to throw out seed 20; and re-run the task for 9 participants to re-fill the other seeds with data 
-```{r identify_outliers}
-outlier<- calculate_data %>%
-  filter(target == 1) %>%
-  filter(trialDisplay == 0 | trialDisplay == 0.5) %>%
-  filter(generation != 0) %>%
-  group_by(seed, generation, unique_id, trialDisplay) %>%
-  summarise(accuracy = mean(accuracy)) %>%
-  group_by(seed, generation, unique_id) %>%
-  summarise(accuracy = mean(accuracy))%>%
-  mutate(outlier = ifelse(accuracy < 0.75, 1, 0))
+subject_accuracy %>%
+  filter(type == "practice", trialDisplay != 0) %>%
+  filter(accuracy < 0.75) %>%
+  View()
 ```
 
 ## Descriptive
 Displays the actual grids that people made; printed them and saved (have to do for each individual seed separately)
+```{r, eval=F, include=F}
+s8_data <- calculate_data_dyad %>%
+  filter(seed == 8, is.na(input)==F) %>%
+  mutate(generation = ifelse(condition == "child", generation-0.5, generation)) %>%
+  arrange(generation)
+
+s20_data <- calculate_data %>%
+  filter(seed == 20)
+```
+
 ```{r plot_grids, eval = F, include=F}
-pdf("dyad_pilot_adults_s11.pdf", width = 10, height = 10)
-s11_data %>%
-  bind_rows(select(s11_data, generation, trialDisplay, row, col, input)) %>%
+pdf("adult_baseline_s20.pdf", width = 10, height = 10)
+s20_data %>%
+  bind_rows(select(s20_data, generation, trialDisplay, row, col, input)) %>%
   mutate(input = factor(input), 
          generation = factor(generation, levels = unique(.$generation))) %>%
   mutate(row = 7 - row) %>%
@@ -163,16 +321,16 @@ dev.off()
 ## Time Used per trial
 How much time did people use on each trial? did this go down over generations?
 ```{r time_used}
-time_used <- data %>%
+time_used <- all_data %>%
   filter(generation != 0)
 ```
 
 There doesn't seem to be a relationship between the amount of time used and generation number. This is contrary to a proposed hypothesis that people would use less time per trial as generation increases. 
 ```{r time_gen}
 time_used %>%  
-  group_by(generation) %>%
+  group_by(generation, type, condition) %>%
   mutate(totalTime = sum(timeUsed)) %>%
-  ggplot(aes(x=generation, y=totalTime)) + 
+  ggplot(aes(x=generation, y=totalTime, color=interaction(condition,type))) + 
   geom_point() + 
   geom_smooth(method="lm")
 ```
@@ -180,16 +338,22 @@ time_used %>%
 People don't seem to vary on the amount of time used and which display they were shown, except that they used less time for the training trials (presumably because the trainings were easier). People also seem to use slightly less time per trial as the experiment goes on (because they start to get less engaged?). However, % accuracy did not seem to decrease much as the study went on.
 ```{r time_trial}
 time_used %>%
-  group_by(trialDisplay) %>%
+  group_by(trialDisplay, type, condition) %>%
   mutate(totalTime = sum(timeUsed)) %>%
-  ggplot(aes(x=trialDisplay, y=totalTime)) +
-  geom_point()
+  ggplot(aes(x=trialDisplay, y=totalTime, color=condition)) +
+  geom_point() +
+  scale_x_continuous(breaks =c(0, 0.5, 0.75, 1, 2, 3, 4, 5, 6)) +
+  facet_wrap(~type) +
+  geom_line(aes(group=condition))
 
 time_used %>%
-  group_by(trialCount) %>%
+  group_by(trialCount, type, condition) %>%
   mutate(totalTime = sum(timeUsed)) %>%
-  ggplot(aes(x=trialCount, y=totalTime)) +
-  geom_point()
+  ggplot(aes(x=trialCount, y=totalTime, color=condition)) +
+  geom_point() +
+  scale_x_continuous(breaks =c(1, 2, 3, 4, 5, 6, 7, 8, 9)) +
+  facet_wrap(~type) +
+  geom_smooth(method = "loess", se = F, aes(group=condition))
 ```
 
 ## Percent Accuracy 
@@ -197,7 +361,7 @@ This is one of the methods we can look at to judge the grids that people produce
 
 Percent accuracies calculated by %/10 stickers placed correctly between target and input 
 ```{r accuracy}
-trial_data <- calculate_data %>%
+trial_data <- all_calculate_data %>%
  filter(generation != 0) %>% #takes out initial generations 
   filter(target == 1) #calculate out of 10 stickers placed correctly, not 64
 ```
@@ -210,44 +374,51 @@ trial_data %>%
   tidyboot_mean(accuracy) %>%
   ggplot(aes(x = trialCount, y = empirical_stat, ymin = ci_lower, ymax = ci_upper)) + 
   geom_pointrange()+
-  ylab("average percent accuracy")
+  ylab("average percent accuracy") +
+  scale_x_continuous(breaks=c(1,2,3,4,5,6,7,8,9))
 ```
 
 % accuracy by trial display. People found trial 6 to be easier than the other trials overall. 
 ```{r trial_display}
 trial_data %>%
-  group_by(trialDisplay) %>%
+  group_by(trialDisplay, type, condition) %>%
   summarise(accuracy=mean(accuracy)) %>%
-  group_by(trialDisplay) %>%
+  group_by(trialDisplay, type, condition) %>%
   tidyboot_mean(accuracy) %>%
-  ggplot(aes(x = trialDisplay, y = empirical_stat, ymin = ci_lower, ymax = ci_upper)) + 
+  ggplot(aes(x = trialDisplay, y = empirical_stat, ymin = ci_lower, ymax = ci_upper, color=condition)) +
   geom_pointrange()+
-  geom_line() +
-  ylab("average percent accuracy")
+  geom_line(aes(group=condition)) +
+  ylab("average percent accuracy") +
+  scale_x_continuous(breaks=c(0,0.5,0.75,1,2,3,4,5,6)) +
+  facet_wrap(~type)
 ```
 
 Percent accuracy over generations. It increases over gens 1-4 and then seems to level off(?). This is similar to what we would expect but interesting in context with the consistent complexity findings below. 
 ```{r}
 trial_data %>%
   filter(trialCount > 3) %>%
-  group_by(generation, sub_id) %>%
+  group_by(generation, sub_id, type, condition) %>%
   summarise(accuracy = mean(accuracy)) %>%
+  group_by(generation,type, condition) %>%
   tidyboot_mean(accuracy) %>%
-  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, ymax = ci_upper)) + 
+  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, ymax = ci_upper, color = condition)) +
   geom_pointrange()+
-  ylab("average percent accuracy") 
+  facet_wrap(~type)+
+  geom_line(aes(group=condition))+
+  ylab("average percent accuracy") +
+  scale_x_continuous(breaks=c(0,1,2,3,4,5,6))
 ```
 
 Percent accuracy over generation by seed to see variations between seeds, though they seem to show similar (ish) trends
 ```{r}
-#seeds are diverse but generally constant once you take out seed 20 which was an outlier
+#seeds are diverse but generally constant 
 trial_data %>%
-  group_by(seed, sub_id) %>%
+  group_by(type,seed, sub_id) %>%
   summarise(accuracy=mean(accuracy)) %>%
   tidyboot_mean(accuracy)%>%
-  ggplot(aes(x = seed, y = empirical_stat, ymin = ci_lower, ymax = ci_upper)) + 
+  ggplot(aes(x = seed, y = empirical_stat, ymin = ci_lower, ymax = ci_upper, color=type)) + 
   geom_pointrange() +
-  geom_smooth(method = "lm")+
+  geom_smooth(method = "lm", se=F)+
   ylab("average percent accuracy")
 ```
 
@@ -256,278 +427,145 @@ There are many different methods of analyzing the "simplicity" or "complexity" o
 
 ##BDM
 The Block Decomposition Method for Algorithmic Complexity splits the grids into overlapping 4x4 units, and calculates the Kolmogorov-Chaitin Complexity (based on coding theorem method) for each 4x4 grid. This method compares the power used to produce a particular pattern by a turing machine. We have reason to believe that this is the best measure of general complexity that we have for the grids. 
-```{r, include = F}
-bdm_function = function(m){
-  x = rep("x", nrow(m)/8)
-  k=1
-  q=1
-  for(i in 1:(nrow(m)/8)){
-    df = m[q:(q+7), 5:12] #CHANGE IF CHANGE INPUT COLUMNS
-    data.matrix(df)
-    x[k] = bdm(df)
-    k = k +1
-    q=q+8
-  }
-  return(x) 
-}
-```
 
 ## Chunking
-Chunking is defined as the number of discrete parts of the grid. A chunk consists of any targets which are connected by an edge. This does not include elements which are diagonal to each other. 
-```{r, include = F}
-nPart_function = function(m){
-  x = rep("x", nrow(m)/8)
-  k=1
-  q=1
-  for(i in 1:(nrow(m)/8)){
-    df = m[q:(q+7), 5:12] #CHANGE IF CHANGE INPUT COLUMNS
-    data.matrix(df)
-    x[k] = nPart(df)
-    k = k +1
-    q=q+8
-  }
-  return(x) 
-}
-```
+Chunking is defined as the number of discrete parts of the grid. A chunk consists of any targets which are connected by an edge. This does not include elements which are diagonal to each other.
 
 ## Edge Length
 Edge length can be defined as a measure of how "crooked" a grid pattern is. It essentially counts the length of the edges of the targets seen. Targets which are connected have a lower edge length. A checkerboard pattern would result in the largest edge length. 
-```{r, include = F}
-edge_function = function(m){
-  x = rep("x", nrow(m)/8)
-  k=1
-  q=1
-  for(i in 1:(nrow(m)/8)){
-    df = m[q:(q+7), 5:12] #CHANGE IF CHANGE INPUT COLUMNS
-    data.matrix(df)
-    x[k] = edge(df)
-    k = k +1
-    q=q+8
-  }
-  return(x) 
-}
-```
 
-```{r format_data_complexity}
-bdm_data <- spread_data %>%
-  filter(trialCount > 3, generation != 0, seed != 20) %>%
-  select(sub_id, generation,trialDisplay, row, input_0:input_7) %>%
-  mutate(input_7 = as.numeric(input_7),
-         input_6 = as.numeric(input_6),
-         input_5 = as.numeric(input_5),
-         input_4 = as.numeric(input_4),
-         input_3 = as.numeric(input_3),
-         input_2 = as.numeric(input_2),
-         input_1 = as.numeric(input_1),
-         input_0 = as.numeric(input_0)) 
-
-target_data <- spread_data %>%
-  filter(trialDisplay != 0 & trialDisplay != 0.5 & generation == 0 & seed !=20)  %>%
-  select(sub_id, generation,trialDisplay, row, input_0:input_7) %>%
-  mutate(sub_id = 0) %>%
-  mutate(target_0 = as.numeric(input_7),
-         target_1 = as.numeric(input_6),
-         target_2 = as.numeric(input_5),
-         target_3 = as.numeric(input_4),
-         target_4 = as.numeric(input_3),
-         target_5 = as.numeric(input_2),
-         target_6 = as.numeric(input_1),
-         target_7 = as.numeric(input_0)) %>%
-  select(-(input_0:input_7)) %>%
-  arrange(trialDisplay,row) %>%
-  unique()
- 
-target_store <- data.frame(bdm = bdm_function(target_data),
-                           chunking = nPart_function(target_data),
-                           edge = edge_function(target_data)) 
-bdm_store <- data.frame(bdm = bdm_function(bdm_data),
-                        chunking = nPart_function(bdm_data),
-                        edge = edge_function(bdm_data))
-
-bind_targets <- target_data %>%
-  group_by(sub_id,trialDisplay, generation) %>%
-  summarise(.) %>%
-  bind_cols(target_store, .)
-
-bind_data <- bdm_data %>%
-  group_by(sub_id,trialDisplay, generation) %>%
-  summarise(.) %>%
-  bind_cols(bdm_store, .) %>%
-  bind_rows(. , bind_targets) %>%
-  mutate(bdm = as.numeric(bdm),
-         chunking = as.numeric(chunking),
-         edge = as.numeric(edge)) %>%
-  group_by(sub_id,trialDisplay, generation)%>%
-  summarise(bdm_mean = mean(bdm),
-            chunking_mean = mean(chunking),
-            edge_mean = mean(edge)) 
-
-```
-
+##Results
 Algorithmic complexity decreases linearly by generation. Kempe found a 30pt decrease in first 6 generations which is approximately the same seen here. When you divide by trial display you see a consistent trend with some variation.
 ```{r complexity_graphs}
-bind_data %>%
-  group_by(generation) %>% 
+t_bind_data %>%
+  mutate(condition = if_else(floor(generation) != generation, "child", "adult")) %>%
+  group_by(generation, condition) %>% 
   tidyboot_mean(bdm_mean) %>%
-  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, ymax = ci_upper)) + 
+  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, ymax = ci_upper, color = condition)) +
   geom_pointrange() + 
   ylab("algorithmic complexity") + 
   ggtitle("algorithmic complexity over generations")
 
-#seems to be variation by trial display but same general trend
-bind_data %>% 
-  group_by(generation, trialDisplay) %>% 
+all_bind_data  %>%
+  group_by(generation, type) %>%
+  tidyboot_mean(bdm_mean) %>%
+  mutate(condition = if_else(floor(generation) != generation, "child", "adult")) %>%
+  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, 
+                      ymax = ci_upper, color = interaction(type,condition),                               group=interaction(type,condition))) + 
+  geom_pointrange() + 
+  geom_smooth(method = "loess", se = F)+
+  ylab("algorithmic complexity") + 
+  ggtitle("algorithmic complexity over generations") 
+
+#seems to be variation by trial display 
+all_bind_data %>% 
+  group_by(generation, trialDisplay,condition,type) %>% 
   tidyboot_mean(bdm_mean) %>%
   ggplot(aes(x = generation, y = empirical_stat, 
-                       ymin = ci_lower, ymax = ci_upper)) + 
+                       ymin = ci_lower, ymax = ci_upper, color = interaction(type,condition))) + 
   geom_pointrange() + 
-  geom_smooth() + 
+  geom_smooth(method="loess", aes(group=interaction(type, condition)), se=F)+
   ylab("algorithmic complexity") + 
   facet_wrap(~trialDisplay) + 
-  ggtitle("algoritmic complexity over generations by trial display")
+  ggtitle("algoritmic complexity over generations by trial display")+
+  scale_x_continuous(breaks=c(0,1,2,3,4,5,6))
 ```
 
-The number of chunks also decreases linearly by generation
+Chunking
 ```{r chunk_graphs}
-bind_data %>%
-  group_by(generation) %>%
+all_bind_data  %>%
+  group_by(generation, type) %>%
   tidyboot_mean(chunking_mean) %>%
-  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, ymax = ci_upper)) + 
-  geom_pointrange()+
-  geom_line()+
-  ylab("number of chunks")+
-  ggtitle("chunking over generations")
+  mutate(condition = if_else(floor(generation) != generation, "child", "adult")) %>%
+  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, 
+                      ymax = ci_upper, color = interaction(type,condition),                               group=interaction(type,condition))) + 
+  geom_pointrange() + 
+  geom_smooth(method = "loess", se = F)+
+  ylab("# of chunks") + 
+  ggtitle("chunking over generations") 
+
+all_bind_data %>% 
+  group_by(generation, trialDisplay,condition,type) %>% 
+  tidyboot_mean(chunking_mean) %>%
+  ggplot(aes(x = generation, y = empirical_stat, 
+                       ymin = ci_lower, ymax = ci_upper, color = interaction(type,condition))) + 
+  geom_pointrange() + 
+  geom_smooth(method="loess", aes(group=interaction(type, condition)), se=F)+
+  ylab("chunking") + 
+  facet_wrap(~trialDisplay) + 
+  ggtitle("chunking over generations by trial display")+
+  scale_x_continuous(breaks=c(0,1,2,3,4,5,6))
 ```
 
-Edge length also decreases linearly by generation
+Edge Length
 ```{r edge_graph}
-bind_data %>%
-  group_by(generation) %>%
+all_bind_data  %>%
+  group_by(generation, type) %>%
   tidyboot_mean(edge_mean) %>%
-  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, ymax = ci_upper)) + 
-  geom_pointrange()+
-  geom_line()+
-  ylab("edge length")+
-  ggtitle("edge length over generations")
+  mutate(condition = if_else(floor(generation) != generation, "child", "adult")) %>%
+  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, 
+                      ymax = ci_upper, color = interaction(type,condition),                               group=interaction(type,condition))) + 
+  geom_pointrange() + 
+  geom_smooth(method = "loess", se = F)+
+  ylab("edge length") + 
+  ggtitle("edge length over generations") 
+
+all_bind_data %>% 
+  group_by(generation, trialDisplay,condition,type) %>% 
+  tidyboot_mean(edge_mean) %>%
+  ggplot(aes(x = generation, y = empirical_stat, 
+                       ymin = ci_lower, ymax = ci_upper, color = interaction(type,condition))) + 
+  geom_pointrange() + 
+  geom_smooth(method="loess", aes(group=interaction(type, condition)), se=F)+
+  ylab("edge length") + 
+  facet_wrap(~trialDisplay) + 
+  ggtitle("edge length over generations by trial display")+
+  scale_x_continuous(breaks=c(0,1,2,3,4,5,6))
 ```
 
 ## Earth-Mover Distance
 Earth-Mover Distance is calculated as the number of moves (one move=one direction NSEW) to get from a target pattern to the resultant pattern. 
-```{r, include=F}
-emd_helper <- function(df) {
-  input <- df %>%
-    select(input_0:input_7) %>%
-    mutate_all(as.numeric) %>%
-    as.matrix
-  
-  target <- df %>%
-    select(target_0:target_7) %>%
-    mutate_all(as.numeric) %>%
-    as.matrix
 
-  data_frame(emd = emd2d(input, target),
-             generation = first(df$generation), 
-             unique_id = first(df$unique_id), 
-             trialDisplay = first(df$trialDisplay))
-}
-```
-
-```{r emd_analysis, eval=F}
-emds <- spread_data %>%
-  filter(generation > 0) %>%
-  split(paste0(.$unique_id, .$trialDisplay, sep="_")) %>%
-  map(emd_helper) %>%
-  bind_rows() 
-  
-ggplot(emds, aes(x = emd)) + 
-  facet_grid(generation~trialDisplay) + 
-  geom_histogram()
-
-generation_emds <- emds %>%
-  group_by(generation, trialDisplay) %>%
-  tidyboot_mean(emd)
-
-ggplot(generation_emds, aes(x = generation, y = empirical_stat, 
-                            ymin = ci_lower, ymax = ci_upper)) +
-  facet_wrap(~trialDisplay) + 
+```{r emd_analysis}
+all_bind_data  %>%
+  group_by(generation, type) %>%
+  filter(generation > 0, trialDisplay != 6) %>%
+  tidyboot_mean(emd) %>%
+  mutate(condition = if_else(floor(generation) != generation, "child", "adult")) %>%
+  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, 
+                      ymax = ci_upper, color = interaction(type,condition),                               group=interaction(type,condition))) + 
   geom_pointrange() + 
-  geom_line()
+  geom_smooth(method = "loess", se = F)+
+  ylab("Earth-Mover Distance") + 
+  ggtitle("Earth-Mover Distance length over generations") 
+
+all_bind_data %>% 
+  filter(generation >0) %>%
+  group_by(generation, trialDisplay,condition,type) %>% 
+  tidyboot_mean(emd) %>%
+  ggplot(aes(x = generation, y = empirical_stat, 
+                       ymin = ci_lower, ymax = ci_upper, color = interaction(type,condition))) + 
+  geom_pointrange() + 
+  geom_smooth(method="loess", aes(group=interaction(type, condition)), se=F)+
+  ylab("Earth-Mover Distance") + 
+  facet_wrap(~trialDisplay) + 
+  ggtitle("Earth-Mover Distance over generations by trial display")+
+  scale_x_continuous(breaks=c(0,1,2,3,4,5,6))
 ```
 
 ## Including Seed Information
-```{r, include = F}
-bdm_seed_function = function(m){
-  x = rep("x", nrow(m)/8)
-  k=1
-  q=1
-  for(i in 1:(nrow(m)/8)){
-    df = m[q:(q+7), 6:13] #CHANGE IF CHANGE INPUT COLUMNS
-    data.matrix(df)
-    x[k] = bdm(df)
-    k = k +1
-    q=q+8
-  }
-  return(x) 
-}
-```
 
-```{r, include = F}
-nPart_seed_function = function(m){
-  x = rep("x", nrow(m)/8)
-  k=1
-  q=1
-  for(i in 1:(nrow(m)/8)){
-    df = m[q:(q+7), 6:13] #CHANGE IF CHANGE INPUT COLUMNS
-    data.matrix(df)
-    x[k] = nPart(df)
-    k = k +1
-    q=q+8
-  }
-  return(x) 
-}
-```
-
-```{r, include = F}
-edge_seed_function = function(m){
-  x = rep("x", nrow(m)/8)
-  k=1
-  q=1
-  for(i in 1:(nrow(m)/8)){
-    df = m[q:(q+7), 6:13] #CHANGE IF CHANGE INPUT COLUMNS
-    data.matrix(df)
-    x[k] = edge(df)
-    k = k +1
-    q=q+8
-  }
-  return(x) 
-}
-```
-
-```{r, include=F}
+```{r, include=F, eval=F}
 bdm_seed_data <- spread_data %>%
   filter(trialCount > 3, generation != 0, seed != 20) %>%
   select(sub_id=unique_id, generation,seed,trialDisplay, row, input_0:input_7) %>%
-  mutate(input_7 = as.numeric(input_7),
-         input_6 = as.numeric(input_6),
-         input_5 = as.numeric(input_5),
-         input_4 = as.numeric(input_4),
-         input_3 = as.numeric(input_3),
-         input_2 = as.numeric(input_2),
-         input_1 = as.numeric(input_1),
-         input_0 = as.numeric(input_0)) %>%
+  mutate_all(as.numeric) %>%
   arrange(trialDisplay, sub_id)
 
 target_seed_data <- spread_data %>%
   filter(trialDisplay != 0 & trialDisplay != 0.5 & generation == 0 & seed !=20)  %>%
   select(sub_id = unique_id, generation,seed,trialDisplay, row, input_0:input_7) %>%
-  mutate(target_0 = as.numeric(input_7),
-         target_1 = as.numeric(input_6),
-         target_2 = as.numeric(input_5),
-         target_3 = as.numeric(input_4),
-         target_4 = as.numeric(input_3),
-         target_5 = as.numeric(input_2),
-         target_6 = as.numeric(input_1),
-         target_7 = as.numeric(input_0)) %>%
+  mutate_all(as.numeric)  %>%
   select(-(input_0:input_7)) %>%
   arrange(trialDisplay,sub_id) %>%
   unique()
@@ -549,9 +587,7 @@ bind_seed_data <- bdm_seed_data %>%
   summarise(.) %>%
   bind_cols(bdm_seed_store, .) %>%
   bind_rows(. , bind_seed_targets) %>%
-  mutate(bdm = as.numeric(bdm),
-         chunking = as.numeric(chunking),
-         edge = as.numeric(edge)) %>%
+  mutate_all(as.numeric) %>%
   group_by(sub_id,trialDisplay, generation,seed)%>%
   summarise(bdm_mean = mean(bdm),
             chunking_mean = mean(chunking),
@@ -560,7 +596,7 @@ bind_seed_data <- bdm_seed_data %>%
 ```
 
 Inlcuding seed information for complexity, chunking, and edge length yields similar results.
-```{r seed_graphs}
+```{r seed_graphs, eval=F, include=F}
 #shows complexity by seed, see variation but same general trend across seeds 
 ggplot(bind_seed_data %>%group_by(generation, seed) %>% tidyboot_mean(bdm_mean), aes(x = generation, y = empirical_stat,  
                        ymin = ci_lower, ymax = ci_upper)) + 
@@ -578,68 +614,218 @@ ggplot(bind_seed_data %>% group_by(generation,seed) %>% tidyboot_mean(edge_mean)
 ```
 
 ## Identifiability
-Kempe et al defined this as the proportion of within-chain similarity / (within-chain)+(across-chain similarity). We will define "similarity" as the percent of same cells highlighted (like we did for % accuracy between target/input, but just with input of gen 1 seed 1 compared to input of gen 1 seed 2). 
+Kempe et al defined this as the proportion of within-chain similarity / (within-chain)+(across-chain similarity). 
+We will try to define "similarity" two ways: 
+  1) as the percent of same cells highlighted (like we did for % accuracy between target/input, but just with input of gen 1 seed 1 compared to input of gen 1 seed 2)
+  2) using emd as the measure of similarity (lower emd = more similar, less moves)
+  ^ START WITH THIS MEASURE
+```{r, include=F, eval = F}
+within_helper <- function(df) {
+  input <- df %>%
+    select(input_0:input_7) %>%
+    mutate_all(as.numeric) %>%
+    as.matrix
+  
+  target_1 <- df %>%
+    select(within_1_0:within_1_7) %>%
+    mutate_all(as.numeric) %>%
+    as.matrix
+  
+  target_2 <- df %>%
+    select(within_2_0:within_2_7) %>%
+    mutate_all(as.numeric) %>%
+    as.matrix
+    
+  target_3 <- df %>%
+    select(within_3_0:within_3_7) %>%
+    mutate_all(as.numeric) %>%
+    as.matrix
+      
+  target_4 <- df %>%
+    select(within_4_0:within_4_7) %>%
+    mutate_all(as.numeric) %>%
+    as.matrix
+        
+  target_5 <- df %>%
+    select(within_5_0:within_5_7) %>%
+    mutate_all(as.numeric) %>%
+    as.matrix
 
-## DYAD TASK
-Want to see how much adults change the input grids they are given. Calculate this by % accuracy from child input to adult input 
-```{r include = F}
-dyad_data <- dyad_pilot %>%
-  mutate(targetFix1Array = ifelse(condition =="adult", "1 1 0 0 0 0 0 0 0 0 1 1 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1",data1Array),
-         targetFix2Array = ifelse(condition =="adult","0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 1 1 0 0 0 0 0",data2Array),
-         targetFix4Array = ifelse(condition =="adult", dyad_pilot$data4Array[match(dyad_pilot$parent_id, dyad_pilot$unique_id)],data4Array),
-         targetFix5Array = ifelse(condition =="adult", dyad_pilot$data5Array[match(dyad_pilot$parent_id, dyad_pilot$unique_id)],data5Array),
-         targetFix6Array = ifelse(condition =="adult", dyad_pilot$data6Array[match(dyad_pilot$parent_id, dyad_pilot$unique_id)],data6Array),
-         targetFix7Array = ifelse(condition =="adult", dyad_pilot$data7Array[match(dyad_pilot$parent_id, dyad_pilot$unique_id)],data7Array),
-         targetFix8Array = ifelse(condition =="adult", dyad_pilot$data8Array[match(dyad_pilot$parent_id, dyad_pilot$unique_id)],data8Array),
-         targetFix9Array = ifelse(condition =="adult", dyad_pilot$data9Array[match(dyad_pilot$parent_id, dyad_pilot$unique_id)],data9Array))
+  data_frame(unique_id = first(df$unique_id),  
+             seed = first(df$seed),
+             generation = first(df$generation), 
+             trialDisplay = first(df$trialDisplay),
+             emd_1 = emd2d(input, target_1),
+             emd_2 = emd2d(input, target_2),
+             emd_3 = emd2d(input, target_3),
+             emd_4 = emd2d(input, target_4),
+             emd_5 = emd2d(input, target_5))
+}
+across_helper <- function(df) {
+  input <- df %>%
+    select(input_0:input_7) %>%
+    mutate_all(as.numeric) %>%
+    as.matrix
+  
+  target_1 <- df %>%
+    select(across_1_0:across_1_7) %>%
+    mutate_all(as.numeric) %>%
+    as.matrix
+  
+  target_2 <- df %>%
+    select(across_2_0:across_2_7) %>%
+    mutate_all(as.numeric) %>%
+    as.matrix
+    
+  target_3 <- df %>%
+    select(across_3_0:across_3_7) %>%
+    mutate_all(as.numeric) %>%
+    as.matrix
+      
+  target_4 <- df %>%
+    select(across_4_0:across_4_7) %>%
+    mutate_all(as.numeric) %>%
+    as.matrix
+        
+  target_5 <- df %>%
+    select(across_5_0:across_5_7) %>%
+    mutate_all(as.numeric) %>%
+    as.matrix
+
+  data_frame(unique_id = first(df$unique_id),  
+             seed = first(df$seed),
+             generation = first(df$generation), 
+             trialDisplay = first(df$trialDisplay),
+             emd_1 = emd2d(input, target_1),
+             emd_2 = emd2d(input, target_2),
+             emd_3 = emd2d(input, target_3),
+             emd_4 = emd2d(input, target_4),
+             emd_5 = emd2d(input, target_5))
+}
+```
+
+```{r, include = F, eval = F}
+ident_within <- spread_data %>%
+  arrange(trialDisplay, seed, generation) %>%
+  select(unique_id, seed, generation, trialDisplay, row, input_0:input_7) %>%
+  filter(generation != 0, trialDisplay >=1) %>% 
+  group_by(seed, trialDisplay) %>%
+  mutate(within_1_0 = ifelse(is.na(lead(input_0, 8))==F, lead(input_0, 8), lag(input_0,8)), within_1_1 = ifelse(is.na(lead(input_1, 8))==F, lead(input_1, 8), lag(input_1,8)), within_1_2 = ifelse(is.na(lead(input_2, 8))==F, lead(input_2, 8), lag(input_2,8)), within_1_3 = ifelse(is.na(lead(input_3, 8))==F, lead(input_3, 8), lag(input_3,8)), within_1_4 = ifelse(is.na(lead(input_4, 8))==F, lead(input_4, 8), lag(input_4,8)), within_1_5 = ifelse(is.na(lead(input_5, 8))==F, lead(input_5, 8), lag(input_5,8)), within_1_6 = ifelse(is.na(lead(input_6, 8))==F, lead(input_6, 8), lag(input_6,8)),within_1_7 = ifelse(is.na(lead(input_7, 8))==F, lead(input_7, 8), lag(input_7,8)), 
+         within_2_0 = ifelse(is.na(lead(within_1_0, 8))==F, lead(within_1_0,8),lag(within_1_0,8)), within_2_1 = ifelse(is.na(lead(within_1_1, 8))==F, lead(within_1_1,8),lag(within_1_1,8)), within_2_2 = ifelse(is.na(lead(within_1_2, 8))==F, lead(within_1_2,8),lag(within_1_2,8)), within_2_3 = ifelse(is.na(lead(within_1_3, 8))==F, lead(within_1_3,8),lag(within_1_3,8)), within_2_4 = ifelse(is.na(lead(within_1_4, 8))==F, lead(within_1_4,8),lag(within_1_4,8)), within_2_5 = ifelse(is.na(lead(within_1_5, 8))==F, lead(within_1_5,8),lag(within_1_5,8)), within_2_6 = ifelse(is.na(lead(within_1_6, 8))==F, lead(within_1_6,8),lag(within_1_6,8)), within_2_7 =  ifelse(is.na(lead(within_1_7, 8))==F, lead(within_1_7,8),lag(within_1_7,8)),
+         within_3_0 = ifelse(is.na(lead(within_2_0, 8))==F, lead(within_2_0,8),lag(within_2_0,8)), within_3_1 = ifelse(is.na(lead(within_2_1, 8))==F, lead(within_2_1,8),lag(within_2_1,8)), within_3_2 =ifelse(is.na(lead(within_2_2, 8))==F, lead(within_2_2,8),lag(within_2_2,8)), within_3_3 = ifelse(is.na(lead(within_2_3, 8))==F, lead(within_2_3,8),lag(within_2_3,8)), within_3_4 = ifelse(is.na(lead(within_2_4, 8))==F, lead(within_2_4,8),lag(within_2_4,8)), within_3_5 = ifelse(is.na(lead(within_2_5, 8))==F, lead(within_2_5,8),lag(within_2_5,8)), within_3_6 = ifelse(is.na(lead(within_2_6, 8))==F, lead(within_2_6,8),lag(within_2_6,8)), within_3_7 = ifelse(is.na(lead(within_2_7, 8))==F, lead(within_2_7,8),lag(within_2_7,8)),
+         within_4_0 = ifelse(is.na(lead(within_3_0, 8))==F, lead(within_3_0,8),lag(within_3_0,8)), within_4_1 =ifelse(is.na(lead(within_3_1, 8))==F, lead(within_3_1,8),lag(within_3_1,8)), within_4_2 = ifelse(is.na(lead(within_3_2, 8))==F, lead(within_3_2,8),lag(within_3_2,8)), within_4_3 = ifelse(is.na(lead(within_3_3, 8))==F, lead(within_3_3,8),lag(within_3_3,8)), within_4_4 = ifelse(is.na(lead(within_3_4, 8))==F, lead(within_3_4,8),lag(within_3_4,8)),         within_4_5 = ifelse(is.na(lead(within_3_5, 8))==F, lead(within_3_5,8),lag(within_3_5,8)), within_4_6 = ifelse(is.na(lead(within_3_6, 8))==F, lead(within_3_6,8),lag(within_3_6,8)),within_4_7 = ifelse(is.na(lead(within_3_7, 8))==F, lead(within_3_7,8),lag(within_3_7,8)),
+         within_5_0 = ifelse(is.na(lead(within_4_0, 8))==F, lead(within_4_0,8),lag(within_4_0,8)), within_5_1 = ifelse(is.na(lead(within_4_1, 8))==F, lead(within_4_1,8),lag(within_4_1,8)), within_5_2 = ifelse(is.na(lead(within_4_2, 8))==F, lead(within_4_2,8),lag(within_4_2,8)), within_5_3 = ifelse(is.na(lead(within_4_3, 8))==F, lead(within_4_3,8),lag(within_4_3,8)), within_5_4 = ifelse(is.na(lead(within_4_4, 8))==F, lead(within_4_4,8),lag(within_4_4,8)),         within_5_5 = ifelse(is.na(lead(within_4_5, 8))==F, lead(within_4_5,8),lag(within_4_5,8)), within_5_6 = ifelse(is.na(lead(within_4_6, 8))==F, lead(within_4_6,8),lag(within_4_6,8)),within_5_7 = ifelse(is.na(lead(within_4_7, 8))==F, lead(within_4_7,8),lag(within_4_7,8))) %>%
+  ungroup(.) 
+
+ident_across <- spread_data %>%
+  arrange(trialDisplay, generation,seed) %>%
+  select(unique_id, seed, generation, trialDisplay, row, input_0:input_7) %>%
+  filter(generation != 0, trialDisplay >=1) %>% 
+  group_by(generation, trialDisplay) %>%
+  mutate(across_1_0 = ifelse(is.na(lead(input_0, 8))==F, lead(input_0, 8), lag(input_0,8)), across_1_1 = ifelse(is.na(lead(input_1, 8))==F, lead(input_1, 8), lag(input_1,8)), across_1_2 = ifelse(is.na(lead(input_2, 8))==F, lead(input_2, 8), lag(input_2,8)), across_1_3 = ifelse(is.na(lead(input_3, 8))==F, lead(input_3, 8), lag(input_3,8)), across_1_4 = ifelse(is.na(lead(input_4, 8))==F, lead(input_4, 8), lag(input_4,8)), across_1_5 = ifelse(is.na(lead(input_5, 8))==F, lead(input_5, 8), lag(input_5,8)), across_1_6 = ifelse(is.na(lead(input_6, 8))==F, lead(input_6, 8), lag(input_6,8)),across_1_7 = ifelse(is.na(lead(input_7, 8))==F, lead(input_7, 8), lag(input_7,8)), 
+         across_2_0 = ifelse(is.na(lead(across_1_0, 8))==F, lead(across_1_0,8),lag(across_1_0,8)), across_2_1 = ifelse(is.na(lead(across_1_1, 8))==F, lead(across_1_1,8),lag(across_1_1,8)), across_2_2 = ifelse(is.na(lead(across_1_2, 8))==F, lead(across_1_2,8),lag(across_1_2,8)), across_2_3 = ifelse(is.na(lead(across_1_3, 8))==F, lead(across_1_3,8),lag(across_1_3,8)), across_2_4 = ifelse(is.na(lead(across_1_4, 8))==F, lead(across_1_4,8),lag(across_1_4,8)), across_2_5 = ifelse(is.na(lead(across_1_5, 8))==F, lead(across_1_5,8),lag(across_1_5,8)), across_2_6 = ifelse(is.na(lead(across_1_6, 8))==F, lead(across_1_6,8),lag(across_1_6,8)), across_2_7 =  ifelse(is.na(lead(across_1_7, 8))==F, lead(across_1_7,8),lag(across_1_7,8)),
+         across_3_0 = ifelse(is.na(lead(across_2_0, 8))==F, lead(across_2_0,8),lag(across_2_0,8)), across_3_1 = ifelse(is.na(lead(across_2_1, 8))==F, lead(across_2_1,8),lag(across_2_1,8)), across_3_2 =ifelse(is.na(lead(across_2_2, 8))==F, lead(across_2_2,8),lag(across_2_2,8)), across_3_3 = ifelse(is.na(lead(across_2_3, 8))==F, lead(across_2_3,8),lag(across_2_3,8)), across_3_4 = ifelse(is.na(lead(across_2_4, 8))==F, lead(across_2_4,8),lag(across_2_4,8)), across_3_5 = ifelse(is.na(lead(across_2_5, 8))==F, lead(across_2_5,8),lag(across_2_5,8)), across_3_6 = ifelse(is.na(lead(across_2_6, 8))==F, lead(across_2_6,8),lag(across_2_6,8)), across_3_7 = ifelse(is.na(lead(across_2_7, 8))==F, lead(across_2_7,8),lag(across_2_7,8)),
+         across_4_0 = ifelse(is.na(lead(across_3_0, 8))==F, lead(across_3_0,8),lag(across_3_0,8)), across_4_1 =ifelse(is.na(lead(across_3_1, 8))==F, lead(across_3_1,8),lag(across_3_1,8)), across_4_2 = ifelse(is.na(lead(across_3_2, 8))==F, lead(across_3_2,8),lag(across_3_2,8)), across_4_3 = ifelse(is.na(lead(across_3_3, 8))==F, lead(across_3_3,8),lag(across_3_3,8)), across_4_4 = ifelse(is.na(lead(across_3_4, 8))==F, lead(across_3_4,8),lag(across_3_4,8)),         across_4_5 = ifelse(is.na(lead(across_3_5, 8))==F, lead(across_3_5,8),lag(across_3_5,8)), across_4_6 = ifelse(is.na(lead(across_3_6, 8))==F, lead(across_3_6,8),lag(across_3_6,8)),across_4_7 = ifelse(is.na(lead(across_3_7, 8))==F, lead(across_3_7,8),lag(across_3_7,8)),
+         across_5_0 = ifelse(is.na(lead(across_4_0, 8))==F, lead(across_4_0,8),lag(across_4_0,8)), across_5_1 = ifelse(is.na(lead(across_4_1, 8))==F, lead(across_4_1,8),lag(across_4_1,8)), across_5_2 = ifelse(is.na(lead(across_4_2, 8))==F, lead(across_4_2,8),lag(across_4_2,8)), across_5_3 = ifelse(is.na(lead(across_4_3, 8))==F, lead(across_4_3,8),lag(across_4_3,8)), across_5_4 = ifelse(is.na(lead(across_4_4, 8))==F, lead(across_4_4,8),lag(across_4_4,8)),         across_5_5 = ifelse(is.na(lead(across_4_5, 8))==F, lead(across_4_5,8),lag(across_4_5,8)), across_5_6 = ifelse(is.na(lead(across_4_6, 8))==F, lead(across_4_6,8),lag(across_4_6,8)),across_5_7 = ifelse(is.na(lead(across_4_7, 8))==F, lead(across_4_7,8),lag(across_4_7,8))) %>%
+  ungroup(.) 
+
+values_within <- ident_within %>%
+  split(paste0(.$unique_id, .$trialDisplay, sep="_")) %>%
+  map(within_helper) %>%
+  bind_rows() %>%
+  arrange(seed, generation, trialDisplay)
+
+values_across <- ident_across %>%
+  split(paste0(.$unique_id, .$trialDisplay, sep="_")) %>%
+  map(across_helper) %>%
+  bind_rows() %>%
+  arrange(seed, generation, trialDisplay)
+
+within_data <- values_within %>%
+  select(emd_1, emd_2, emd_3, emd_4, emd_5) %>%
+  mutate(emd_within_avg = rowMeans(., na.rm=T)) %>%
+  merge(.,values_within, by=c("emd_1","emd_2","emd_3","emd_4","emd_5")) %>%
+  unique(.) %>%
+  arrange(seed, generation, trialDisplay) %>%
+  select(unique_id, seed, generation, trialDisplay, emd_1, emd_2, emd_3, emd_4, emd_5, emd_within_avg)
+
+across_data <- values_across %>%
+  select(emd_1, emd_2, emd_3, emd_4, emd_5) %>%
+  mutate(emd_across_avg = rowMeans(., na.rm=T)) %>%
+  merge(.,values_across, by=c("emd_1","emd_2","emd_3","emd_4","emd_5")) %>%
+  unique(.) %>%
+  arrange(seed, generation, trialDisplay) %>%
+  select(unique_id, seed, generation, trialDisplay, emd_1, emd_2, emd_3, emd_4, emd_5, emd_across_avg)
 
 
 
-data2<-dyad_data %>%
-  select(-available_onload, -available_accepted, -sub_age, -target1Array, -target2Array, -target6Array, -target4Array, -target5Array, -target7Array, -target8Array, -target9Array) %>%
-  gather(display, array, -unique_id, -parent_id, -child_id, -sub_id, 
-         -generation, -seed, -condition, -date, -time, -trial1Count,
-         -time1Used, -trial1Display, -trial2Count, -time2Used,
-         -trial2Display, -trial4Count, -trial4Display, -time4Used,
-         -trial5Count, -trial5Display, -time5Used, -trial6Count,
-         -trial6Display, -time6Used, -trial7Count, -trial7Display, 
-         -time7Used, -trial8Count, -trial8Display, -time8Used, 
-         -trial9Count, -trial9Display, -time9Used) %>%
-  arrange(sub_id) %>%
+```
+
+```{r ident_analysis, include = F, eval = F}
+emds <- spread_data %>%
+  filter(generation > 0 & trialCount > 3) %>%
+  split(paste0(.$unique_id, .$trialDisplay, sep="_")) %>%
+  map(emd_helper) %>%
+  bind_rows() 
+
+ggplot(emds, aes(x = emd)) + 
+  facet_grid(generation~trialDisplay) + 
+  geom_histogram()
+
+generation_emds <- emds %>%
+  group_by(generation, trialDisplay) %>%
+  tidyboot_mean(emd)
+
+ggplot(generation_emds, aes(x = generation, y = empirical_stat, 
+                            ymin = ci_lower, ymax = ci_upper)) +
+  facet_wrap(~trialDisplay) + 
+  geom_pointrange() + 
+  geom_line()
+```
+
+
+## Fixing grids
+Want to see how much adults change the input grids they are given. Calculate this by % accuracy from child input to adult input (so you have to edit the data -- be wary!)
+```{r}
+dyad_data <- turk_dyad %>%
+  mutate(target1Array = ifelse(condition =="adult", "1 1 0 0 0 0 0 0 0 0 1 1 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1",target1Array),
+         target2Array = ifelse(condition =="adult","0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 1 1 1 0 0 0 0 0",target2Array),
+         target3Array = ifelse(condition =="adult", "0 1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1",target3Array),
+         target4Array = ifelse(condition =="adult", dyad_pilot$data4Array[match(dyad_pilot$parent_id, dyad_pilot$unique_id)],target4Array),
+         target5Array = ifelse(condition =="adult", dyad_pilot$data5Array[match(dyad_pilot$parent_id, dyad_pilot$unique_id)],target5Array),
+         target6Array = ifelse(condition =="adult", dyad_pilot$data6Array[match(dyad_pilot$parent_id, dyad_pilot$unique_id)],target6Array),
+         target7Array = ifelse(condition =="adult", dyad_pilot$data7Array[match(dyad_pilot$parent_id, dyad_pilot$unique_id)],target7Array),
+         target8Array = ifelse(condition =="adult", dyad_pilot$data8Array[match(dyad_pilot$parent_id, dyad_pilot$unique_id)],target8Array),
+         targetArray = ifelse(condition =="adult", dyad_pilot$data9Array[match(dyad_pilot$parent_id, dyad_pilot$unique_id)],target9Array))
+```
+
+```{r}
+dyad <- dyad_data %>%
+  select(-(available_onload:available_accepted), -sub_age) %>%
+  gather(display, array, -(unique_id:time1Used), -(trial2Count:time2Used),                              -(trial3Count:time3Used),-(trial4Count:time4Used), -(trial5Count:time5Used),                     -(trial6Count:time6Used),-(trial7Count:time7Used), -(trial8Count:time8Used),                     -(trial9Count:time9Used)) %>%
   unique() %>%
   separate(display, c("type", "trialCountArray"), -6) %>%
   separate(trialCountArray, c("trialCount", "arrayCount"), 1) %>%
-  select(-arrayCount, -trial1Count, -trial2Count, -trial4Count, -trial5Count,
-         -trial6Count, -trial7Count, -trial8Count, -trial9Count) %>%
-  gather(trialDisplay, display, -unique_id, -parent_id, -child_id, -sub_id,
-         -generation, -seed, -condition, -date, -time, -time1Used, -time2Used,
-         -time4Used, -time5Used, -time6Used, -time7Used, -time8Used,
-         -time9Used, -type, -trialCount, -array) %>%
+  gather(trialDisplay, display, -(unique_id:time), -time1Used, -time2Used, -time3Used,-time4Used,       -time5Used, -time6Used, -time7Used, -time8Used, -time9Used,  -type,-trialCount, -array) %>%
   separate(trialDisplay, c("type2", "tmp"), -7) %>%
-  select(-tmp) %>%
-  separate(type2, c("tmp", "trialCount2"), -1) %>%
-  select(-tmp) %>%
+  separate(type2, c("tmp2", "trialCount2"), -1) %>%
   filter(trialCount2 == trialCount) %>%
-  select(-trialCount2, trialDisplay = display) %>%
-  gather(trialTime, timeUsed, -unique_id, -parent_id, -child_id, -sub_id, -generation, -seed, -condition, -date, -time, -type, -trialCount, -trialDisplay, -array) %>%
+  gather(trialTime, timeUsed, -(unique_id:time), -type, -trialCount, -display, -array) %>%
   separate(trialTime, c("tmp", "trialCount3"), -5) %>%
   separate(trialCount3, c("trialCount3", "tmp2"), 1) %>%
-  select(-tmp, -tmp2) %>%
   filter(trialCount == trialCount3) %>%
-  select(unique_id, parent_id, child_id, sub_id, generation, seed, condition, date, time, trialCount, trialDisplay, timeUsed, type, array) %>%
+  select(unique_id:time, trialCount, trialDisplay = display, timeUsed, type, array) %>%
   spread(type, array) %>%
-  separate(data, c("input_0_0", "input_0_1", "input_0_2", "input_0_3", "input_0_4", "input_0_5", "input_0_6", "input_0_7", "input_1_0", "input_1_1", "input_1_2", "input_1_3", "input_1_4", "input_1_5", "input_1_6", "input_1_7", "input_2_0", "input_2_1", "input_2_2", "input_2_3", "input_2_4", "input_2_5", "input_2_6", "input_2_7", "input_3_0", "input_3_1", "input_3_2", "input_3_3", "input_3_4", "input_3_5", "input_3_6", "input_3_7", "input_4_0", "input_4_1", "input_4_2", "input_4_3", "input_4_4", "input_4_5", "input_4_6", "input_4_7", "input_5_0", "input_5_1", "input_5_2", "input_5_3", "input_5_4", "input_5_5", "input_5_6", "input_5_7", "input_6_0", "input_6_1", "input_6_2", "input_6_3", "input_6_4", "input_6_5", "input_6_6", "input_6_7", "input_7_0", "input_7_1", "input_7_2", "input_7_3", "input_7_4", "input_7_5", "input_7_6", "input_7_7"), sep = " ") %>%
-    separate(targetFix, c("target_0_0", "target_0_1", "target_0_2", "target_0_3", "target_0_4", "target_0_5", "target_0_6", "target_0_7", "target_1_0", "target_1_1", "target_1_2", "target_1_3", "target_1_4", "target_1_5", "target_1_6", "target_1_7", "target_2_0", "target_2_1", "target_2_2", "target_2_3", "target_2_4", "target_2_5", "target_2_6", "target_2_7", "target_3_0", "target_3_1", "target_3_2", "target_3_3", "target_3_4", "target_3_5", "target_3_6", "target_3_7", "target_4_0", "target_4_1", "target_4_2", "target_4_3", "target_4_4", "target_4_5", "target_4_6", "target_4_7", "target_5_0", "target_5_1", "target_5_2", "target_5_3", "target_5_4", "target_5_5", "target_5_6", "target_5_7", "target_6_0", "target_6_1", "target_6_2", "target_6_3", "target_6_4", "target_6_5", "target_6_6", "target_6_7", "target_7_0", "target_7_1", "target_7_2", "target_7_3", "target_7_4", "target_7_5", "target_7_6", "target_7_7"), sep = " ") 
+  separate(data, input_labs, sep = " ") %>%
+  separate(target, target_labs, sep = " ") %>%
+  mutate_at(c(input_labs, target_labs, "sub_id", "generation", "seed", "trialCount", "trialDisplay", "timeUsed"), as.numeric) %>%
+  mutate(generation = ifelse(condition == "child", generation-0.5, generation))
 
-calculate_data2 <-data2 %>%
+dyad_calculate_data <-dyad %>%
   gather(row, value,-unique_id:-timeUsed)%>%
-  arrange(sub_id, trialDisplay) %>%
   separate(row, c("type","row", "col")) %>%
   spread(type,value) %>%
-  mutate(input = as.numeric(input), target = as.numeric(target),
-         row = as.numeric(row), column = as.numeric(col)) %>%
-  mutate(accuracy = input == target,
-         sub_id = as.character(sub_id)) %>%
+  mutate(accuracy = input == target, sub_id = as.character(sub_id)) %>%
   arrange(seed, generation) 
 
 ```
@@ -647,185 +833,21 @@ calculate_data2 <-data2 %>%
 # of changes people made when fixing grids
 Here, accuracy is the number of points that were the same as the child's input. Therefore, number of changes made by the "adult" is 1-accuracy. It looks like people made 2-3 changes on average per trial.
 ```{r}
-fixed2_data <- calculate_data2 %>%
+fixed2_data <- dyad_calculate_data %>%
   filter(target ==1) %>%
   filter(condition == "adult") %>%
   group_by(sub_id, trialDisplay) %>%
   mutate(num_changes = sum(ifelse(accuracy ==FALSE, 1, 0)))%>%
   mutate(accuracy=1-mean(accuracy)) %>%
-  group_by(trialDisplay,generation) %>%
+  filter(trialDisplay >=1) %>%
+  group_by(generation) %>%
   tidyboot_mean(accuracy) %>%
   mutate(generation = as.factor(generation))
 
-ggplot(fixed2_data, aes(x= generation, y=empirical_stat, ymin=ci_lower, ymax=ci_upper))+geom_pointrange()+facet_wrap(~trialDisplay)+ggtitle("Average number of changes made when fixing grids by trial display")+ylab("# of targets that were changed out of 10")
-```
-
-```{r}
-data3 <- dyad_pilot %>% #puts each trial and either target or display in a separate row
-  select(-available_onload, -available_accepted, -sub_age) %>%
-  gather(display, array, -unique_id, -parent_id, -child_id, -sub_id, 
-         -generation, -seed, -condition, -date, -time, -trial1Count,
-         -time1Used, -trial1Display, -trial2Count, -time2Used,
-         -trial2Display, -trial4Count, -trial4Display, -time4Used,
-         -trial5Count, -trial5Display, -time5Used, -trial6Count,
-         -trial6Display, -time6Used, -trial7Count, -trial7Display, 
-         -time7Used, -trial8Count, -trial8Display, -time8Used, 
-         -trial9Count, -trial9Display, -time9Used) %>%
-  arrange(sub_id) %>%
-  unique() %>%
-  separate(display, c("type", "trialCountArray"), -6) %>%
-  separate(trialCountArray, c("trialCount", "arrayCount"), 1) %>%
-  select(-arrayCount, -trial1Count, -trial2Count, -trial4Count, -trial5Count,
-         -trial6Count, -trial7Count, -trial8Count, -trial9Count) %>%
-  gather(trialDisplay, display, -unique_id, -parent_id, -child_id, -sub_id,
-         -generation, -seed, -condition, -date, -time, -time1Used, -time2Used,
-         -time4Used, -time5Used, -time6Used, -time7Used, -time8Used,
-         -time9Used, -type, -trialCount, -array) %>%
-  separate(trialDisplay, c("type2", "tmp"), -7) %>%
-  select(-tmp) %>%
-  separate(type2, c("tmp", "trialCount2"), -1) %>%
-  select(-tmp) %>%
-  filter(trialCount2 == trialCount) %>%
-  select(-trialCount2, trialDisplay = display) %>%
-  gather(trialTime, timeUsed, -unique_id, -parent_id, -child_id, -sub_id, -generation, -seed, -condition, -date, -time, -type, -trialCount, -trialDisplay, -array) %>%
-  separate(trialTime, c("tmp", "trialCount3"), -5) %>%
-  separate(trialCount3, c("trialCount3", "tmp2"), 1) %>%
-  select(-tmp, -tmp2) %>%
-  filter(trialCount == trialCount3) %>%
-  select(unique_id, parent_id, child_id, sub_id, generation, seed, condition, date, time, trialCount, trialDisplay, timeUsed, type, array) %>%
-  spread(type, array) %>%
-  separate(data, c("input_0_0", "input_0_1", "input_0_2", "input_0_3", "input_0_4", "input_0_5", "input_0_6", "input_0_7", "input_1_0", "input_1_1", "input_1_2", "input_1_3", "input_1_4", "input_1_5", "input_1_6", "input_1_7", "input_2_0", "input_2_1", "input_2_2", "input_2_3", "input_2_4", "input_2_5", "input_2_6", "input_2_7", "input_3_0", "input_3_1", "input_3_2", "input_3_3", "input_3_4", "input_3_5", "input_3_6", "input_3_7", "input_4_0", "input_4_1", "input_4_2", "input_4_3", "input_4_4", "input_4_5", "input_4_6", "input_4_7", "input_5_0", "input_5_1", "input_5_2", "input_5_3", "input_5_4", "input_5_5", "input_5_6", "input_5_7", "input_6_0", "input_6_1", "input_6_2", "input_6_3", "input_6_4", "input_6_5", "input_6_6", "input_6_7", "input_7_0", "input_7_1", "input_7_2", "input_7_3", "input_7_4", "input_7_5", "input_7_6", "input_7_7"), sep = " ") %>%
-    separate(target, c("target_0_0", "target_0_1", "target_0_2", "target_0_3", "target_0_4", "target_0_5", "target_0_6", "target_0_7", "target_1_0", "target_1_1", "target_1_2", "target_1_3", "target_1_4", "target_1_5", "target_1_6", "target_1_7", "target_2_0", "target_2_1", "target_2_2", "target_2_3", "target_2_4", "target_2_5", "target_2_6", "target_2_7", "target_3_0", "target_3_1", "target_3_2", "target_3_3", "target_3_4", "target_3_5", "target_3_6", "target_3_7", "target_4_0", "target_4_1", "target_4_2", "target_4_3", "target_4_4", "target_4_5", "target_4_6", "target_4_7", "target_5_0", "target_5_1", "target_5_2", "target_5_3", "target_5_4", "target_5_5", "target_5_6", "target_5_7", "target_6_0", "target_6_1", "target_6_2", "target_6_3", "target_6_4", "target_6_5", "target_6_6", "target_6_7", "target_7_0", "target_7_1", "target_7_2", "target_7_3", "target_7_4", "target_7_5", "target_7_6", "target_7_7"), sep = " ") 
-
-calculate_data_dyad <-data3 %>%
-  gather(row, value,-unique_id:-timeUsed)%>%
-  arrange(sub_id, trialDisplay) %>%
-  separate(row, c("type","row", "col")) %>%
-  spread(type,value) %>%
-  mutate(input = as.numeric(input), target = as.numeric(target),
-         row = as.numeric(row), column = as.numeric(col)) %>%
-  mutate(accuracy = input == target,
-         sub_id = as.character(sub_id)) %>%
-  arrange(seed, generation) 
-
-spread2_data <- data3 %>%
-  gather(row, value, -unique_id, -parent_id, -child_id, -sub_id, -condition, -generation, -seed, -date, -time, -trialDisplay, -trialCount, -timeUsed)%>%
-  arrange(sub_id, trialDisplay) %>%
-  separate(row, c("type","row", "col")) %>%
-  unite(ty_col, type, col) %>%
-  spread(ty_col, value) %>%
-  filter(is.na(row)==F)
-```
-
-
-Fix Grids Pilot Results
-# Percent Accuracy
-```{r}
-tria2l_data <- calculate_data_dyad %>%
-  filter(condition != "initial") %>%
-  filter(target == 1)
-
-tria2l_data  %>%
-  filter(trialCount ==1 | trialCount ==0) %>%
-  group_by(sub_id, condition) %>%
-  summarise(accuracy = mean(accuracy)) %>%
-  ggplot(aes(x=accuracy, fill = condition)) + 
-  geom_histogram() +
-  scale_x_continuous() 
-```
-
-```{r}
-tria2l_data %>%
-  filter(trialCount > 3) %>%
-  group_by(generation, condition) %>%
-  summarise(accuracy = mean(accuracy)) %>%
-  group_by(generation, condition) %>%
-  tidyboot_mean(accuracy) %>%
-  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, ymax = ci_upper, color=condition)) + 
+ggplot(fixed2_data, aes(x= generation, y=empirical_stat, ymin=ci_lower, ymax=ci_upper))+
   geom_pointrange()+
-  ylab("average percent accuracy") 
-```
-
-#DYAD CONDITION
-```{r format_data_complexity2}
-bdm2_data <- spread2_data %>%
-  mutate(generation = ifelse(condition == "child", generation - 0.5, generation)) %>%
-  filter(trialCount > 3, generation != 0) %>%
-  select(sub_id, generation,trialDisplay, row, input_0:input_7) %>%
-  mutate(input_7 = as.numeric(input_7),
-         input_6 = as.numeric(input_6),
-         input_5 = as.numeric(input_5),
-         input_4 = as.numeric(input_4),
-         input_3 = as.numeric(input_3),
-         input_2 = as.numeric(input_2),
-         input_1 = as.numeric(input_1),
-         input_0 = as.numeric(input_0)) 
-
-target2_data <- spread2_data %>%
-  filter(trialDisplay != 0 & trialDisplay != 0.5 & generation == 0)  %>%
-  select(sub_id, generation,trialDisplay, row, input_0:input_7) %>%
-  mutate(sub_id = 0) %>%
-  mutate(target_0 = as.numeric(input_7),
-         target_1 = as.numeric(input_6),
-         target_2 = as.numeric(input_5),
-         target_3 = as.numeric(input_4),
-         target_4 = as.numeric(input_3),
-         target_5 = as.numeric(input_2),
-         target_6 = as.numeric(input_1),
-         target_7 = as.numeric(input_0)) %>%
-  select(-(input_0:input_7)) %>%
-  arrange(trialDisplay,row) %>%
-  unique()
- 
-target2_store <- data.frame(bdm = bdm_function(target2_data),
-                           chunking = nPart_function(target2_data),
-                           edge = edge_function(target2_data)) 
-bdm2_store <- data.frame(bdm = bdm_function(bdm2_data),
-                        chunking = nPart_function(bdm2_data),
-                        edge = edge_function(bdm2_data))
-
-bind2_targets <- target2_data %>%
-  group_by(sub_id,trialDisplay, generation) %>%
-  summarise(.) %>%
-  bind_cols(target2_store, .)
-
-bind2_data <- bdm2_data %>%
-  group_by(sub_id,trialDisplay, generation) %>%
-  summarise(.) %>%
-  bind_cols(bdm2_store, .) %>%
-  bind_rows(. , bind2_targets) %>%
-  mutate(bdm = as.numeric(bdm),
-         chunking = as.numeric(chunking),
-         edge = as.numeric(edge)) %>%
-  group_by(sub_id,trialDisplay, generation)%>%
-  summarise(bdm_mean = mean(bdm),
-            chunking_mean = mean(chunking),
-            edge_mean = mean(edge)) 
-
-```
-
-Algorithmic complexity decreases linearly by generation. Kempe found a 30pt decrease in first 6 generations which is approximately the same seen here. When you divide by trial display you see a consistent trend with some variation.
-#DYAD CONDITION (first graph)
-```{r complexity_graph2s}
-bind2_data %>%
-  group_by(generation) %>% 
-  tidyboot_mean(bdm_mean) %>%
-  mutate(condition = ifelse(generation == 0.5 | generation == 1.5 | generation == 2.5, "child", "adult")) %>%
-  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, ymax = ci_upper, color=condition)) + 
-  geom_pointrange() + 
-  ylab("algorithmic complexity") + 
-  ggtitle("algorithmic complexity over generations")
-
-#seems to be variation by trial display but same general trend
-bind2_data %>% 
-  group_by(generation, trialDisplay) %>% 
-  tidyboot_mean(bdm_mean) %>%
-  ggplot(aes(x = generation, y = empirical_stat, 
-                       ymin = ci_lower, ymax = ci_upper)) + 
-  geom_pointrange() + 
-  geom_smooth() + 
-  ylab("algorithmic complexity") + 
-  facet_wrap(~trialDisplay) + 
-  ggtitle("algoritmic complexity over generations by trial display")
+  geom_smooth(method="loess")+
+  ggtitle("Average number of changes made when fixing grids")+
+  ylab("# of targets that were changed out of 10")
 ```
 

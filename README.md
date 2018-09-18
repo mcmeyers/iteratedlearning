@@ -1,1 +1,2 @@
 # iteratedlearning
+This project aims to see how a novel dot-pattern language changes when recreated over successive generations by adults and children. Pre-registrations for this project can be found at https://osf.io/guzyf/

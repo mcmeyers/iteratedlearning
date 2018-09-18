@@ -128,8 +128,8 @@ var train3 = [[0,0,0,1,1,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
-              [1,1,1,1,1,1,1,1],
               [0,0,0,0,0,0,0,0],
+              [1,1,1,1,1,1,1,1],
               [0,0,0,0,0,0,0,0]];
 
 var trainInput1 = [[1,1,0,0,0,0,0,0],
@@ -150,7 +150,7 @@ var trainInput2 = [[0,0,0,0,0,0,0,1],
               [0,1,0,0,0,0,0,0],
               [1,1,1,0,0,0,0,0]];
 
-var trainInput3 = [[0,0,0,1,1,0,0,0],
+var trainInput3 = [[0,1,0,0,1,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
@@ -264,7 +264,7 @@ var experiment = {
   generation:1,
   date: getCurrentDate(),
   timestamp: getCurrentTime(), 
-  seed:1,
+  seed:0,
   available_onload:1,
   available_accepted:1,
   timedOut: 0,
@@ -332,7 +332,7 @@ var experiment = {
         experiment.condition = "child"
       }
       //IF THERE ARE NO AVAILABLE ROWS--ERROR MESSAGE 
-      if(data == 0){ 
+      if(data == 0 || experiment.data[6]==1){ 
         console.log("there was no available data at all, spitting out an error message");
         showSlide("limbo");
       }
@@ -353,7 +353,7 @@ var experiment = {
       // log a message to the console
       experiment.data = data; 
       //IF THERE IS AN AVAILABLE ROW WHERE GENERATION IS NOT MAXED OUT 
-      if(experiment.data != 0 & experiment.data[5] != 6 ){ 
+      if(experiment.data != 0 & experiment.data[6] != 1){ 
         experiment.seed = experiment.data[6];
         console.log("there was data available!");
         console.log(data);
@@ -618,7 +618,7 @@ var experiment = {
   experiment.training_accuracy = (experiment.training_1_accuracy + experiment.training_2_accuracy) / 2;
   console.log(experiment.training_accuracy);
   //make maxed out generations or people who timed out unavailable
-  if(experiment.timedOut == 1 || experiment.generation == 6 || experiment.training_accuracy < 0.75){
+  if(experiment.timedOut == 1 || (experiment.generation == 6 && experiment.condition == "adult") || experiment.training_accuracy < 0.75){
     console.log("not available");
     experiment.available_onload = 0;
     experiment.available_accepted = 0; 

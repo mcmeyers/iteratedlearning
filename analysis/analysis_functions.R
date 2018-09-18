@@ -95,3 +95,103 @@ edge<-function(m){
 return(res)
   }
 
+bdm_function = function(m){
+  x = rep("x", nrow(m)/8)
+  k=1
+  q=1
+  for(i in 1:(nrow(m)/8)){
+    df = m[q:(q+7), 5:12] #CHANGE IF CHANGE INPUT COLUMNS
+    data.matrix(df)
+    x[k] = bdm(df)
+    k = k +1
+    q=q+8
+  }
+  return(x) 
+}
+
+nPart_function = function(m){
+  x = rep("x", nrow(m)/8)
+  k=1
+  q=1
+  for(i in 1:(nrow(m)/8)){
+    df = m[q:(q+7), 5:12] #CHANGE IF CHANGE INPUT COLUMNS
+    data.matrix(df)
+    x[k] = nPart(df)
+    k = k +1
+    q=q+8
+  }
+  return(x) 
+}
+
+edge_function = function(m){
+  x = rep("x", nrow(m)/8)
+  k=1
+  q=1
+  for(i in 1:(nrow(m)/8)){
+    df = m[q:(q+7), 5:12] #CHANGE IF CHANGE INPUT COLUMNS
+    data.matrix(df)
+    x[k] = edge(df)
+    k = k +1
+    q=q+8
+  }
+  return(x) 
+}
+
+bdm_seed_function = function(m){
+  x = rep("x", nrow(m)/8)
+  k=1
+  q=1
+  for(i in 1:(nrow(m)/8)){
+    df = m[q:(q+7), 6:13] #CHANGE IF CHANGE INPUT COLUMNS
+    data.matrix(df)
+    x[k] = bdm(df)
+    k = k +1
+    q=q+8
+    print(df)
+  }
+  return(x) 
+}
+
+nPart_seed_function = function(m){
+  x = rep("x", nrow(m)/8)
+  k=1
+  q=1
+  for(i in 1:(nrow(m)/8)){
+    df = m[q:(q+7), 6:13] #CHANGE IF CHANGE INPUT COLUMNS
+    data.matrix(df)
+    x[k] = nPart(df)
+    k = k +1
+    q=q+8
+  }
+  return(x) 
+}
+edge_seed_function = function(m){
+  x = rep("x", nrow(m)/8)
+  k=1
+  q=1
+  for(i in 1:(nrow(m)/8)){
+    df = m[q:(q+7), 6:13] #CHANGE IF CHANGE INPUT COLUMNS
+    data.matrix(df)
+    x[k] = edge(df)
+    k = k +1
+    q=q+8
+  }
+  return(x) 
+}
+
+emd_helper <- function(df) {
+  input <- df %>%
+    select(input_0:input_7) %>%
+    mutate_all(as.numeric) %>%
+    as.matrix
+  
+  target <- df %>%
+    select(target_0:target_7) %>%
+    mutate_all(as.numeric) %>%
+    as.matrix
+  
+  data_frame(emd = emd2d(input, target),
+             generation = first(df$generation), 
+             sub_id = first(df$sub_id), 
+             trialDisplay = first(df$trialDisplay))
+}

@@ -130,8 +130,8 @@ var train3 = [[0,0,0,1,1,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
-              [1,1,1,1,1,1,1,1],
               [0,0,0,0,0,0,0,0],
+              [1,1,1,1,1,1,1,1],
               [0,0,0,0,0,0,0,0]];
 
 var trial1 = [[1,1,0,1,0,0,0,0],
@@ -238,7 +238,7 @@ var experiment = {
   generation:1,
   date: getCurrentDate(),
   timestamp: getCurrentTime(), 
-  seed:1,
+  seed:0,
   available_onload:1,
   available_accepted:1,
   parent_id:0,
