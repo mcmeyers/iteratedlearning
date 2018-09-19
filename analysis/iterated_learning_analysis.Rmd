@@ -118,7 +118,8 @@ t_calculate_data <-t_data %>%
   gather(row, value,-unique_id:-timeUsed)%>%
   separate(row, c("type","row", "col")) %>%
   spread(type,value) %>%
-  mutate(accuracy = input == target, sub_id = as.character(sub_id)) %>%
+  mutate(accuracy = input == target, sub_id = as.character(sub_id),
+         trialDisplay = ifelse(trialCount == 3, 0.75, trialDisplay)) %>%
   arrange(seed, generation) 
 
 t_spread_data <- t_data %>%
@@ -126,7 +127,8 @@ t_spread_data <- t_data %>%
   separate(row, c("type","row", "col")) %>%
   unite(ty_col, type, col) %>%
   spread(ty_col, value) %>%
-  filter(is.na(row)==F)
+  filter(is.na(row)==F) %>%
+  mutate(trialDisplay = ifelse(trialCount == 3, 0.75, trialDisplay))
 ```
 
 #Calculate Complexity Measures
@@ -295,27 +297,28 @@ subject_accuracy %>%
 ## Descriptive
 Displays the actual grids that people made; printed them and saved (have to do for each individual seed separately)
 ```{r, eval=F, include=F}
-s8_data <- calculate_data_dyad %>%
-  filter(seed == 8, is.na(input)==F) %>%
-  mutate(generation = ifelse(condition == "child", generation-0.5, generation)) %>%
+s20_data <- all_calculate_data %>%
+  filter(type == "baseline", seed == 20) %>%
+  mutate(fill = ifelse((input ==1 & target ==1), 1, ifelse(target ==1, 0.5, ifelse(input ==1, 0.75, ifelse(target != 0, input, 0)))),
+         filltype = ifelse(accuracy == T, "both", ifelse(input == 1, "input", "target"))) %>%
+  mutate(fill = ifelse(is.na(fill)==T, input, fill)) %>%
   arrange(generation)
-
-s20_data <- calculate_data %>%
-  filter(seed == 20)
 ```
 
 ```{r plot_grids, eval = F, include=F}
-pdf("adult_baseline_s20.pdf", width = 10, height = 10)
-s20_data %>%
-  bind_rows(select(s20_data, generation, trialDisplay, row, col, input)) %>%
+pdf("baseline_s1_2.pdf", width = 10, height = 10)
+s1_data %>%
+  bind_rows(select(s1_data, generation, trialDisplay, row, col, input)) %>%
   mutate(input = factor(input), 
          generation = factor(generation, levels = unique(.$generation))) %>%
-  mutate(row = 7 - row) %>%
-  ggplot(aes(x = col, y = row, fill = input)) +
+  mutate(row = 7 - as.numeric(row)) %>%
+  ggplot(aes(x = col, y = row, fill = factor(fill))) +
   facet_grid(trialDisplay ~ generation) +
   geom_tile(color = "black") +
-  scale_fill_manual(values = c("0" = "white", "1" = "black"), guide = F) 
+  scale_fill_manual(values = c("0" = "white", "1" = "black", "0.5" = "red", "0.75"="blue"), labels = c("none", "original", "new", "unchanged")) +
+  guides(fill=guide_legend(title="changed"))
 dev.off()
+
 ```
 
 ## Time Used per trial
@@ -834,14 +837,13 @@ dyad_calculate_data <-dyad %>%
 Here, accuracy is the number of points that were the same as the child's input. Therefore, number of changes made by the "adult" is 1-accuracy. It looks like people made 2-3 changes on average per trial.
 ```{r}
 fixed2_data <- dyad_calculate_data %>%
-  filter(target ==1) %>%
+  filter(target ==1, generation > 0, trialDisplay >=1) %>%
   filter(condition == "adult") %>%
   group_by(sub_id, trialDisplay) %>%
   mutate(num_changes = sum(ifelse(accuracy ==FALSE, 1, 0)))%>%
-  mutate(accuracy=1-mean(accuracy)) %>%
-  filter(trialDisplay >=1) %>%
+ # mutate(accuracy=1-mean(accuracy)) %>%
   group_by(generation) %>%
-  tidyboot_mean(accuracy) %>%
+  tidyboot_mean(num_changes) %>%
   mutate(generation = as.factor(generation))
 
 ggplot(fixed2_data, aes(x= generation, y=empirical_stat, ymin=ci_lower, ymax=ci_upper))+
