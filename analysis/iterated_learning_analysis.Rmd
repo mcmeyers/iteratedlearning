@@ -253,6 +253,56 @@ all_bind_data <- a_bind_data %>%
   mutate(condition = if_else(floor(generation) != generation, "child", "adult"))
 ```
 
+```{r curve fitting}
+
+linear <- lmer(bdm_mean ~ generation + (1|sub_id) + (1|trialDisplay),
+                filter(all_bind_data, type == "dyad", condition == "adult"))
+
+exponential <- lmer(log(bdm_mean) ~ log(generation+1) + (1|sub_id) + (1|trialDisplay),
+                filter(all_bind_data, type == "dyad", condition == "adult"))
+
+log <- lmer(bdm_mean ~ log(generation+1) + (1|sub_id) + (1|trialDisplay),
+                filter(all_bind_data, type == "dyad", condition == "adult"))
+
+
+
+mean_data <- all_bind_data %>%
+  filter(type == "dyad", condition == "adult") %>%
+  group_by(generation, sub_id) %>%
+  summarise(bdm_mean = mean(bdm_mean)) 
+
+linear <- lmer(bdm_mean ~ generation + (1|sub_id) + (1|trialDisplay),
+               data = filter(all_bind_data, type == "dyad", condition == "adult", 
+                             generation >0 ))
+
+exp <- lmer(scale(log(bdm_mean)) ~ scale(log(generation)) + (1|sub_id) + (1|trialDisplay),
+               data = filter(all_bind_data, type == "dyad", condition == "adult",
+                             generation > 0))
+
+log <- lmer(bdm_mean ~ log(generation) + (1|sub_id) + (1|trialDisplay),
+               data = filter(all_bind_data, type == "dyad", condition == "adult",
+                             generation > 0))
+
+
+linear <- lmer(bdm_mean ~ generation * type + I(generation^2) + type + (trialDisplay|sub_id),
+               data = filter(all_bind_data, condition == "adult", 
+                             generation >0 ))
+
+mean_data %>%
+  ungroup() %>%
+  mutate(linear = predict(linear),
+         log = predict(log),
+         exp = exp(predict(exp))) %>%
+  gather(method, prediction, linear, log, exp) %>%
+  ggplot(aes(x = generation)) +
+  geom_line(aes(y = prediction, color = method)) +
+  geom_jitter(width = .1, aes(y = bdm_mean), data = mean_data) 
+
+  geom_smooth(method = "lm", color = "red") +
+  geom_smooth(method = "lm", formula = " y ~ log(x+1)", color = "blue") +
+  geom_smooth(method = "lm", formula = " log(y) ~ log(x+1)", color = "green")
+```
+
 #Outlier Check
 Even though our outliers were tested for as the study was running, this graphs percent accuracy for practice and training trials to make sure everything worked as expected.
 ```{r, eval = F, include = F}
