@@ -282,11 +282,43 @@ exp <- lmer(scale(log(bdm_mean)) ~ scale(log(generation)) + (1|sub_id) + (1|tria
 log <- lmer(bdm_mean ~ log(generation) + (1|sub_id) + (1|trialDisplay),
                data = filter(all_bind_data, type == "dyad", condition == "adult",
                              generation > 0))
+        
+power.f = deriv(~k+a*generation^b, namevec=c('k','a','b'), function.arg=c('generation', 'k', 'a', 'b'))
 
 
-linear <- lmer(bdm_mean ~ generation * type + I(generation^2) + type + (trialDisplay|sub_id),
-               data = filter(all_bind_data, condition == "adult", 
-                             generation >0 ))
+ranef(fit.nlmer) %>% 
+  as.data.frame() %>% 
+  as_data_frame() %>%
+  rename(sub_id = grp) %>%
+  mutate(sub_id = as.numeric(as.character(sub_id))) %>%
+  select(sub_id, condval) %>%
+  left_join(select(all_bind_data, sub_id, generation)) %>%
+  group_by(generation) %>%
+  summarise(mean = mean(condval), sd = sd(condval))
+
+fit.nlmer<- nlmer(bdm_mean ~ power.f(generation,k,a,b) ~ k|sub_id, start= list(nlpars=c(k=106,a=123,b=-.1)), control = nlmerControl(optCtrl = list(maxfun=20000)),
+               data = filter(all_bind_data, condition == "adult", type == "dyad", generation >0 ))
+
+
+predictions <- all_bind_data %>%
+  filter(condition == "adult", type == "dyad", generation >0) %>%
+  ungroup() %>%
+  mutate(prediction = predict(fit.nlmer, re.form = NULL)) %>%
+  gather(source, value, bdm_mean, prediction) %>%
+  group_by(source, generation, sub_id) %>%
+  summarise(mean = mean(value)) %>%
+  tidyboot_mean(mean)
+
+ggplot(predictions, aes(x = generation, y = empirical_stat, ymin = ci_lower, 
+                        ymax = ci_upper, color = source)) + 
+  geom_pointrange() +
+  geom_smooth(se = F)
+  
+
+power_f <- function(x, k, a, b) {
+  k + a * x ^b
+}
+
 
 mean_data %>%
   ungroup() %>%
@@ -347,8 +379,8 @@ subject_accuracy %>%
 ## Descriptive
 Displays the actual grids that people made; printed them and saved (have to do for each individual seed separately)
 ```{r, eval=F, include=F}
-s20_data <- all_calculate_data %>%
-  filter(type == "baseline", seed == 20) %>%
+s10_data <- all_calculate_data %>%
+  filter(type == "dyad", seed == 10) %>%
   mutate(fill = ifelse((input ==1 & target ==1), 1, ifelse(target ==1, 0.5, ifelse(input ==1, 0.75, ifelse(target != 0, input, 0)))),
          filltype = ifelse(accuracy == T, "both", ifelse(input == 1, "input", "target"))) %>%
   mutate(fill = ifelse(is.na(fill)==T, input, fill)) %>%
@@ -356,9 +388,9 @@ s20_data <- all_calculate_data %>%
 ```
 
 ```{r plot_grids, eval = F, include=F}
-pdf("baseline_s1_2.pdf", width = 10, height = 10)
-s1_data %>%
-  bind_rows(select(s1_data, generation, trialDisplay, row, col, input)) %>%
+pdf("dyad_FORPOSTER2.pdf", width = 10, height = 10)
+s10_data %>%
+  bind_rows(select(s10_data, generation, trialDisplay, row, col, input)) %>%
   mutate(input = factor(input), 
          generation = factor(generation, levels = unique(.$generation))) %>%
   mutate(row = 7 - as.numeric(row)) %>%
@@ -450,16 +482,18 @@ Percent accuracy over generations. It increases over gens 1-4 and then seems to 
 ```{r}
 trial_data %>%
   filter(trialCount > 3) %>%
+  mutate(generation = ifelse(condition == "dyad.learner", generation+0.5, generation)) %>%
   group_by(generation, sub_id, type, condition) %>%
   summarise(accuracy = mean(accuracy)) %>%
   group_by(generation,type, condition) %>%
   tidyboot_mean(accuracy) %>%
   ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, ymax = ci_upper, color = condition)) +
   geom_pointrange()+
-  facet_wrap(~type)+
-  geom_line(aes(group=condition))+
+  geom_smooth( se = F, aes(group=condition))+
   ylab("average percent accuracy") +
-  scale_x_continuous(breaks=c(0,1,2,3,4,5,6))
+  ggtitle("Percent Accuracy over Generations")+
+  scale_x_continuous(breaks=c(0,1,2,3,4,5,6)) +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 Percent accuracy over generation by seed to see variations between seeds, though they seem to show similar (ish) trends
@@ -508,7 +542,55 @@ all_bind_data  %>%
   geom_pointrange() + 
   geom_smooth(method = "loess", se = F)+
   ylab("algorithmic complexity") + 
-  ggtitle("algorithmic complexity over generations") 
+  ggtitle("Algorithmic Complexity over Generations") +
+  scale_x_continuous(breaks=c(0,1,2,3,4,5,6)) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+individual_data <- all_bind_data %>%
+    mutate(condition = if_else(floor(generation) != generation, "child", "adult")) %>%
+  gather(measure, value, bdm_mean, chunking_mean, edge_mean, emd) %>%
+  filter(measure != "emd") %>%
+  left_join(select(all_data, sub_id, seed) %>% distinct())
+
+mean_data <- individual_data %>%
+  group_by(generation, condition, type, measure) %>%
+  tidyboot_mean(value)
+
+ggplot(filter(individual_data, measure == "bdm_mean", type == "dyad", condition == "child",
+              generation > 0, trialDisplay == 1, seed <= 20), 
+       aes(x = generation, y = value, group = generation)) + 
+  facet_wrap(~ seed, scales = "free") +
+  geom_boxplot()
+
+pdf("complexity_plot.pdf", width = 4, 8)
+ggplot(individual_data, aes(x = generation, color = interaction(type,condition)),
+       group=interaction(type,condition)) +
+  facet_grid( measure ~ ., scales = "free") +
+  geom_smooth(method = "loess", span = 1, se = F, aes(y = value), position = position_dodge(.25))+
+  geom_pointrange(data = mean_data, aes(ymin = ci_lower, ymax = ci_upper, y = empirical_stat),
+                  position = position_dodge(.25)) +
+  ylab("algorithmic complexity") + 
+  ggtitle("Algorithmic Complexity over Generations") +
+  scale_x_continuous(breaks=c(0,1,2,3,4,5,6)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(legend.position = "none") +
+  geom_dl(method = "smart.grid", aes(y = value, label = interaction(type, condition)))
+dev.off()
+  
+
+
+
+
+  ggplot(aes(x = generation, y = empirical_stat, ymin = ci_lower, 
+                      ymax = ci_upper, color = interaction(type,condition),                               group=interaction(type,condition))) + 
+  geom_pointrange() + 
+  geom_smooth(method = "loess", se = F)+
+  ylab("algorithmic complexity") + 
+  ggtitle("Algorithmic Complexity over Generations") +
+  scale_x_continuous(breaks=c(0,1,2,3,4,5,6)) +
+  theme(plot.title = element_text(hjust = 0.5))
+
 
 #seems to be variation by trial display 
 all_bind_data %>% 
@@ -535,7 +617,9 @@ all_bind_data  %>%
   geom_pointrange() + 
   geom_smooth(method = "loess", se = F)+
   ylab("# of chunks") + 
-  ggtitle("chunking over generations") 
+  ggtitle("Chunking over Generations") +
+    scale_x_continuous(breaks=c(0,1,2,3,4,5,6)) +
+  theme(plot.title = element_text(hjust = 0.5))
 
 all_bind_data %>% 
   group_by(generation, trialDisplay,condition,type) %>% 
@@ -561,7 +645,9 @@ all_bind_data  %>%
   geom_pointrange() + 
   geom_smooth(method = "loess", se = F)+
   ylab("edge length") + 
-  ggtitle("edge length over generations") 
+  ggtitle("edge length over generations") +
+  scale_x_continuous(breaks=c(0,1,2,3,4,5,6)) +
+  theme(plot.title = element_text(hjust = 0.5))
 
 all_bind_data %>% 
   group_by(generation, trialDisplay,condition,type) %>% 

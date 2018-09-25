@@ -131,8 +131,8 @@ var train3 = [[0,0,0,1,1,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,0],
-              [1,1,1,1,1,1,1,1],
-              [0,0,0,0,0,0,0,0]];
+              [0,0,0,0,0,0,0,0],
+              [1,1,1,1,1,1,1,1]];
 
 var trial1 = [[1,1,0,1,0,0,0,0],
               [0,0,0,1,0,0,0,0],
@@ -860,7 +860,7 @@ uniqueTurker: function(){
       clearInterval(timer);
       document.getElementById("button").disabled = true;
       $('#trialInput td').off('click')
-      setTimeout(function() { experiment.keepGoing(); }, 2500); 
+      setTimeout(function() {experiment.keepGoing(); }, 2500); 
       return;
     } if(experiment.trialCount != 5 & experiment.trialCount != 6 & experiment.trialCount !=8){
       experiment.keepGoing(); 
