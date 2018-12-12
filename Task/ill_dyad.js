@@ -259,8 +259,8 @@ var experiment = {
 
   //bkgd
   subid: Math.random(1,100), 
-  unique_id: randId(),
   subage:0,
+  unique_id: randId(), 
   generation:1,
   date: getCurrentDate(),
   timestamp: getCurrentTime(), 
@@ -287,13 +287,13 @@ var experiment = {
   ////////FUNCTIONS 
   uniqueTurker: function(){
     var ut_id = "53ae4ea04173428d22d2c34c58eca39a";
-   /* if (UTWorkerLimitReached(ut_id)) {
+    /*if (UTWorkerLimitReached(ut_id)) {
       console.log("not unique");
         document.getElementsByTagName('body')[0].innerHTML = "You have already completed the maximum number of HITs allowed by this requester. Please click 'Return HIT' to avoid any impact on your approval rating.";
     } else { */
       getIP(); 
       console.log("unique");
-   // }
+    //}
   },
 
   reserveDate: function(unique_id, ip) {
@@ -332,7 +332,7 @@ var experiment = {
         experiment.condition = "child"
       }
       //IF THERE ARE NO AVAILABLE ROWS--ERROR MESSAGE 
-      if(data == 0 || experiment.data[6]==1){ 
+      if(data == 0){ 
         console.log("there was no available data at all, spitting out an error message");
         showSlide("limbo");
       }
@@ -353,7 +353,7 @@ var experiment = {
       // log a message to the console
       experiment.data = data; 
       //IF THERE IS AN AVAILABLE ROW WHERE GENERATION IS NOT MAXED OUT 
-      if(experiment.data != 0 & experiment.data[6] != 1){ 
+      if(experiment.data != 0 & experiment.data[6] != 0){ 
         experiment.seed = experiment.data[6];
         console.log("there was data available!");
         console.log(data);
@@ -618,7 +618,7 @@ var experiment = {
   experiment.training_accuracy = (experiment.training_1_accuracy + experiment.training_2_accuracy) / 2;
   console.log(experiment.training_accuracy);
   //make maxed out generations or people who timed out unavailable
-  if(experiment.timedOut == 1 || (experiment.generation == 6 && experiment.condition == "adult") || experiment.training_accuracy < 0.75){
+  if(experiment.timedOut == 1 || (experiment.generation == 6 && experiment.condition == "adult") || experiment.training_accuracy < 0.75 || experiment.seed == 0){
     console.log("not available");
     experiment.available_onload = 0;
     experiment.available_accepted = 0; 
@@ -800,7 +800,7 @@ var experiment = {
     timer = setInterval(function() {
     $("#count").html(count--);
     experiment.timeUsed = 60-count;
-    if(count == 10){
+    if(count == 25){
       timeout.play();
     } 
     if(count == -1) {

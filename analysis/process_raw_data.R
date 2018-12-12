@@ -1,7 +1,7 @@
 library(tidyverse)
 library(jsonlite)
 
-files <- list.files("../raw_data/", ".json", full.names = T)
+files <- list.files("../data/raw_data/", ".json", full.names = T)
 
 read_data <- function(file) {
   json_data <- read_json(file)
@@ -22,4 +22,4 @@ read_data <- function(file) {
 
 map(files, read_data) %>%
   bind_rows() %>%
-  write_csv("../data/anonymized_data.csv")
+  write_csv("../data/anonymized_data_2.csv")

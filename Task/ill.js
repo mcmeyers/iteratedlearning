@@ -268,10 +268,10 @@ uniqueTurker: function(){
       getIP(); 
       console.log("unique");
     }
-  } else {
+  } else { 
     getIP(); 
     console.log("unique");
-  }
+  } 
 },
 
 
@@ -312,11 +312,12 @@ uniqueTurker: function(){
       // log a message to the console
       experiment.data = data; 
       //IF THERE IS AN AVAILABLE ROW WHERE GENERATION IS NOT MAXED OUT 
-      if(experiment.data != 0 & experiment.data[5] != 6 ){  
+      if(experiment.data != 0 & experiment.data[5] != 6 & experiment.data[6] != 0){  
         experiment.changeTargets(); 
         experiment.generation = experiment.data[5]+ 1;
         experiment.seed = experiment.data[6];
         experiment.parent_id = data[0];
+        experiment.unique_id = data[2];
         console.log("there was data available!");
         console.log(data);
       } 
@@ -458,7 +459,7 @@ uniqueTurker: function(){
   console.log(experiment.training_2_accuracy);
   experiment.training_accuracy = (experiment.training_1_accuracy + experiment.training_2_accuracy) / 2;
   //make maxed out generations or people who timed out unavailable
-  if(experiment.timedOut == 1 || experiment.generation == 6 || experiment.training_accuracy < 0.75){
+  if(experiment.timedOut == 1 || experiment.generation == 12 || experiment.training_accuracy < 0.75){
     experiment.available_onload = 0;
     experiment.available_accepted = 0; 
   }
@@ -640,7 +641,7 @@ uniqueTurker: function(){
     timer = setInterval(function() {
     $("#count").html(count--);
     experiment.timeUsed = 60-count;
-    if(count == 10){
+    if(count == 25){
       timeout.play();
     } 
     if(count == -1) {
@@ -714,7 +715,7 @@ uniqueTurker: function(){
     if(experiment.trialCount ==3){
       showSlide("expIntro");
       sparkle.play();
-      $(practiceIntro).html('<center>You have finished the training, and now we are going to begin the study. Just like in the practice, try to remember and recreate the grids to the best of your ability. There will be 6 trials. <center>');
+      $(practiceIntro).html('<p class = "block-text">You have finished the training, and now we are going to begin the study.</p><p class = "block-text"> Just like in the practice, try to remember and recreate the grids to the best of your ability. </p><p class = "block-text">There will be 6 trials. </p>');
       return;  
     }
     if(experiment.trialCount == 2){
@@ -920,7 +921,7 @@ uniqueTurker: function(){
         if(rowIndex == 8){
           showSlide("expIntro"); 
           sparkle.play();     
-          $(practiceIntro).html('<center>Now you will try to recreate a grid from memory. A target grid will appear for <strong>10</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a blank grid. <strong>Fill in the colors on the blank grid just as they appeared on the target grid.</strong> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 3 practice trials before we start the study.<center>'); 
+            $(practiceIntro).html('<p class = "block-text">Now you will try to fix a grid from memory.</p><p class = "block-text"> A target grid will appear for <strong>10</strong> seconds. Your job is to remember where the colors are located in this grid to the best of your ability. You may also click the colors to hear a sound. Next, an image will appear, and then you will see a grid.</p><p class = "block-text"> <strong>Your job is to correct this grid to match the target you previously saw.</p></strong><p class = "block-text"> When you are satisfied with your re-creation, click the button to display the next target grid. There will be 3 practice trials before we start the study.</p>'); 
         }  else{
           cellIndex = 0; 
         }

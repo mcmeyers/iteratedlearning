@@ -14,14 +14,14 @@ data_sheet <- gs_ls() %>%
 
 # Make new rows to append to sheet
 x<-colnames(data_sheet)
-new_data <- matrix(NA, nrow=5, ncol = 52)
+new_data <- matrix(NA, nrow=40, ncol = 57)
 colnames(new_data) <- x
 
 new_data <- data.frame(new_data) %>%
   mutate(generation = 0, 
-         seed = 1:5,
-         condition = "child_baseline", #CHANGE ME 
-         unique_id = random_id(5, 5),
+         seed = 2:41,
+         condition = "adult2_baseline", #CHANGE ME 
+         unique_id = random_id(40, 5),
          trial1Count = 1, trial1Display = 0,
          trial2Count = 2, trial2Display = 0.5,
          trial3Count = 2.5, trial3Display = 0.75,
@@ -33,7 +33,7 @@ new_data <- data.frame(new_data) %>%
          trial9Count =9, trial9Display=6,
          data1Array = c("1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0"),
          data2Array = c("1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 1 1"),
-         data3Array = c("0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"),
+         data3Array = c("0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1"),
          data4Array = c("1 1 0 1 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 1 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0"),
          data5Array = c("1 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 1 0 0 1 0 0 0 0 0"),
          data6Array = c("1 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 0"),
@@ -62,14 +62,14 @@ data2_sheet <- gs_ls() %>%
 
 # Make new rows to append to sheet
 x<-colnames(data2_sheet)
-new2_data <- matrix(NA, nrow=20, ncol = 52)
+new2_data <- matrix(NA, nrow=40, ncol = 57)
 colnames(new2_data) <- x
 
 new2_data <- data.frame(new2_data) %>%
   mutate(generation = 0, 
-         seed = 1:20,
+         seed = 2:41,
          condition = "initial", 
-         unique_id = random_id(20,5),
+         unique_id = random_id(40,5),
          trial1Count = 1, trial1Display = 0,
          trial2Count = 2, trial2Display = 0.5,
          trial3Count = 2.5, trial3Display = 0.75, 
@@ -79,10 +79,10 @@ new2_data <- data.frame(new2_data) %>%
          trial7Count = 7, trial7Display = 4,
          trial8Count = 8, trial8Display = 5,
          trial9Count =9, trial9Display=6,
-         sub_age = "adult/child dyad",
+         sub_age = "adult/adult dyad",
          data1Array = c("1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0"),
          data2Array = c("1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 1 1"),
-         data3Array = c("0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"),
+         data3Array = c("0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1"),
          data4Array = c("1 1 0 1 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 1 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0"),
          data5Array = c("1 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 1 0 0 1 0 0 0 0 0"),
          data6Array = c("1 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 0"),
