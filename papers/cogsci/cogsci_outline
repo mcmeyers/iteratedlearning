@@ -1,0 +1,63 @@
+CogSci Outline:
+
+Introduction:
+  1. Languages change
+  2. Why do languages change?
+      -pressure to be descriptive (towards complexity)
+      -pressure to be transmitted (towards simplicity)
+      -these pressures act in everyday interactions
+  3. Adults and children are different at learning languages; pressures may play differently
+      -WM
+      -kids good at learning language
+      -experience
+      -social aspect (who talking to)
+        -subject to feedback and error correction; adults able to disambiguate better
+
+Iterated Learning:
+  4. Used to study artificial language learning in lab (b/c hard to observe)
+      -basic ILL paradigm and process
+      -basic ILL findings (Kirby)
+  5. But, adults aren't usually teaching each other language.. kids are the usual learners
+      -Kempe paper
+  6. But, this doesn't account for feedback & error correction
+      -importance of error correction and parental feedback
+      
+7. Attempt to resolve these errors by allowing for condition in the iterated process, see the relationship between complexity and simplicity here -- do editors help? how much? 
+  -how much put in w/kids because kids don't have 
+      
+Methods:
+  1. Two conditions: baseline & dyad
+      -explain; just adults for now
+  2. Participants online on mTurk in both conditions n's and stuff
+      -initial and then replication with 12 gens and 40 chains
+  3. Describe task
+  
+  Analysis:
+  4. Describe how measured % accuracy
+  5. Describe how measured complexity
+      -algorithmic, chunking, edge length, need to mention earth-mover(?)
+      -cite Gauvrit & Kempe
+      
+Results:
+  1. Baseline Experiment:
+    -% accuracy increased significantly 
+    -complexity decreased (in all complexity measures) & asymptoted 
+    
+  2. Dyad Experiment: 
+    -% accuracy relatively stable, different for group
+    -tradeoff/bounce with reintroducing complexity
+    -complexity decreased faster
+  
+  3. Comparing plots from both experiments
+    -higher level of complexity retained when editor present; asymptoted sooner
+  
+Discussion (*probably want some more):
+  1. Languages in this thing are reflecting tradeoff between pressures similar to parents and kids
+  2. People who correct serve a majorly important purpose: they help the language as a whole
+
+Future Directions:
+  1. Ongoing work with children at MSI
+  2. Qualitative analysis to see if errors are fundamentally different (argument for studying actual children in ILL studies)
+  3. Structure task
+
+    

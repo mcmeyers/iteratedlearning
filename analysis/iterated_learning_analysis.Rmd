@@ -38,8 +38,8 @@ adult_baseline <- read_csv("../data/adult_baseline.csv") %>%
   select(-sum_timeUsed)%>%
   filter(is.na(unique_id)==F)
 
-adult_baseline_rep <- read_csv("../data/adult_baseline_rep.csv") #%>%
- filter(is.na(thrown)==T)
+adult_baseline_rep <- read_csv("../data/adult_baseline_rep.csv") %>%
+ mutate(is.na(thrown)==T)
 
 dyad_pilot <- read_csv("../data/turk_dyad_pilot.csv") %>%
   mutate(trial2Display = 0.5)
@@ -47,9 +47,11 @@ dyad_pilot <- read_csv("../data/turk_dyad_pilot.csv") %>%
 turk_dyad <- read_csv("../data/turk_dyad.csv")
 
 dyad_rep <- read_csv("../data/dyad_rep.csv") %>%
-  filter(is.na(thrown)==T)
+  filter(seed != 3) %>%
+  mutate(thrown=ifelse(is.na(thrown)==T, 0,1))
+ # filter(is.na(thrown)==T)
 
-child_baseline <-read_csv("../data/child_baseline.csv") #%>%
+child_baseline <-read_csv("../data/child_baseline.csv") %>%
   filter(is.na(thrown)==T)
 ```
 
@@ -901,29 +903,31 @@ Edge length can be defined as a measure of how "crooked" a grid pattern is. It e
 Algorithmic complexity decreases linearly by generation. Kempe found a 30pt decrease in first 6 generations which is approximately the same seen here. When you divide by trial display you see a consistent trend with some variation.
 ```{r}
 complex<-all_bind_data%>%
-  filter( type != "baseline" & type != "dyad" & type == "dyad_rep" ) %>%
+  filter( type == "baseline_rep" | (type=="baseline" & condition=="child"), generation < 7  ) %>%
   group_by(generation, type) %>%
   tidyboot_mean(bdm_mean) %>%
-  mutate(condition = if_else(floor(generation) != generation, 
-                             "learner", ifelse(type =="child_baseline",
-                                               "child","fixer"))) %>%
-  mutate(type = ifelse(type == "baseline_rep", "baseline", 
-                       ifelse(type=="child_baseline", "child_baseline", 
-                              ifelse(condition == "child", "learner", "fixer")))) %>%
-  mutate(condition = factor(condition, levels = c("learner", "fixer", "initial")))
+  mutate(condition = if_else(type == "baseline_rep", "adult", "child"))
+ # mutate(condition = if_else(floor(generation) != generation, 
+             #                "learner", ifelse(type =="child_baseline",
+                #                               "child","fixer"))) %>%
+#  mutate(type = ifelse(type == "baseline_rep", "baseline", 
+                     #  ifelse(type=="child_baseline", "child_baseline", 
+                         #     ifelse(condition == "child", "learner", "fixer")))) %>%
+#  mutate(condition = factor(condition, levels = c("learner", "fixer", "initial")))
 
-jpeg("new_complex2.jpeg", width = 6, height = 4, units = "in", res = 600)
+jpeg("kid_complex.jpeg", width = 6, height = 4, units = "in", res = 600)
 ggplot(complex, aes(x = generation, y = empirical_stat, ymin = ci_lower, 
                      ymax = ci_upper, color = condition, label = condition)) +
-  geom_line(color="black")+
+ # geom_line(color="black")+
   geom_pointrange(position = position_dodge(.25))+
-#  geom_smooth( span = 0.9, se = F, aes(group=type))+
+geom_smooth( span = 1.3, se = F, aes(group=type))+
 
-   #  geom_smooth( method = "lm", se = F, aes(group=type))+
+  #  geom_smooth( method = "lm", se = F, aes(group=type))+
   # geom_smooth( method = "lm", se = F, aes(group=type), position = position_dodge(.25))+
   ylab("complexity") +
-  scale_x_continuous(breaks=seq(0,12), limits = c(0, 15)) +
-  scale_y_continuous( limits = c(205, 240)) +
+  #scale_x_continuous(breaks=seq(0,12), limits = c(0, 15)) +
+  scale_x_continuous(breaks=seq(0,6), limits = c(0, 8)) +
+ # scale_y_continuous( limits = c(205, 240)) +
   theme_classic(base_size = 20) +
   theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
   geom_dl(method = list(dl.trans(x = x + .2), "last.points", cex = 1.5)) +
