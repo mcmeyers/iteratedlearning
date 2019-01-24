@@ -4,6 +4,24 @@
 
 // GENERAL FUNCTIONS 
 
+//disables zooming on ipad
+disableZoom = function(){
+document.ontouchmove = function(event){
+    event.preventDefault();
+}
+}
+
+disableZoom2 = function(){
+var doubleTouchStartTimestamp = 0;
+document.addEventListener("touchstart", function(event){
+    var now = +(new Date());
+    if (doubleTouchStartTimestamp + 500 > now){
+        event.preventDefault();
+    };
+    doubleTouchStartTimestamp = now;
+});
+}
+
 // Shows slides
 function showSlide(id) {
   $(".slide").hide();
@@ -325,7 +343,7 @@ var experiment = {
         experiment.condition = "adult"
       } if(experiment.data[7]=="adult"){
         if(participants == "child"){
-          showSlide("intro_child");zen
+          showSlide("intro_child");
         } if(participants == "turk"){
           showSlide("intro_adult");
         }
@@ -378,6 +396,8 @@ var experiment = {
       }
     }); 
     experiment.startTrain();
+    disableZoom(); 
+    disableZoom2();
   },
 
   //function to create grid from string
@@ -395,6 +415,7 @@ var experiment = {
 
   //function to load in target displays for parent condition (PREVIOUS CHILD'S TARGETS)
   loadTargetInputs: function(){
+    console.log("Load Target Inputs");
     for(i=0; i<6; i++){
       if(experiment.data[21] == i+1){
         targetNames[i] = experiment.createGrid(experiment.data[23]);
@@ -431,12 +452,14 @@ var experiment = {
         break;
       }
     };
+    console.log(targetNames);
     return targetNames;
   },
 
   //function to load in input displays for parent condition, where parents will have to correct what the child did 
   //NOTE TO SELF ALSO NEED TO CHANGE PARENT TARGET STORING DATA BECAUSE WHAT PARENT SEES AS TARGET IS WHAT CHILD SAW AS TARGET, AND INSTEAD OF INPUT PARENT SEES WHAT CHILD HAD MADE AS INPUT, AFTER PARENT EDITS THIS BECOMES NEXT CHILD'S TARGET; WANT TO SAVE CHILD'S CREATION = TARGET (EVEN THOUGH WAS NOT DISPLAYED ON TARGET GRID) AND PARENT INPUT (EDITS PARENT MADE TO CHILD'S PREVIOUS TARGET)
   loadFixInputs: function(){
+    console.log("LoadFixInputs");
     for(i=0; i<6; i++){
       if(experiment.data[21] == i+1){
         inputNames[i] = experiment.createGrid(experiment.data[24]);
@@ -473,11 +496,13 @@ var experiment = {
         break;
       }
     };
+    console.log(inputNames);
     return inputNames;
   },
 
   //takes in data read from Google Sheet and creates correct target grids from it; SHOULD WORK FOR CHILD CONDITIONS FINE  
   changeTargets: function(){
+    console.log("Change Targets");
     for(i=0; i<6; i++){
       if(experiment.data[21] == i+1){
         targetNames[i] = experiment.createGrid(experiment.data[24]);
@@ -514,7 +539,9 @@ var experiment = {
         break;
       }
     };
+    console.log(targetNames);
     return targetNames; 
+    
   },
 
   //function that gives us a random display number 
@@ -978,7 +1005,7 @@ var experiment = {
                   if(experiment.condition == "adult"){
           experiment.fillGrid("trialInput", inputNames[3]);
         }
-      } if(experiment.trial== 5){
+      } if(experiment.trial == 5){
           experiment.fillGrid("trialGrid", targetNames[4]);
           experiment.ding();
           experiment.colorRemove();
@@ -986,7 +1013,7 @@ var experiment = {
                   if(experiment.condition == "adult"){
           experiment.fillGrid("trialInput", inputNames[4]);
         }
-      } if(experiment.trial==6){
+      } if(experiment.trial == 6){
           experiment.fillGrid("trialGrid", targetNames[5]);
           experiment.ding();
           experiment.colorRemove();

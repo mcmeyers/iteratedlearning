@@ -1,0 +1,95 @@
+CogSci Outline:
+
+Introduction:
+  1. Languages change
+  2. Why do languages change?
+      -pressure to be descriptive (towards complexity)
+      -pressure to be transmitted (towards simplicity)
+      -these pressures act in everyday interactions
+  3. Adults and children are different at learning languages; pressures may play differently
+      -WM
+      -kids good at learning language
+      -experience
+      -social aspect (who talking to)
+        -subject to feedback and error correction; adults able to disambiguate better
+
+Iterated Learning:
+  4. Used to study artificial language learning in lab (b/c hard to observe)
+      -basic ILL paradigm and process
+      -basic ILL findings (Kirby)
+  5. But, adults aren't usually teaching each other language.. kids are the usual learners
+      -Kempe paper
+  6. But, this doesn't account for feedback & error correction
+      -importance of error correction and parental feedback
+      
+7. Attempt to resolve these errors by allowing for condition in the iterated process, see the relationship between complexity and simplicity here -- do editors help? how much? 
+  -how much put in w/kids because kids don't have 
+      
+Methods:
+  1. Two conditions: baseline & dyad
+      -explain; just adults for now
+  2. Participants online on mTurk in both conditions n's and stuff
+      -initial and then replication with 12 gens and 40 chains
+  3. Describe task
+  
+  Analysis:
+  4. Describe how measured % accuracy
+  5. Describe how measured complexity
+      -algorithmic, chunking, edge length, need to mention earth-mover(?)
+      -cite Gauvrit & Kempe
+      
+Results:
+  1. Baseline Experiment:
+    -% accuracy increased significantly 
+    -complexity decreased (in all complexity measures) & asymptoted 
+    
+  2. Dyad Experiment: 
+    -% accuracy relatively stable, different for group
+    -tradeoff/bounce with reintroducing complexity
+    -complexity decreased faster
+  
+  3. Comparing plots from both experiments
+    -higher level of complexity retained when editor present; asymptoted sooner
+  
+Discussion (*probably want some more):
+  1. Languages in this thing are reflecting tradeoff between pressures similar to parents and kids
+  2. People who correct serve a majorly important purpose: they help the language as a whole
+
+Future Directions:
+  1. Ongoing work with children at MSI
+  2. Qualitative analysis to see if errors are fundamentally different (argument for studying actual children in ILL studies)
+  3. Structure task
+  
+  
+notes:
+compared to L2 or just compared to adults? Should you be making the comparsion between kids and adults or between kid lang acq and adult lang acq?
+
+children are really good language learners, and this skill might relate to them having a different balance of factors that drive language evolution
+
+Children are inundated with thousands(?) of novel words each day, and they have different strategies to parse this information. Children are known for being experts at language learning (CITE), but does this mean they have balance the pressures that drive language evolution differently? 
+
+-talk about how this might be different from adult language learners / adult fixing errors
+-introduce the idea of systematicity into these arguments 
+
+-add NSL info
+
+-importance of using a non-linguistic task (or in methods section, probably better there)
+At the beginning stages, language learning is the learning of different audio patterns, re-creating them, and memorizing what they refer to/imply. 
+-talk more about beginning lang dvt, why this task works
+
+-introduce four conditions and why you have them  -- adult adult to also provide a standard for correction because otherwise is confounded (also might be issue that there is more to fix when the errors are more significant, but I guess this is what the real-world problem is)
+
+-benefit of having an online task; able to collect more than one data point per participant (def in methods)
+
+* DO you need to mention that this is a replication???
+
+-how to insert formula
+-how to do italics
+
+-shorten abstract
+
+-put in results how many thrown in initial experiment 1
+
+-make n's computed in line with text 
+-put plots in line with text
+    

@@ -17,6 +17,7 @@ library(lme4)
 library(devtools)
 library(reshape2)
 library(emdist)
+library(lmerTest)
 
 setwd("~/Documents/Github/iteratedlearning/analysis")
 source("analysis_functions.R")
@@ -49,7 +50,7 @@ turk_dyad <- read_csv("../data/turk_dyad.csv")
 dyad_rep <- read_csv("../data/dyad_rep.csv") %>%
   filter(seed != 3) %>%
   mutate(thrown=ifelse(is.na(thrown)==T, 0,1))
- # filter(is.na(thrown)==T)
+  filter(is.na(thrown)==T)
 
 child_baseline <-read_csv("../data/child_baseline.csv") %>%
   filter(is.na(thrown)==T)
@@ -261,6 +262,7 @@ t_spread_data_rep <- t_data_rep %>%
 
 #Calculate Complexity Measures
 Includes calculations for Algorithmic Complexity (BDM), Edge Length, Chunking, and Earth-Mover Distance
+#Baseline
 ```{r format_data_complexity}
 a_bdm_data <- a_spread_data %>%
   filter(trialDisplay >=1, generation != 0) %>%
@@ -461,7 +463,7 @@ t_bind_data <- t_bdm_data %>%
   arrange(generation)
 ```
 
-#Replication
+#Dyad Replication
 ```{r}
 t_bdm_data_rep <- t_spread_data_rep %>%
   filter(trialDisplay >=1, generation != 0) %>%
@@ -516,46 +518,69 @@ t_bind_data_rep <- t_bdm_data_rep %>%
 ```{r}
 all_data <- a_data %>%
   mutate(type = "baseline", condition = "adult") %>%
-  bind_rows(mutate(t_data, type="dyad"))%>%
+ # bind_rows(mutate(t_data, type="dyad"))%>%
   bind_rows(mutate(a_data_rep, type = "baseline_rep", condition = "adult")) %>%
   bind_rows(mutate(t_data_rep, type = "dyad_rep"))%>%
-  bind_rows(mutate(c_data, type = "baseline", condition = "child"))
+ # bind_rows(mutate(c_data, type = "baseline", condition = "child")) 
+  write_feather("feathers/all_data.feather")
+  
 
 all_calculate_data <- a_calculate_data %>%
   mutate(type = "baseline", condition = "adult") %>%
-  bind_rows(mutate(t_calculate_data, type="dyad"))%>%
+#  bind_rows(mutate(t_calculate_data, type="dyad"))%>%
   bind_rows(mutate(a_calculate_data_rep, type = "baseline_rep", condition = "adult"))%>%
   bind_rows(mutate(t_calculate_data_rep, type = "dyad_rep"))%>%
-  bind_rows(mutate(c_calculate_data, type = "baseline", condition = "child")) 
+#  bind_rows(mutate(c_calculate_data, type = "baseline", condition = "child")) 
+ mutate(condition = if_else(floor(generation) != generation, "child", "adult")) %>%
+  write_feather("feathers/all_calculate_data.feather")
 
 all_spread_data <- a_spread_data %>%
   mutate(type = "baseline", condition = "adult") %>%
-  bind_rows(mutate(t_spread_data, type="dyad")) %>%
+#  bind_rows(mutate(t_spread_data, type="dyad")) %>%
   bind_rows(mutate(a_spread_data_rep, type="baseline_rep", condition = "adult"))%>%
   bind_rows(mutate(t_spread_data_rep, type = "dyad_rep"))%>%
-  bind_rows(mutate(c_spread_data, type = "baseline", condition = "child"))
+#  bind_rows(mutate(c_spread_data, type = "baseline", condition = "child"))
+  write_feather("feathers/all_spread_data.feather")
 
 all_bind_data <- a_bind_data %>%
   mutate(type = "baseline") %>%
-  bind_rows(mutate(t_bind_data, type="dyad")) %>%
+  #bind_rows(mutate(t_bind_data, type="dyad")) %>%
   bind_rows(mutate(a_bind_data_rep, type="baseline_rep")) %>%
   bind_rows(mutate(t_bind_data_rep, type = "dyad_rep")) %>%
   mutate(condition = if_else(floor(generation) != generation, "child", "adult"))%>%
-  bind_rows(mutate(c_bind_data, type = "baseline", condition = "child")) 
+ # bind_rows(mutate(c_bind_data, type = "baseline", condition = "child")) 
+  write_feather("feathers/all_bind_data.feather")
 ```
 
 ```{r curve fitting}
 
-linear <- lmer(bdm_mean ~ generation + (1|sub_id) + (1|trialDisplay),
-                filter(all_bind_data, type == "dyad", condition == "adult"))
+linear <- lmer(bdm_mean ~ log(generation+1) + (1|sub_id) + (1|trialDisplay),
+                filter(all_bind_data, type == "baseline", condition == "adult"))
 
 exponential <- lmer(log(bdm_mean) ~ log(generation+1) + (1|sub_id) + (1|trialDisplay),
-                filter(all_bind_data, type == "dyad", condition == "adult"))
+                filter(all_bind_data, type == "baseline_rep", condition == "adult"))
 
 log <- lmer(bdm_mean ~ log(generation+1) + (1|sub_id) + (1|trialDisplay),
                 filter(all_bind_data, type == "dyad", condition == "adult"))
 
+fixer_comp <- all_bind_data %>%
+  filter(type == "dyad_rep", condition =="adult") %>%
+  ungroup() %>%
+  select(bdm_mean) %>%
+  as.data.frame()
 
+learner_comp <- all_bind_data %>%
+  filter(type == "dyad_rep", condition=="child" ) %>%
+  ungroup() %>%
+  select(bdm_mean) %>%
+  as.data.frame()
+
+t.test(fixer_comp, learner_comp, var.equal = TRUE)
+
+aov_data_2 <- all_bind_data %>%
+  filter((type == "dyad_rep" & condition == "adult") | type=="baseline_rep")
+
+aov_comp <- aov(bdm_mean ~ type, data = aov_data_2)
 
 mean_data <- all_bind_data %>%
   filter(type == "dyad", condition == "adult") %>%
@@ -624,6 +649,8 @@ mean_data %>%
   geom_smooth(method = "lm", color = "red") +
   geom_smooth(method = "lm", formula = " y ~ log(x+1)", color = "blue") +
   geom_smooth(method = "lm", formula = " log(y) ~ log(x+1)", color = "green")
+  
+  
 ```
 
 #Outlier Check
@@ -699,6 +726,40 @@ dev.off()
 
 ```
 
+## prints individual grids (for turk similarity task)
+```{r, eval=F, include=F}
+gen6_data <- all_calculate_data %>%
+  filter(type == "baseline_rep" & condition=="adult", generation == 6, trialDisplay >= 1) %>%
+  mutate(fill = ifelse((input ==1), 1, 0), 
+         filltype = ifelse(input == 1, "input", "target")) %>%
+  mutate(fill = ifelse(is.na(fill)==T, input, fill)) 
+```
+
+```{r individual_plots, eval = F, include=F}
+display = 1
+chain = 1
+for (i in 1:(length(gen6_data)/8)) {
+  display = display + 1
+  chain = 1
+  if (display > 7){
+    display = 1 
+    chain = chain + 1
+  }
+pdf(paste("myOut",i,".pdf",sep=""), width = 10, height = 10)
+gen6_data %>%
+  #filter(trialDisplay == 1, seed == 12) #>#
+  filter(trialDisplay == display, seed == chain) %>%
+  bind_rows(select(gen6_data, generation, trialDisplay, row, col, input)) %>%
+  mutate(input = factor(input)) %>%
+  mutate(row = 7 - as.numeric(row)) %>%
+  ggplot(aes(x = col, y = row, fill = factor(fill))) +
+  geom_tile(color = "black") +
+  theme(axis.line=element_blank(), axis.text.x=element_blank(),axis.text.y=element_blank(),  axis.ticks=element_blank(),axis.title.x=element_blank(),axis.title.y=element_blank(),
+      legend.position="none")
+  dev.off()
+}
+
+```
 ## Time Used per trial
 How much time did people use on each trial? did this go down over generations?
 ```{r time_used}
@@ -747,6 +808,27 @@ Percent accuracies calculated by %/10 stickers placed correctly between target a
 trial_data <- all_calculate_data %>%
  filter(generation != 0) %>% #takes out initial generations 
   filter(target == 1) #calculate out of 10 stickers placed correctly, not 64
+
+model_data <- trial_data %>%
+  group_by(type, condition, generation, trialDisplay, trialCount, sub_id) %>%
+  summarise(accuracy=mean(accuracy)) %>%
+  write_feather("feathers/model_data.feather")
+```
+
+```{r accuracy_models}
+linear <- lmer(accuracy ~ log(generation+1) + (1|sub_id) + (1|trialDisplay),
+                filter(model_data, type == "dyad_rep", condition == "child"))
+
+exponential <- lmer(log(bdm_mean) ~ log(generation+1) + (1|sub_id) + (1|trialDisplay),
+                filter(all_bind_data, type == "baseline_rep", condition == "adult"))
+
+log <- lmer(bdm_mean ~ log(generation+1) + (1|sub_id) + (1|trialDisplay),
+                filter(all_bind_data, type == "dyad", condition == "adult"))
+
+aov_data <- model_data %>%
+  filter(type == "dyad_rep")
+
+aov_acc <- aov(accuracy ~ condition, data = aov_data)
 ```
 
 We don't see any practice effects within individuals. 
@@ -781,8 +863,9 @@ Percent accuracy over generations. It increases over gens 1-4 and then seems to 
 acc_data <- trial_data %>%
  # filter(generation < 7) %>%
  # filter(type == "child_baseline") %>%
-  filter( type != "baseline" & type != "dyad" & type == "dyad_rep" ) %>%
-  mutate(type =  ifelse(type == "baseline_rep", "baseline", ifelse((condition == "child" & type=="baseline"), "child_baseline", ifelse(condition == "adult", "fixer","learner")))) %>%
+  #filter( type != "baseline" & type != "dyad" & type == "dyad_rep" ) %>%
+  mutate(type=ifelse(type == "baseline_rep", "Experiment 2", "Experiment 1"))%>%
+ # mutate(type =  ifelse(type == "baseline_rep", "baseline", ifelse((condition == "child" & type=="baseline"), "child_baseline", ifelse(condition == "adult", "fixer","learner")))) %>%
   filter(trialCount > 3) %>%
   mutate(generation = ifelse(condition == "dyad.learner", generation+0.5, generation)) %>%
   group_by(generation, sub_id, type, condition) %>%
@@ -790,7 +873,7 @@ acc_data <- trial_data %>%
   group_by(generation,type, condition) %>%
   tidyboot_mean(accuracy) 
 
-jpeg("gen_ac2c.jpeg", width = 6, height = 4, units = "in", res = 600)
+jpeg("exp1_2.jpeg", width = 6, height = 4, units = "in", res = 600)
 ggplot(acc_data, aes(x = generation, y = empirical_stat, ymin = ci_lower, 
                      ymax = ci_upper, color = type, label = type)) +
   geom_pointrange(position = position_dodge(.25))+
@@ -804,7 +887,6 @@ ggplot(acc_data, aes(x = generation, y = empirical_stat, ymin = ci_lower,
   geom_dl(method = list(dl.trans(x = x + .2), "last.points", cex = 1.5)) +
   scale_color_brewer(palette = "Dark2")
 dev.off()
-
 ```
 
 ```{r}
@@ -903,10 +985,10 @@ Edge length can be defined as a measure of how "crooked" a grid pattern is. It e
 Algorithmic complexity decreases linearly by generation. Kempe found a 30pt decrease in first 6 generations which is approximately the same seen here. When you divide by trial display you see a consistent trend with some variation.
 ```{r}
 complex<-all_bind_data%>%
-  filter( type == "baseline_rep" | (type=="baseline" & condition=="child"), generation < 7  ) %>%
+#  filter( type == "baseline_rep" | (type=="baseline" & condition=="child"), generation < 7  ) %>%
   group_by(generation, type) %>%
   tidyboot_mean(bdm_mean) %>%
-  mutate(condition = if_else(type == "baseline_rep", "adult", "child"))
+  mutate(condition = if_else(type == "baseline_rep", "Experiment 2", "Experiment 1"))
  # mutate(condition = if_else(floor(generation) != generation, 
              #                "learner", ifelse(type =="child_baseline",
                 #                               "child","fixer"))) %>%
@@ -915,7 +997,7 @@ complex<-all_bind_data%>%
                          #     ifelse(condition == "child", "learner", "fixer")))) %>%
 #  mutate(condition = factor(condition, levels = c("learner", "fixer", "initial")))
 
-jpeg("kid_complex.jpeg", width = 6, height = 4, units = "in", res = 600)
+jpeg("exp1_exp2_comp.jpeg", width = 6, height = 4, units = "in", res = 600)
 ggplot(complex, aes(x = generation, y = empirical_stat, ymin = ci_lower, 
                      ymax = ci_upper, color = condition, label = condition)) +
  # geom_line(color="black")+
@@ -926,12 +1008,12 @@ geom_smooth( span = 1.3, se = F, aes(group=type))+
   # geom_smooth( method = "lm", se = F, aes(group=type), position = position_dodge(.25))+
   ylab("complexity") +
   #scale_x_continuous(breaks=seq(0,12), limits = c(0, 15)) +
-  scale_x_continuous(breaks=seq(0,6), limits = c(0, 8)) +
+  scale_x_continuous(breaks=seq(0,12), limits = c(0, 17)) +
  # scale_y_continuous( limits = c(205, 240)) +
   theme_classic(base_size = 20) +
   theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
-  geom_dl(method = list(dl.trans(x = x + .2), "last.points", cex = 1.5)) +
-  scale_color_manual(values=c("forestgreen","blue"))
+  geom_dl(method = list(dl.trans(x = x + 0, y= y +1.7), "last.points", cex = 1.5)) +
+  scale_color_manual(values=c("orange","red"))
   # scale_color_brewer(palette = "Set1")
 dev.off()
 ```

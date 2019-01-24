@@ -35,6 +35,7 @@ library(lme4)
 library(devtools)
 library(reshape2)
 library(emdist)
+library(feather)
 
 theme_set(theme_classic(base_size = 10))
 ```
@@ -67,6 +68,7 @@ Subjects in Experiment 1 were told that in this task, they would be re-creating 
 Transmission chains consisted of 6 generations each, and 20 separate chains were run in Experiment 1, for a total of 120 participants. All chains in the following experiments began with the same initial target grids. The participant in the first generation received the initial grid as their target, and each subsequent generation received the previous generation’s inputs as their targets.
 
 The initial 8x8 grids were generated randomly. Each colored target corresponded to a number which was generated using Excel's random number generator. A random number 1-64 was assigned to each cell in the grid, and the 10 random numbers generated for each of the 6 practice trials determined the pattern viewed by participants in the first generation. The 6 grid patterns which began the iteration all had initial similar transmission accuracies of approximately 55%. All initial patterns remained constant across all chains and conditions of the study; this allows a direct comparison of aggregate data. Aside from the first practice trial, where participants were required to reproduce a pattern perfectly, participants never received feedback on their responses. 
+
 ##Analysis 
   In order to measure the effects of transmissibility and descriptiveness pressures on this dot-pattern-language, reproduction accuracy and complexity were computed. Reproduction accuracy represented the transmissibility pressure: if the participant was able to pass the identical language to the next generation. Complexity was computed to measure the competing effects of both pressures: a higher-complexity pattern contained a greater degree of descriptiveness, while a lower-complexity pattern contained a greater degree of simplicity and transmissibility. 
 
@@ -79,14 +81,26 @@ The initial 8x8 grids were generated randomly. Each colored target corresponded 
 Chunking is the number of groups of colored blocks which share an edge. The more groups of blocks, the easier the pattern is to transmit, and the lower the complexity is. Edge length is the total perimeter of the colored blocks. If all blocks were in one chunk, the edge length would be low, and the complexity of the pattern would likely be lower compared to if none of the chosen targets shared an edge [@gauvrit-2017]. 
 
 ##Experiment 1 Results
+```{r read_data}
+setwd("~/Documents/Github/iteratedlearning/analysis")
+all_data <- read_feather("feathers/all_data.feather")
+model_data <- read_feather("feathers/model_data.feather")
+#all_calculate_data <- read_feather("feathers/all_calculate_data.feather")
+all_spread_data <- read_feather("feathers/all_spread_data.feather")
+all_bind_data <- read_feather("feathers/all_bind_data.feather")
+```
+
+```{r baseline models}
+linear_acc <- lmer(accuracy ~ log(generation+1) + (1|sub_id) + (1|trialDisplay),
+                filter(model_data, type == "baseline", condition == "adult"))
+
+linear_gen <- lmer(bdm_mean ~ log(generation+1) + (1|sub_id) + (1|trialDisplay),
+                filter(all_bind_data, type == "baseline", condition == "adult"))
+```
+
   We set out to test whether the accuracy and complexity of participants' pattern reproductions changed over successive generations. Specifically, we expected to see an increase in participant's transmission accuracies, relating to a decrease in the computational complexity of the patterns and an increase in reproduction accuracy.
 
-Reproduction accuracy increased linearly over 6 generations. We fit a linear model to this data, which was signficant (log(generation) Estimate = 0.11 , p < 0.001). The trend in complexity was consistent across the measures of algorithmic complexity, chunking, and edge length. Algorithmic complexity decreased over generations, although the shape of the trend was difficult to determine. A linear model also showed a significant negative effect of generation (log(generation) Estimate = -12.0, p < 0.001). These findings replicated those found by @kempe-2015.
-
-```{r baseline_bothExp, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 3, fig.width = 3, num.cols.cap=1, fig.cap = "Experiments 1 and 2 show decreases in algorithmic complexity over time. Experiment 2 begins to asymptote.", cache = T}
-img <- png::readPNG("figs/complex_baseline.png")
-grid::grid.raster(img)
-```
+Reproduction accuracy increased linearly over 6 generations. We fit a linear model to this data, which was signficant (log(generation) Estimate = 0.11 , p < 0.001). The trend in complexity was consistent across the measures of algorithmic complexity, chunking, and edge length. Algorithmic complexity decreased over generations, although the shape of the trend was difficult to determine. A linear model also showed a significant negative effect of generation (log(generation) Estimate = -12.0, p < 0.001). These findings replicated those found by @kempe-2015.* put in discussion
 
 ```{r baseline_bothExp_withplots, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 3, fig.width = 3, num.cols.cap=1, fig.cap = "Experiments 1 and 2 show decreases in algorithmic complexity over time. Experiment 2 begins to asymptote.", cache = T}
 img <- png::readPNG("figs/both_complex_withplots.png")
@@ -97,9 +111,20 @@ grid::grid.raster(img)
   In Experiment 2, we replicated our task from Experiment 1, but with the addition of twice as many chains and generations. We replicated the task with a larger sample in order to determine the shape of the complexity curve--if it was linear, exponential, or another shape, and if it reached a stable asymptote of complexity over generations. 
 
 ##Methods
+```{r n_thrown}
+
+```
   Transmission chains consisted of 12 generations each, and there were 40 separate chains. A total of 518 adults participated in this study. Approximately 7% (n=38) of participants in the Experiment 2 were excluded from analysis due to failure to meet accuracy requirements on the practice trials or failure to select the complete number of targets on one or more experimental trials. This resulted in a total of 480 participants included in the analysis, four times the number of participants in Experiment 1.  
 
 ##Experiment 2 Results
+```{r baseline_rep models}
+linear_acc_rep <- lmer(accuracy ~ log(generation+1) + (1|sub_id) + (1|trialDisplay),
+                filter(model_data, type == "baseline_rep", condition == "adult"))
+
+linear_gen_rep <- lmer(bdm_mean ~ log(generation+1) + (1|sub_id) + (1|trialDisplay),
+                filter(all_bind_data, type == "baseline_rep", condition == "adult"))
+```
+
   The results of this experiment replicated those found in Experiment 1. Percent accuracy increased linearly over generations (log(generation) Estimate: 0.05, p < 0.001), reflecting an increase in transmissibility of the patterns. Algorithmic complexity, shown in figure X, appeared to follow an exponential function of the form [format] y = e^-x + b. This result was also found in the alternate measures of complexity (chunking and edge length). The algorithmic complexity of the patterns decreased, and began to asymptote. We fit an exponential model (include model formula?), which was significant (log(generation) Estimate = -0.04, p < 0.001). 
 ```{r baseline_accuracy, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 3, fig.width = 3, num.cols.cap=1, fig.cap = "Reproduction accuracy increases over generations.", cache = T}
 img <- png::readPNG("figs/baseline_accuracy.png")
