@@ -10,7 +10,7 @@ author-information: >
         Department of Psychology \\ University of Chicago}
 
 abstract: >
-    Why do languages change? One possibility is they evolve due to two competing pressures: one, for the language to be easily transmitted to new generations—and hence simple—and another, for the language to be a useful, descriptive form of communication—and hence more complex. However, few studies have explored these pressures in the most frequent language learners: children. Conventional iterated learning studies focus on the transmission of a novel language from one adult to the next. However, this ignores one of the important features of language learning, namely, receiving feedback. In this study, 120 adults on Mechanical Turk participated in a conventional iterated learning task. Their results were replicated with a larger sample of 480 adults. Participant's performances indicate that complexity decreases in the language over generations of transmission. 960 adults participated in a third experiment, where half of the participants represented parent or caregivers, who added a process of editing into generational transmission (this all needs to be re-written and re-worded).  Results show that adding this error-correcting participant allows a greater level of complexity to be retained in the language compared with having a sole language learner/transmitter. 
+    Why do languages change? One possibility is they evolve in response to two competing pressures: (1) to be easily learned, and (2) to be effective for communcation. In a number of domains (e.g. kinship categories, color terms), variation in the world's natural languages appears to be accounted for by different but near-optimal tradeoffs between these two pressures [@regier2015]. Models of tis evolutionary process have focused on transmission chains in which errors of learning by one agent become the language input for the next generation. However, a critical feature of human language is that children do not learned in isolation, but rather in communicative interactions with caregivers who can draw inferences from a child's errorful productions to their intended interests. In a set of iterated learning experiments, we show that this supportive context can have a powerful stabilizing role in the development of artificial languages, allowing them achieve higher levels of assymptotic complexity than they would by transmission alone. 
     
 keywords: >
     communication; language acquisition; language evolution; iterated learning
@@ -44,28 +44,34 @@ library(english)
 library(broom)
 library(broom.mixed)
 library(papaja)
+library(ggthemes)
 
 theme_set(theme_classic(base_size = 10))
 ```
 
 # Introduction
 
-How do you ask a group of people where they are going in Spanish? In Spain, the answer depends on the group: you might ask “Donde van ustedes?” of a group of work colleagues, but to address your friends, you use the informal “Donde váis vosotros?” instead. In Mexican Spanish, this distinction has disappeared, and the “ustedes” form is used exclusively. Why did Spanish change in this way, simplifying and shedding the formal second person plural? Why do languages change at all? One working theory is that languages evolve to adapt to two dynamic competing pressures: one, to be easily transmitted and learned (and hence simple), and another, to be a descriptive and effective system for communication (and hence complex) [@lupyan-2010]. 
+How do you ask a group of people where they are going in Spanish? In Spain, the answer depends on the group: you might ask “Donde van ustedes?” of a group of work colleagues, but to address your friends, you use the informal “Donde váis vosotros?” instead. In Mexican Spanish, this distinction has disappeared, and the “ustedes” form is used exclusively. Why did Spanish change in this way, simplifying and shedding the formal second person plural? One working theory is that languages evolve to adapt to two dynamic competing pressures: (1) ease of learning and transmission, and (2) effective communication [@lupyan-2010]. 
 
-When children are learning language, they often make simplification errors [@bowerman-1982]. If a child is asking for some milk, they may ask for a "baba" (bottle). Thus, the child has coined a new word, which her parents understand. This simplification works well for the child, until she starts to learn her animal words, and calls a sheep "baba". The child language-learner has shown the effects of the simplicity pressure in language: if she calls both bottles and sheep "baba", she has to learn one less word. Yet, this simplicity bias causes problems when she asks her parent for a "baba" -- does she want the sheep toy or her bottle? Her parent will then attempt to resolve this ambiguity, by introducing descriptiveness into the child's vocabulary ("Do you want the sheep or the baba (bottle)?"). Due to the parent's intervention, this child will not grow up to think that "sheep" and "bottles" can be named with the same label. [this paragraph is really long and long-winded, definitely simplify but high-level, is this on the right track? Do I want to include this extended example? Should I start the intro with this and scrap the Spanish example??]
+When children are learning language, they often make simplification errors [@bowerman-1982]. If a child is asking for some milk, they may ask for a "baba" (bottle). Thus, the child has coined a new word, which her parents understand. This simplification works well for the child, until she starts to learn her animal words, and calls a sheep "baba". The child language-learner has shown the effects of the simplicity pressure in language: if she calls both bottles and sheep "baba", she has to learn one less word. Yet, this simplicity bias causes problems when she asks her parent for a "baba" -- does she want the sheep toy or her bottle? Her parent will then attempt to resolve this ambiguity, by introducing descriptiveness into the child's vocabulary ("Do you want the sheep or the baba (bottle)?"). Due to the parent's intervention, this child will not grow up to think that "sheep" and "bottles" can be named with the same label. [this paragraph is really long and long-winded, definitely simplify but high-level, is this on the right track? Do I want to include this extended example? Should I start the intro with this and scrap the Spanish example??] -- **I REALLY LIKE THIS. You might actually want to introduce the general idea of iterated learning by transmission of errors first though.**
 
 Children are often the actors who drive language evolution [@senghas-2003], yet they differ from adults in their cognitive capabilities, namely, memory systems [@kempe-2015], interests and early vocabularies, and conversation partners. Therefore, though children are skilled language learners, their developing cognitive systems prevent aspects of language that are difficult to learn and remember from being passed on—pushing languages towards simplicity [@hudsonkam-2005; @senghas-2003]. But, languages that become too simple can lose the ability to be effective for communication [@kirby-2014]. What enables languages to retain their communicative utility in the face of these learnability pressures? 
   
-The following study tests a novel hypothesis for the maintenance of structure in language: Communicative inference by caregivers. [is "communicative inference" clear from the rest of this paragraph? Does it need to be better-defined? How so?] Children’s language learning is greatly influenced by those around them--especially the adults they talk to most. These caregivers determine the majority of their child’s language input, and are responsible for seeing that their children develop effective and useful systems of communication. Even the youngest children are not passive learners of language — they are active participants, engaging in conversations with their parents. These adults are experts both in the language and in the children themselves, as they understand the child’s intuitions, personality, and context. Caregivers play an important interpretive role in these interactions through their ability to understand the intended target of children’s errorful productions [@chouinard-2003]. They may reformulate their child’s language either through explicit or implicit correction. Adults can explictly correct their children's errors in various ways (e.g., by interruptions or repeating the correct word/grammatical form) [@penner-1987]. Yet, children primarily learn language through listening to others talk, instead of being explicitly instructed in a language [@romberg-2010]. Thus, parent's modeling of accurate language constructions can have a powerful effect on reducing children's language errors: over time, children fix their own mistakes because they have learned the correct constructions from their caregivers [@hudsonkam-2005]. By way of this feedback, both implicit and explicit, children's simplification errors are corrected, and children are able to acquire adult-like speech. Eventually, when a child grows to be an adult, they will not transmit the errors they had as a child, but the corrct forms of speech they learned from their caregivers. Thus, over the course of a lifetime, the child language learner grows to become a parent language teacher, correcting their own children's errors. These error reconstructions may be a mechanism by which more structure is retained in language over many lifetimes than children could sustain alone. 
+The following study tests a novel hypothesis for the maintenance of structure in language: Communicative inference by caregivers. [is "communicative inference" clear from the rest of this paragraph? Does it need to be better-defined? How so?] Children’s language learning is greatly influenced by those around them--especially the adults they talk to most. These caregivers determine the majority of their child’s language input, and are responsible for seeing that their children develop effective and useful systems of communication. Even the youngest children are not passive learners of language — they are active participants, engaging in conversations with their parents. These adults are experts both in the language and in the children themselves, as they understand the child’s intuitions, personality, and context. Caregivers play an important interpretive role in these interactions through their ability to understand the intended target of children’s errorful productions [@chouinard-2003]. They may reformulate their child’s language either through explicit or implicit correction. Adults can explictly correct their children's errors in various ways (e.g., by interruptions or repeating the correct word/grammatical form) [@penner-1987]. Yet, children primarily learn language through listening to others talk, instead of being explicitly instructed in a language [@romberg-2010]. Thus, parent's modeling of accurate language constructions can have a powerful effect on reducing children's language errors: over time, children fix their own mistakes because they have learned the correct constructions from their caregivers [@hudsonkam-2005]. By way of this feedback, both implicit and explicit, children's simplification errors are corrected, and children are able to acquire adult-like speech. Eventually, when a child grows to be an adult, they will not transmit the errors they had as a child, but the corrct forms of speech they learned from their caregivers. Thus, over the course of a lifetime, the child language learner grows to become a parent language teacher, correcting their own children's errors. These error reconstructions may be a mechanism by which more structure is retained in language over many lifetimes than children could sustain alone.  **THIS IS A LITTLE LONG, BUT AN AWESOME WAY OF BRIDGING TO THE MAIN IDEA**
 
+**I MIGHT JUST SAY WE USE THE ITERATED LEARNING PARADIGM TO TRY TO STUDY THIS IN THE LAB AND CUT THIS PARA**
 [okay transition?] Although language evolution is a process which is constantly shaping our languages, studying the pressures of simplicity and descriptiveness on language evolution is relatively difficult. This is partially due to the complexity of naturalistic language change [@ellis-2008]. There are also few instances of naturalistic language emergence in speakers without a prior language [@brentari-2013; @senghas-2003; @sandler-2005]. Therefore, researchers have developed methods for studying language emergence, evolution, and change within the laboratory. [this is a bad ending sentence]
 
 ## Using iterated learning to study language change
 
-  One way to study language acquisition in the lab is to use the iterated learning paradigm. This paradigm was created to study the effects of simplicity and informativity on inter-generational language evolution [@kirby-2014]. In an iterated learning paradigm, one participant is trained on a randomly-generated language—for example, a set of words created by arbitrarily pairing syllables together. The participant is later asked to recall the language, and their responses are given as training input for the next subject, thus creating a transmission chain. This iterated process mimics the transmission of language across generations, with each participant unintentionally changing the language through their memory biases. However, the vast majority of iterated learning studies have used adult participants [e.g., @smith-2010; @verhoef-2014; @kirby-2014; @kirby-2007; @christiansen-2003], and few studies have used children as research subjects [@kempe-2015; @raviv-2018]. A study by @kempe-2015 compared child (age 5-8) and adult performances on an iterated learning task using a novel dot-pattern paradigm. Their results found that structure emerged faster in children than adults—that is, the children’s patterns simplified much faster than the adult’s, allowing them to be easily reproducable earlier in the transmission chain. This study provides evidence of the importance of looking at both children and adults in an iterated learning paradigm, as they have different cognitive skills which affect their performance in language-learning tasks [@kempe-2015]. However, language evolution cannot be fully grasped using this paradigm with only separate adult or child learning chains, because language learning does not occur only within the same age group (horizontal transmission), or only across age groups (vertical transmission), but it occurs dynamically, in both directions. In a true language-acquisition environment, a child receives both language input and feedback from their caregiver and uses it to interact with their peers throughout life, eventually growing into a new teacher-caregiver. 
+**YOU MIGHT SKIP THE HEAVY KID FOCUS HERE SINCE WE'RE NOT USING KIDS?**
+One way to study language acquisition in the lab is to use the iterated learning paradigm. This paradigm was created to study the effects of simplicity and informativity on inter-generational language evolution [@kirby-2014]. In an iterated learning paradigm, one participant is trained on a randomly-generated language—for example, a set of words created by arbitrarily pairing syllables together. The participant is later asked to recall the language, and their responses are given as training input for the next subject, thus creating a transmission chain. This iterated process mimics the transmission of language across generations, with each participant unintentionally changing the language through their memory biases. However, the vast majority of iterated learning studies have used adult participants [e.g., @smith-2010; @verhoef-2014; @kirby-2014; @kirby-2007; @christiansen-2003], and few studies have used children as research subjects [@kempe-2015; @raviv-2018]. A study by @kempe-2015 compared child (age 5-8) and adult performances on an iterated learning task using a novel dot-pattern paradigm. Their results found that structure emerged faster in children than adults—that is, the children’s patterns simplified much faster than the adult’s, allowing them to be easily reproducable earlier in the transmission chain. This study provides evidence of the importance of looking at both children and adults in an iterated learning paradigm, as they have different cognitive skills which affect their performance in language-learning tasks [@kempe-2015]. However, language evolution cannot be fully grasped using this paradigm with only separate adult or child learning chains, because language learning does not occur only within the same age group (horizontal transmission), or only across age groups (vertical transmission), but it occurs dynamically, in both directions. In a true language-acquisition environment, a child receives both language input and feedback from their caregiver and uses it to interact with their peers throughout life, eventually growing into a new teacher-caregiver. 
 
-The following study uses an iterated learning (diffusion chain) paradigm with an adaptation of @kempe-2015's original non-linguistic task to investigate how the pressures of descriptiveness and transmissibility operate in adults when their responses are subject to error correction by a secondary participant. We hypothesize that these error-correctors (analogus to caregivers and teachers) are pivotal not only to an individual's successful language acquisition, but also to the evoulution of a language as a whole. This is because those who correct mistakes and provide feedback are able to protect against the transmissibility (simplicity) bias, which is likely stronger in early language learners, by re-introuding and preserving complexity in language. 
+We adapted @kempe-2015's to model the effect of a cooperative caregiver on the evolution of language. We hypothesize that these error-correctors (analogus to caregivers and teachers) are pivotal not only to an individual's successful language acquisition, but also to the evoulution of a language as a whole. This is because those who correct mistakes and provide feedback are able to protect against the transmissibility (simplicity) bias, which is likely stronger in early language learners, by re-introuding and preserving complexity in language. 
 
+All experiments were pre-registered on Open Science Framework, and all data and code can be accessed at the following link: https://osf.io/guzyf/. 
+
+**I THINK YOU CAN CUT THIS**
 Experiments 1 and 2 attempt to replicate @kempe-2015's findings that, using an artifical dot-pattern language, complexity decreases over generations and transmission accuracy increases. This finding reflects a stronger bias of language-learners towards the simplicity pressure, rather than descriptiveness pressure. Experiment 3 investigates the addition of a parent-like participant into the generational transmission process: instead of language-learners transmitting their reproductions directly to the next generation, we include a secondary participant. This participant acts as a caregiver, attempting to compensate or fix some of the errors introduced by the reproducers to better reproduce the initial language. Just as adults implicitly and explicity attempt to teach their children to produce accurate forms of their native language(s), these secondary participants are attempting to help the reproducers better produce accurate forms of this artificial language. This edited form of language is then passed to the next reproducing participant, thus representing a child learner who has grown and implemented feedback and error-correction provided by their parent over the years. We thus hypothesize that the addition of this secondary caregiver-like participant is pivotal to re-introducing and maintaining a higher level of descriptiveness (complexity) in language. [is this too much detail? not enough? clear analogy?]
 
 # Experiment 1: Replicating @kempe-2015
@@ -75,7 +81,6 @@ In a baseline experiment, adults participated in a standard iterated learning st
 ## Method
 
 ```{r read_data}
-setwd("~/Documents/Github/iteratedlearning/analysis")
 all_data <- read_feather(here("analysis/feathers/all_data.feather"))
 model_data <- read_feather(here("analysis/feathers/model_data.feather"))
 #all_calculate_data <- read_feather("feathers/all_calculate_data.feather")
@@ -95,22 +100,20 @@ e1_generations <- max(e1_data$generation)
 e1_seeds <- max(e1_data$seed)
 ```
 
-Participants in Experiment 1 were `r nrow(e1_data)` adults recruited on Amazon Mechanical Turk. These participants were dived into `r e1_seeds %>% words` diffusion chains, each of which had `r e1_generations %>% words` generations. Each participant gave informed consent. The task was approximately eight minutes long, and subjects were compensated with $0.50 for their participation.
+Participants in Experiment 1 were `r nrow(e1_data)` adults recruited on Amazon Mechanical Turk. These participants were dived into `r e1_seeds %>% words` diffusion chains, each of which had `r e1_generations %>% words` generations. Each participant gave informed consent. The task was approximately eight minutes long, and subjects were compensated $0.50 for their participation.
 
 ### Design and Procedure
 ```{r}
-n_thrown <- read_csv("../../data/adult_baseline_wthrown.csv") %>%
-  filter(seed != 3, seed != 1)
+n_thrown <- read_csv(here("/data/adult_baseline_wthrown.csv")) %>%
+ filter(seed != 3, seed != 1)
 ```
 
-
-Participants in Experiment 1 were told that in this task, they would be re-creating patterns on a grid. After a consent screen, subjects first viewed a training trial with two 8x8 grids on the screen – a target grid, with 10 cells colored in, and a blank grid. They were told to make the blank grid match the target grid exactly, and were unable to progress until the grids were identical. Following this trial, participants were informed that they would see a target grid appear on the screen for 10 seconds, followed by a picture (a visual mask) displayed for 3 seconds. After the visual mask, participants viewed a blank 8x8 grid where they were given 60 seconds to re-create the target grid. Participants could click on any cell in the grid to change its color, and could also undo any color placed. A counter on the screen showed how many targets had been colored, and it varied dynamicaly with the participant's clicks. After placing 10 targets, participants could click a button to adance to the next trial. After completing 3 Practice trials, which were identical for all partipants in all chains, participants were informed that the study would begin. 
+**I THINK YOU MIGHT WANT TO DESCRIBE GENERAL TRIALS INSTEAD, ACTUALLY. AND THEN SAY WE STARTED WITH 3 PRACTICE TRIALS**
+Participants in Experiment 1 were asked to re-create patterns on a grid. After a consent screen, participants first viewed a training trial with two 8x8 grids on the screen – a target grid, with 10 cells colored in, and a blank grid. They were told to make the blank grid match the target grid exactly, and were unable to progress until the grids were identical. Following this trial, participants were informed that they would see a target grid appear on the screen for 10 seconds, followed by a picture (a visual mask) displayed for 3 seconds. After the visual mask, participants viewed a blank 8x8 grid where they were given 60 seconds to re-create the target grid. Participants could click on any cell in the grid to change its color, and could also undo any color placed. A counter on the screen showed how many targets had been colored, and it varied dynamicaly with the participant's clicks. After placing 10 targets, participants could click a button to adance to the next trial. After completing 3 Practice trials, which were identical for all partipants in all chains, participants were informed that the study would begin. 
 
 Each participant then completed 6 Experiment trials. Participants in the first generation of each chain received the same initial grids for Experiment trials. These initial 8x8 grids were generated by randonly selecting 10 of the 64 possible cells to be filled. Participants in subsequent chains received as their targets the outputs produced by their parent in the chain.
 
 Participants' performance on the practice trials were used as an attention check to determine whether their data would be passed to the next participant. If the participant scored less than 75% accuracy on the last 2 practice trials, or if they failed to select 10 cells before time ran out, their outputs were not transmitted to the next generation. In Experiment 1, `r nrow(n_thrown %>% filter(is.na(thrown)==F)) %>% words` participants failed to meet these criteria and were excluded from analysis. 
-
-All experiments were pre-registered on Open Science Framework and can be accessed at the following link: https://osf.io/guzyf/. 
 
 ## Results and Analysis 
 
@@ -121,75 +124,91 @@ Complexity served as a proxy for descriptiveness. We followed @kempe-2015 in usi
 ## Results
 
 ```{r baseline_models}
-linear_acc <- lmer(accuracy ~ generation + (1|sub_id) + (1|trialDisplay) + (1|trialCount) + (1|seed),
-                filter(model_data, type == "baseline", condition == "adult"))
+e1_acc <- model_data %>%
+  filter(type == "baseline", condition == "adult", trialCount > 3) %>%
+  lmer(accuracy ~ generation + trialCount + (1|sub_id) + (1|trialDisplay), data = .)
 
-log_acc <- lmer(accuracy ~ log(generation+1) + (1|sub_id) + (1|trialDisplay) + (1|trialCount) + (1|seed),
-                filter(model_data, type == "baseline", condition == "adult"))
+e1_bdm <-all_bind_data %>%
+   filter(type == "baseline", condition == "adult", trialCount > 3) %>%
+  lmer(bdm_mean ~ generation + trialCount + (1|sub_id) +  (1|trialDisplay), data = .)
 
+e1_chunk <-all_bind_data %>%
+   filter(type == "baseline", condition == "adult", trialCount > 3) %>%
+  lmer(chunking_mean ~ generation + trialCount + (1|sub_id) +  (1|trialDisplay), data = .)
 
-linear_gen <- lmer(bdm_mean ~  generation + (1|sub_id) + (1|trialDisplay) + (1|trialCount) + (1|seed),
-                filter(all_bind_data, type == "baseline", condition == "adult"))
-
-linear_chunk <- lmer(chunking_mean ~  generation + (1|sub_id) + (1|trialDisplay) + (1|trialCount) + (1|seed),
-                filter(all_bind_data, type == "baseline", condition == "adult"))
-
-linear_edge <- lmer(edge_mean ~  generation + (1|sub_id) + (1|trialDisplay) + (1|trialCount) + (1|seed),
-                filter(all_bind_data, type == "baseline", condition == "adult"))
-
-log_gen <- lmer(bdm_mean ~ log(generation+1) + (1|sub_id) + (1|trialDisplay) + (1|trialCount) + (1|seed),
-                filter(all_bind_data, type == "baseline", condition == "adult"))
+e1_edge <-all_bind_data %>%
+   filter(type == "baseline", condition == "adult", trialCount > 3) %>%
+  lmer(edge_mean ~ generation + trialCount + (1|sub_id) +  (1|trialDisplay), data = .)
 ```
 
 ```{r baseline_parameters}
-linear_acc_effects <- linear_acc %>%
+e1_acc_effects <- e1_acc %>%
   tidy() %>%
   filter(term == "generation") %>%
   select(term, estimate, statistic, p.value)
 
-linear_gen_effects <- linear_gen %>%
+e1_bdm_effects <- e1_acc %>%
   tidy() %>%
   filter(term == "generation") %>%
   select(term, estimate, statistic, p.value)
 
-linear_chunk_effects <- linear_chunk %>%
+e1_chunk_effects <- e1_acc %>%
   tidy() %>%
   filter(term == "generation") %>%
   select(term, estimate, statistic, p.value)
 
-linear_edge_effects <- linear_edge %>%
+e1_edge_effects <- e1_acc %>%
   tidy() %>%
   filter(term == "generation") %>%
   select(term, estimate, statistic, p.value)
 ```
 
-If iterated learning captures the hypothesized pressures of expressiveness and transmissibility, we predict that over generations reproduction accuracy should increase and complexity should decrease. We tested these predictions with mixed-effects logistic regressions, predicting accuracy and all three measures of complexity separately from fixed effects of generation and trial number, and random intercepts for participant, chain, and initial grid (e.g. \texttt{accuracy $\sim$ generation + trial + (1|subject) + (1|initial) + (1|chain)}. 
+If iterated learning captures the hypothesized pressures of expressiveness and transmissibility, we predict that over generations reproduction accuracy should increase and complexity should decrease. We tested these predictions with mixed-effects logistic regressions, predicting accuracy and all three measures of complexity separately from fixed effects of generation and trial number, and random intercepts for participant, and initial grid (e.g. \texttt{accuracy $\sim$ generation + trial +  (1|subject) + (1|initialGrid)}. 
 
-Reproduction accuracy increased significantly over generations ($\beta =$ `r linear_acc_effects %>% pull(estimate) %>% round(3)`, $t =$ `r linear_acc_effects %>% pull(statistic) %>% round(3)`, $p =$ `r linear_acc_effects %>% pull(p.value) %>% printp`). Figure \ref{fig:baseline_bothAccuracy} shows the results for accuracy. Complexity on all three measure decreased significantly over generations ($\beta_{BDM} =$ `r linear_gen_effects %>% pull(estimate) %>% round(3)`, $t =$ `r linear_gen_effects %>% pull(statistic) %>% round(3)`, $p =$ `r linear_gen_effects %>% pull(p.value) %>% printp`; $\beta_{chunking} =$ `r linear_chunk_effects %>% pull(estimate) %>% round(3)`, $t =$ `r linear_chunk_effects %>% pull(statistic) %>% round(3)`, $p =$ `r linear_chunk_effects %>% pull(p.value) %>% printp`; $\beta_{edge} =$ `r linear_edge_effects %>% pull(estimate) %>% round(3)`, $t =$ `r linear_edge_effects %>% pull(statistic) %>% round(3)`, $p =$ `r linear_edge_effects %>% pull(p.value) %>% printp`). Figure \ref{fig:baseline_bothExp_withplots} shows the results for algorithmic complexity.
+Reproduction accuracy increased significantly over generations ($\beta =$ `r e1_acc_effects %>% pull(estimate) %>% round(3)`, $t =$ `r e1_acc_effects %>% pull(statistic) %>% round(3)`, $p =$ `r e1_acc_effects %>% pull(p.value) %>% printp`). Figure \ref{fig:baseline_bothAccuracy} shows the results for accuracy. Complexity on all three measure decreased significantly over generations ($\beta_{BDM} =$ `r e1_bdm_effects %>% pull(estimate) %>% round(3)`, $t =$ `r e1_bdm_effects %>% pull(statistic) %>% round(3)`, $p =$ `r e1_bdm_effects %>% pull(p.value) %>% printp`; $\beta_{chunking} =$ `r e1_chunk_effects %>% pull(estimate) %>% round(3)`, $t =$ `r e1_chunk_effects %>% pull(statistic) %>% round(3)`, $p =$ `r e1_chunk_effects %>% pull(p.value) %>% printp`; $\beta_{edge} =$ `r e1_edge_effects %>% pull(estimate) %>% round(3)`, $t =$ `r e1_edge_effects %>% pull(statistic) %>% round(3)`, $p =$ `r e1_edge_effects %>% pull(p.value) %>% printp`). Trial Number was not a significant predictor in any model. Figure \ref{fig:baseline_bothExp_withplots} shows the results for algorithmic complexity.
 
-```{r baseline_bothAccuracy, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "Experiments 1 and 2 show increases in accuracy over transmission generations.CHANGE POINT SIZE", cache = T}
-acc_data <- model_data %>%
-  filter(type =="baseline" | type=="baseline_rep") %>%
-  mutate(type=ifelse(type == "baseline_rep", "Exp 2", "Exp 1"))%>%
-  filter(trialCount > 3) %>%
-  group_by(generation, sub_id, type, condition) %>%
-  summarise(accuracy = mean(accuracy)) %>%
-  group_by(generation,type, condition) %>%
-  tidyboot_mean(accuracy) 
+```{r e1_acc_plot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "Experiments 1 and 2 show increases in accuracy over transmission generations.CHANGE POINT SIZE", cache = T}
+e1_chains_acc <- model_data %>%
+  filter(type =="baseline", trialCount > 3) %>%
+  group_by(generation, seed) %>%
+  summarise(empirical_stat = mean(accuracy))
 
-ggplot(acc_data, aes(x = generation, y = empirical_stat, ymin = ci_lower, 
-                     ymax = ci_upper, color = type, label = type)) +
-  geom_pointrange(position = position_dodge(.25))+
-  geom_smooth( method = "lm", se = F, aes(group=type))+
-  ylab("accuracy") +
-  scale_x_continuous(breaks=seq(0,12), limits = c(0, 15)) +
-  theme_classic(base_size = 10) +
-  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
-  geom_dl(method = list(dl.trans(y=  + 3.5, x=x-0.2), "last.points", cex = 1)) +
- scale_color_manual(values=c("orange","red"))
+e1_mean_acc <- e1_chains_acc %>%
+  tidyboot_mean(empirical_stat)
+  
+ggplot(e1_chains_acc, aes(x = generation, y = empirical_stat)) +
+  geom_point(alpha = .1) +  
+  geom_line(aes(group = seed), alpha = .1) + 
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), data = e1_mean_acc,
+                  color = ptol_pal()(1)) + 
+  geom_smooth(se = F, color = ptol_pal()(1)) +
+  ylab("Reproduction accuracy") +
+  scale_x_continuous(limits = c(1,6), name = "Generation") +
+  theme_classic(base_size = 10)
 ```
 
-```{r baseline_bothExp_withplots, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 3, fig.width = 3, num.cols.cap=1, fig.cap = "Experiments 1 and 2 show decreases in algorithmic complexity over time. Grid patterns as produced by participants at generations 0 (initial), 5, and 11 are shown.", cache = T}
+
+```{r e1_bdm_plot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "Experiments 1 and 2 show increases in accuracy over transmission generations.CHANGE POINT SIZE", cache = T}
+e1_chains_bdm <- all_bind_data %>%
+   filter(type == "baseline", condition == "adult", trialCount > 3) %>%
+  group_by(generation, seed) %>%
+  summarise(empirical_stat = mean(bdm_mean))
+
+e1_mean_bdm <- e1_chains_bdm %>%
+  tidyboot_mean(empirical_stat)
+  
+ggplot(e1_chains_bdm, aes(x = generation, y = empirical_stat)) +
+  geom_point(alpha = .1) +  
+  geom_line(aes(group = seed), alpha = .1) + 
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), data = e1_mean_bdm,
+                  color = ptol_pal()(1)) + 
+  geom_smooth(se = F, color = ptol_pal()(1)) +
+  ylab("Algorithmic complexity") +
+  scale_x_continuous(limits = c(1,6), name = "Generation") +
+  theme_classic(base_size = 10)
+```
+
+```{r baseline_bothExp_withplots, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 3, fig.width = 3, num.cols.cap=1, fig.cap = "Experiments 1 and 2 show decreases in algorithmic complexity over time. Grid patterns as produced by participants at generations 0 (initial), 5, and 11 are shown.", cache = T, eval = F}
 img <- png::readPNG("figs/new_complex2_withplots.png")
 grid::grid.raster(img)
 ```
