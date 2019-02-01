@@ -48,6 +48,7 @@ library(ggthemes)
 library(gridExtra)
 
 theme_set(theme_classic(base_size = 10))
+colors <- ptol_pal()(4)
 ```
 
 # Introduction
@@ -185,8 +186,8 @@ e1_mean_acc <- e1_chains_acc %>%
   
 ggplot(e1_mean_acc, aes(x = generation, y = empirical_stat)) +
   geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), 
-                  color = ptol_pal()(1), size = 0.3) + 
-  geom_smooth(se = F, color = ptol_pal()(1), method = "lm") +
+                  color = colors[1], size = 0.3) + 
+  geom_smooth(se = F, color = colors[1], method = "lm") +
   ylab("Reproduction accuracy") +
   scale_x_continuous(limits = c(1,6), breaks=seq(1,6), name = "Generation")
 ```
@@ -289,8 +290,8 @@ acc_data <- model_data %>%
   tidyboot_mean(accuracy) 
 
 ggplot(acc_data, aes(x = generation, y = empirical_stat, ymin = ci_lower, ymax = ci_upper)) +
-  geom_pointrange(position = position_dodge(.25), color=ptol_pal()(1), size =0.3)+
-  geom_smooth(se = F, color = ptol_pal()(1), method = "lm") +
+  geom_pointrange(position = position_dodge(.25), color=colors[2], size =0.3)+
+  geom_smooth(se = F, color = colors[2], method = "lm") +
   ylab("accuracy") +
   scale_x_continuous(breaks=seq(0,12)) +
   theme(plot.title = element_text(hjust = 0.5), legend.position = "none") 
@@ -309,7 +310,7 @@ e2_mean_bdm <- e2_chains_bdm %>%
 ggplot(e2_mean_bdm, aes(x = generation, y = empirical_stat)) +
   geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), data = e2_mean_bdm,
                   color = ptol_pal()(1), size = 0.3) + 
-  geom_smooth(se = F, color = ptol_pal()(1), method = "lm", formula = "y~log(x)") +
+  geom_smooth(se = F, color = colors[2], method = "lm", formula = "y~log(x)") +
   ylab("Algorithmic complexity") +
   scale_x_continuous(limits = c(1,12), breaks=seq(0,12), name = "Generation")
 
@@ -439,10 +440,10 @@ ggplot(acc_data, aes(x = generation, y = empirical_stat, ymin = ci_lower,
   geom_smooth(se = F, aes(group=type), method = "lm", formula = "y ~ log(x)")+
   ylab("accuracy") +
   scale_x_continuous(breaks=seq(1,12)) +
-  scale_color_ptol()+
+  scale_color_manual(values = colors[3:4]) +
   theme(legend.position = "none") + 
-  annotate("text", x = 4.75, y =.8, label = "Fixer", color = ptol_pal()(2)[2]) + 
-  annotate("text", x = 4.75, y = .525, label = "Learner", color = ptol_pal()(1))
+  annotate("text", x = 4.75, y =.8, label = "Fixer", color = colors[4]) + 
+  annotate("text", x = 4.75, y = .525, label = "Learner", color = colors[3])
 ```
 
 ```{r e3_complexity_condition, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "In Experiment 3, algorithmic complexity decreases and asymptotes for both Learners and Fixers. Learners have consistently lower complexity values compared to Fixers.", cache = T}
@@ -461,11 +462,11 @@ ggplot(e3_mean_bdm, aes(x = generation, y = empirical_stat, group=condition, col
   geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), size=0.3) + 
   geom_smooth(method = "lm", formula = "y ~ log(x)", se = F) +
   ylab("Algorithmic complexity") +
-  scale_color_ptol()+
+  scale_color_manual(values = colors[3:4]) +
   scale_x_continuous(limits = c(1,12), breaks = 1:12, name = "Generation") +
   theme(legend.position = "none") + 
-  annotate("text", x = 8, y = 227, label = "Fixer", color = ptol_pal()(2)[2]) + 
-  annotate("text", x = 9, y = 215, label = "Learner", color = ptol_pal()(1))
+  annotate("text", x = 8, y = 227, label = "Fixer", color = colors[4]) + 
+  annotate("text", x = 9, y = 215, label = "Learner", color = colors[3])
 ```
 
 ```{r both_complexity, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2.5, fig.width = 3, num.cols.cap=1, fig.cap = "The fixer's reproductions from Experiment 3 show greater levels of algorithmic complexity across generations compared to the participants' reproductions from Experiment 2.", cache = T}
@@ -484,13 +485,13 @@ ggplot(e4_mean_bdm, aes(x = generation, y = empirical_stat, group=type, color=ty
   geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), size=0.3) + 
   geom_smooth(method = "lm", formula = "y ~ log(x)", se = F) +
   ylab("Algorithmic complexity") +
-  scale_x_continuous(limits = c(1,12), name = "Generation") +
+  scale_x_continuous(limits = c(1,12), name = "Generation", breaks = 1:12) +
   theme_classic(base_size = 10) +
-  scale_color_ptol()+
+  scale_color_manual(values = c(colors[2], colors[4])) +
 #  geom_dl(method = list(dl.trans( x=x+0.2, y=y-0.2), "last.points", cex = 0.65)) + 
   theme(legend.position = "none") + 
-  annotate("text", x = 7.5, y = 212, label = "Exp2", color = ptol_pal()(1)) + 
-  annotate("text", x = 9, y = 220, label = "Exp3: w/Fixer", color = ptol_pal()(2)[2])
+  annotate("text", x = 7.5, y = 212, label = "Exp2", color = colors[2]) + 
+  annotate("text", x = 9, y = 220, label = "Exp3: w/Fixer", color = colors[4])
 ```
 
 # General Discussion
