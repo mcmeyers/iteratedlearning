@@ -345,42 +345,49 @@ uniqueTurker: function(){
 
   //takes in data read from Google Sheet and creates correct target grids from it 
   changeTargets: function(){
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[21] == i+1){
         trialNames[i] = experiment.createGrid(experiment.data[24]);
         break; 
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[26] == i+1){
         trialNames[i] = experiment.createGrid(experiment.data[29]);
         break;
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[31] == i+1){
         trialNames[i] = experiment.createGrid(experiment.data[34]);
         break;
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[36] == i+1){
         trialNames[i] = experiment.createGrid(experiment.data[39]);
         break;
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[41] == i+1){
         trialNames[i] = experiment.createGrid(experiment.data[44]);
         break;
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[46] == i+1){
         trialNames[i] = experiment.createGrid(experiment.data[49]);
         break;
       }
     };
+    for(i=0; i<7; i++){
+      if(experiment.data[51] == i+1){
+        trialNames[i] = experiment.createGrid(experiment.data[54]);
+        break;
+      }
+    };
+    console.log(trialNames);
     return trialNames; 
   },
 
