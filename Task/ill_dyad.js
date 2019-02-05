@@ -416,39 +416,45 @@ var experiment = {
   //function to load in target displays for parent condition (PREVIOUS CHILD'S TARGETS)
   loadTargetInputs: function(){
     console.log("Load Target Inputs");
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[21] == i+1){
         targetNames[i] = experiment.createGrid(experiment.data[23]);
         break; 
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[26] == i+1){
         targetNames[i] = experiment.createGrid(experiment.data[28]);
         break;
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[31] == i+1){
         targetNames[i] = experiment.createGrid(experiment.data[33]);
         break;
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[36] == i+1){
         targetNames[i] = experiment.createGrid(experiment.data[38]);
         break;
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[41] == i+1){
         targetNames[i] = experiment.createGrid(experiment.data[43]);
         break;
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[46] == i+1){
         targetNames[i] = experiment.createGrid(experiment.data[48]);
+        break;
+      }
+    };
+    for(i=0; i<7; i++){
+      if(experiment.data[51] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[53]);
         break;
       }
     };
@@ -460,39 +466,45 @@ var experiment = {
   //NOTE TO SELF ALSO NEED TO CHANGE PARENT TARGET STORING DATA BECAUSE WHAT PARENT SEES AS TARGET IS WHAT CHILD SAW AS TARGET, AND INSTEAD OF INPUT PARENT SEES WHAT CHILD HAD MADE AS INPUT, AFTER PARENT EDITS THIS BECOMES NEXT CHILD'S TARGET; WANT TO SAVE CHILD'S CREATION = TARGET (EVEN THOUGH WAS NOT DISPLAYED ON TARGET GRID) AND PARENT INPUT (EDITS PARENT MADE TO CHILD'S PREVIOUS TARGET)
   loadFixInputs: function(){
     console.log("LoadFixInputs");
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[21] == i+1){
         inputNames[i] = experiment.createGrid(experiment.data[24]);
         break; 
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[26] == i+1){
         inputNames[i] = experiment.createGrid(experiment.data[29]);
         break;
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[31] == i+1){
         inputNames[i] = experiment.createGrid(experiment.data[34]);
         break;
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[36] == i+1){
         inputNames[i] = experiment.createGrid(experiment.data[39]);
         break;
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[41] == i+1){
         inputNames[i] = experiment.createGrid(experiment.data[44]);
         break;
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[46] == i+1){
         inputNames[i] = experiment.createGrid(experiment.data[49]);
+        break;
+      }
+    };
+    for(i=0; i<7; i++){
+      if(experiment.data[51] == i+1){
+        inputNames[i] = experiment.createGrid(experiment.data[54]);
         break;
       }
     };
@@ -503,39 +515,45 @@ var experiment = {
   //takes in data read from Google Sheet and creates correct target grids from it; SHOULD WORK FOR CHILD CONDITIONS FINE  
   changeTargets: function(){
     console.log("Change Targets");
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[21] == i+1){
         targetNames[i] = experiment.createGrid(experiment.data[24]);
         break; 
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[26] == i+1){
         targetNames[i] = experiment.createGrid(experiment.data[29]);
         break;
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[31] == i+1){
         targetNames[i] = experiment.createGrid(experiment.data[34]);
         break;
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[36] == i+1){
         targetNames[i] = experiment.createGrid(experiment.data[39]);
         break;
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[41] == i+1){
         targetNames[i] = experiment.createGrid(experiment.data[44]);
         break;
       }
     };
-    for(i=0; i<6; i++){
+    for(i=0; i<7; i++){
       if(experiment.data[46] == i+1){
         targetNames[i] = experiment.createGrid(experiment.data[49]);
+        break;
+      }
+    };
+    for(i=0; i<7; i++){
+      if(experiment.data[51] == i+1){
+        targetNames[i] = experiment.createGrid(experiment.data[54]);
         break;
       }
     };
