@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<!-- load important things like jquery and mturk and style sheet, setup -->
+<head>
+	<title>Structure Task</title>
+	<script src="mmturkey-0.6.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<link rel="stylesheet" href="style.css" />
+</head>
+
+<!--start of code -->
+<!--<body onload="experiment.uniqueturker()">-->
+<body onload="showSlide('intro')">
+
+<!-- introduction slide ADULT TURKERS -->
+<div class="slide" id="intro">
+	<!-- TURK CONDITION -->
+	<div style="text-align: center;  padding: 20px 15px 10px 10px">
+		<p id="notAccepted" style="font-size:40px"></p>
+		<p class="block-text">Welcome to the study! Please click the button below to begin. In this game, you will be asked various questions about whether patterns are similar.</p>
+        <div class="row"> <h4 style="margin:1% 15% 0 15%">   Please complete this HIT in one sitting, without refreshing the page. This HIT should take approximately 5 minutes to complete, but you will have 30 minutes to do so. You will likely not need all of that time, so don't feel the need to rush.  </h4> </div>
+	    <br>
+	    <div class="row"> <p class="block-text"> By answering the following questions, you are participating in a study being performed by cognitive scientists in the University of Chicago Department of Psychology. If you have questions about this research, please contact us at <a href="mailto:callab.uchicago@gmail.com">callab.uchicago@gmail.com</a>. You must be  at least 18 years old to participate. Your participation in this research is voluntary. You may decline to answer any or all of the following questions. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you. Note however that we have recently been made aware that your public Amazon.com profile can be accessed via your worker ID if you do not choose to opt out. If you would like to opt out of this feature, you may follow instructions available <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=16465241">here</a>.</p> </div> 
+		<button type="button" id="startButton" onclick="this.blur(); experiment.start();">Start</button> 
+	</div>
+</div>
+
+<!-- TRAINING SECTION -->
+
+<!-- TRAINING TRIAL 1-->
+<div class="slide" id="instructions">
+	<p class="block-text">In this study, you will be asked to choose patterns which are similar. Please look at the example below. Select the grid on the bottom which is most similar to the grid on the top. </p> 
+	<center><div id="error"></div> </center>
+	<!-- PLACE IN EXAMPLE PATTERNS AS IMAGES, ONE ON TOP AND TWO ON BOTTOM. MAKE SPACE FOR IMAGES TO BE PLACED-->
+	<img src="str_plots/grid2_6_3.jpeg" height=300 class = "centered">
+	<input type="image" src="str_plots/grid2_6_3.jpeg" class="bottom-right" height=300 onclick="experiment.checkInput('true');" />
+	<input type="image" src="str_plots/grid9_6_2.jpeg" class="bottom-left" height=300 onclick="experiment.checkInput('false');" />
+</div>
+
+<!--EXPERIMENT INTRO-->
+<center>
+<div class="slide" id="expIntro">
+	<p class="block-text"> There will be XX trials. Feel free to take as many breaks while completing the task as necessary. Continue to choose the grid on the bottom which is most similar to the grid on top. </p>
+	<button type="button" onclick="this.blur(); experiment.begin();">I'm Ready to Start!</button>
+</div>
+</center>
+
+<!--TRIAL DISPLAY-->
+<div class="slide" id="trial">
+	<img class="centered" id = "target" height=300 alt="visual mask">
+	<input type = "image" class="bottom-right" id= "img1" height=300 alt="visual mask" onclick="experiment.storeData(); experiment.begin();">
+	<input type = "image" class="bottom-left"  id = "img2" height=300 alt="visual mask" onclick="experiment.storeData(); experiment.begin();">
+</div>
+
+
+<!--ENDING SLIDE-->
+<div class="slide" id="end">
+	<center>
+	<p class="block-text">Congrats, you're all finished! Thanks for contributing to science. <!--COMMENTS--NOT WORKING RNIf you have any comments about what you just did, please leave them in the box below. When you're ready to submit, just click "Done".--></p> 
+	<p id="result"></p>
+		<!--COMMENTS--NOT WORKING RN	<p class="block-text">
+			comments:<br>
+			<input type="text" id="comment" size=75>
+		</p> 
+	<button type="button" id="done" onclick="this.blur(); experiment.realEnd()">Done</button> -->
+	</center>
+</div>
+
+
+
+<!--connects to javascript file which has actual experiment code on it. This line of info is very important and without it none of your functions will run. They are all written in a separate file for clarity and stuff. -->
+<script src="jquery-1.11.2.min.js"></script>
+<!-- UNIQUE TURKER REQUIREMENT, COMMENT OUT FOR DEBUGGING OR CHILD CONDITION -->
+<script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script> 
+<script src="structure.js"></script> 
+
+
+
+</body>
+</html>
