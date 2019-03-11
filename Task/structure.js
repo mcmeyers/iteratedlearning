@@ -10,6 +10,13 @@ function showSlide(id) {
   $("#"+id).show();
 }
 
+function addZero(x, n) {
+  while (x.toString().length < n) {
+    x = "0" + x;
+  }
+  return x;
+}
+
 //gets current date
 getCurrentDate = function() {
   var currentDate = new Date();
@@ -24,6 +31,7 @@ shuffle = function (o) { //v1.0
     for (var j, x, i = o.length; i; j = parseInt(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
     return o;
 }
+
 
 //gets current time 
 getCurrentTime = function() {
@@ -55,6 +63,7 @@ var t6= [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,2
 
 var genNum= [6]; 
 var randDisplay= [t1, t2, t3, t4, t5, t6]; 
+var displayNum = [1,2,3,4,5,6];
 
 
 //MAIN EXPERIMENT
@@ -70,13 +79,18 @@ var experiment = {
   timestamp: getCurrentTime(), 
   seed: 1,
   trial: 1,
-  numTrials: 20, 
+  numTrials: 40, 
   Target: "",
   Chosen: "",
   same: "",
   diff: "",
   chain: 1,
   display: 1,
+  trialDisplay: 1,
+  rightSide: "",
+  startTime: 0,
+  endTime: 0,
+  rt: 0,
 
 
 
@@ -103,41 +117,64 @@ uniqueTurker: function(){
 },
 
   //choose target image
-  //MAKE SURE DOES NOT GET DISPLAY = 0
   pickTarget: function() {
-    var display = Math.floor(Math.random()*randDisplay.length);
-    experiment.chain = shuffle(randDisplay[display]).pop();
-    var Target = "grid" + experiment.chain + "_6_" + display + ".jpeg";
+    console.log("target")
+    experiment.trialDisplay = displayNum[Math.floor(Math.random()*randDisplay.length)];
+    experiment.chain = shuffle(randDisplay[experiment.trialDisplay-1]).pop();
+    var Target = "grid" + experiment.chain + "_6_" + experiment.trialDisplay + ".jpeg";
     console.log(Target);
     return(Target);
   },
 
+  //function DateDiff
+
 
   //choose same chain image 
   //NEED TO PUT IN QUALIFICATION THAT THE DISPLAY CANNOT BE THE SAME AS THE TARGET !!! 
-  //MAKE SURE DOES NOT GET DISPLAY = 0
-  pickSameChain: function() {
-    experiment.display = Math.floor(Math.random()*randDisplay.length);
+  //you are getting undefined for some of the display #'s and don't understand why, try a different way of getting random number 
+  
+  pickSameChain: function(rightImg) {
+    experiment.rightSide = rightImg;
+    experiment.display = displayNum[Math.floor(Math.random()*randDisplay.length)];
+    if(experiment.display == experiment.trialDisplay){
+      experiment.display = experiment.display +1;
+      if(experiment.display > 6){
+        experiment.display = experiment.display -2; 
+      }
+    }
     var chain = experiment.chain;
-    var same = "grid" + chain + "_6_" + experiment.display + ".jpeg";
-    console.log("same =" + same);
-    return(same);
+    experiment.same = "grid" + chain + "_6_" + experiment.display + ".jpeg";
+    console.log("same =" + experiment.same);
+    return(experiment.same);
   },
 
   //choose distractor image
   pickDiffChain: function() {
+        console.log("diff_chain")
     var display = experiment.display;
-    var chain = shuffle(randDisplay[display])[0];
-    console.log(chain);
-    var diff = "grid" + chain + "_6_" + display + ".jpeg";
-    console.log("diff =" + diff);
-    return(diff);
+    console.log("display " + display)
+    var chain = shuffle(randDisplay[display-1])[0];
+    if(chain != experiment.chain){
+    } else {
+        if(chain < 41){
+          chain = chain +1;
+      } else{
+          chain = chain - 1; 
+      }
+    }
+    experiment.diff = "grid" + chain + "_6_" + display + ".jpeg";
+    console.log("diff =" + experiment.diff);
+    return(experiment.diff);
   },
 
 
   //starts training session 1 
   start: function() {
-    showSlide("instructions");
+        showSlide("instructions");
+    if(turk.assignmentId == "ASSIGNMENT_ID_NOT_AVAILABLE") { //if person has not accepted HIT
+      document.getElementById("notAccepted").innerHTML= "Please accept the HIT to Begin!!";
+    } 
+
     //puts in headers for Turk data file 
     experiment.data.push("unique_id, date, time, trialCount, Target, Chosen");
     //disables scrolling
@@ -146,8 +183,23 @@ uniqueTurker: function(){
     };
   },
 
+  update: function() { 
+    var element = document.getElementById("myprogressBar");    
+    var width = experiment.trialCount * 2.5; 
+   // var identity = setInterval(scene, 10); 
+    //function scene() { 
+      //if (width >= 100) { 
+        //clearInterval(identity); 
+      //} else { 
+        //width++;  
+      element.style.width = width + '%';  
+      //return;
+      //} 
+    //}  
+  }, 
   //sends final data to turk
   submit: function(){
+    console.log(experiment.data);
     showSlide("end");
     //submit data to mTurk 
     setTimeout(function(){turk.submit(experiment)}, 3000);
@@ -155,19 +207,50 @@ uniqueTurker: function(){
   },
 
   //stores data in arrays
-  storeData: function(trialCount, target, chosen){
- 
+  storeData: function(chosen){
     //RN, also have the data send round by round FOR TURK EXPERIMENTS just in case this google sheets stuff glitches during the study 
-    var dataforServer= experiment.unique_id + "," + experiment.date + "," + experiment.time + "," + experiment.trialCount + "," + experiment.Target + "," + experiment.Chosen + experiment.same + experiment.diff +"\n"; 
+    var dataforServer= experiment.unique_id + "," + experiment.date + "," + experiment.timestamp + "," + experiment.trialCount + "," + experiment.Target + "," + chosen  +","+ experiment.rightSide+ "," + experiment.same + "," + experiment.diff + ","+ experiment.startTime +","+ experiment.endTime+"\n"; 
     //use line below for writing backups to turk or server 
+    $.post("https://callab.uchicago.edu/experiments/structure/datasave.php", {postresult_string : dataforServer});
     experiment.data.push(dataforServer);
+
+    console.log(dataforServer);
+  },
+
+  fadeIn: function(image1, image2){
+    $('#'+image1).hide();
+    $('#'+image2).hide();
+    var timeOut = setTimeout(function() {
+      console.log('timein');
+      $('#'+image1).fadeIn();
+      $('#'+image2).fadeIn();
+      }, 3000);
+
+  },
+
+
+  getTime: function(time){
+    var d = new Date();
+    var m = addZero(d.getMinutes(), 2);
+    var s = addZero(d.getSeconds(), 2);
+    var ms = addZero(d.getMilliseconds(), 3);
+    if(time == 'startTime'){
+      experiment.startTime = m + ":" + s + ":" + ms;
+    } else{
+      experiment.endTime = m + ":" + s + ":" + ms;
+    }
   },
 
   //STORE WHICH GRID WAS TRUE OR FALSE, MAKE ONCLICK STORE DATA
   begin: function(){
+
+    experiment.getTime('startTime');
+
+    experiment.fadeIn('img1','img2');
+
     var Img1;
     var Img2;
-    console.log(experiment.trialCount);
+    var randSide;
     showSlide("trial");
     //disables scrolling
     document.ontouchmove=function(event){
@@ -176,7 +259,7 @@ uniqueTurker: function(){
     //increases trial #
     experiment.trialCount ++;
     var side = [1,0];
-    var randSide = shuffle(side).pop();
+    randSide = shuffle(side).pop();
     console.log(randSide);
 
     //if experiment is done
@@ -185,15 +268,28 @@ uniqueTurker: function(){
     }
 
     var targetImg = experiment.pickTarget();
-    if(randSide = 1){
-      Img1 = experiment.pickSameChain();
+    experiment.Target = targetImg;
+
+    if(randSide == 1){
+      if(experiment.trialCount == 10 || experiment.trialCount == 20 || experiment.trialCount == 30 || experiment.trialCount == 35){
+      Img1 = "grid2_6_3.jpeg";
+      targetImg = "grid2_6_3.jpeg";
+      Img2 = "grid9_6_2.jpeg";
+    }else{
+      Img1 = experiment.pickSameChain('Img1');
       Img2 = experiment.pickDiffChain();
-    } else {
-      Img2 = experiment.pickSameChain();
+    }} else {
+      if(experiment.trialCount == 10 || experiment.trialCount == 20 || experiment.trialCount == 30 || experiment.trialCount == 35){
+      Img1 = "grid2_6_3.jpeg";
+      targetImg = "grid2_6_3.jpeg";
+      Img2 = "grid9_6_2.jpeg";
+    } else{
+      Img2 = experiment.pickSameChain('Img2');
       Img1 = experiment.pickDiffChain();
-    }
+    }}
 
     document.getElementById("target").src="str_plots/"+targetImg;
+    //setTimeout(function() {document.getElementById('imageID').style.display='none'}, 5*1000);
     document.getElementById("img1").src="str_plots/"+Img1;
     document.getElementById("img2").src="str_plots/"+Img2;
 

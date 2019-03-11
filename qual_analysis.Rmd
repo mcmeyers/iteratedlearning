@@ -1,0 +1,56 @@
+---
+title: "Qual_anal"
+author: "Madeline Meyers"
+date: "2/27/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+```{r}
+library(tidyverse)
+library(tidyboot)
+library(directlabels)
+library(lme4)
+library(devtools)
+library(reshape2)
+library(emdist)
+library(lmerTest)
+library(feather)
+library(janitor)
+```
+
+## R Markdown
+
+
+```{r cars}
+qual_data<-read_csv("data/12Sets.csv") %>%
+  select(-X4, -X9) %>%
+  clean_names() %>%
+  mutate(type = if_else(chain %in% c(1, 7), "child", "adult")) %>%
+  filter(!is.na(chain))
+
+
+tidy_data <- qual_data %>%
+  mutate(translation = as.numeric(trnsltion > 1),
+         num_translations = if_else(trnsltion == 0, 0, 
+                                    trnsltion * 100 - 100)) %>%
+  select(-trnsltion) %>%
+  gather(error, count, no_relation:iconicity, translation) %>%
+  select(-num_translations) %>%
+  group_by(type, generation, error, chain) %>%
+  summarise(count = mean(count, na.rm = T)) %>%
+  summarise(count = mean(count, na.rm = T))
+
+ggplot(tidy_data, aes(x = generation, y = count, color = type)) +
+  facet_grid(. ~ error) + 
+  geom_point() + 
+  geom_smooth(se = F, method = "lm") + 
+  scale_x_continuous(breaks = 1:12) + 
+  theme_classic(base_size = 14)
+```
+
+
