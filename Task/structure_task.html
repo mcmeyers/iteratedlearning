@@ -7,6 +7,7 @@
 	<script src="mmturkey-0.6.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 	<link rel="stylesheet" href="style.css" />
+	<html lang="en">
 </head>
 
 <!--start of code -->
@@ -16,13 +17,26 @@
 <!-- introduction slide ADULT TURKERS -->
 <div class="slide" id="intro">
 	<!-- TURK CONDITION -->
-	<div style="text-align: center;  padding: 20px 15px 10px 10px">
+	<div style="text-align: center ">
+		<img src="images/logo.gif" height=100 alt="uchicago logo">	
 		<p id="notAccepted" style="font-size:40px"></p>
-		<p class="block-text">Welcome to the study! Please click the button below to begin. In this game, you will be asked various questions about whether patterns are similar.</p>
-        <div class="row"> <h4 style="margin:1% 15% 0 15%">   Please complete this HIT in one sitting, without refreshing the page. This HIT should take approximately 5 minutes to complete, but you will have 30 minutes to do so. You will likely not need all of that time, so don't feel the need to rush.  </h4> </div>
-	    <br>
-	    <div class="row"> <p class="block-text"> By answering the following questions, you are participating in a study being performed by cognitive scientists in the University of Chicago Department of Psychology. If you have questions about this research, please contact us at <a href="mailto:callab.uchicago@gmail.com">callab.uchicago@gmail.com</a>. You must be  at least 18 years old to participate. Your participation in this research is voluntary. You may decline to answer any or all of the following questions. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you. Note however that we have recently been made aware that your public Amazon.com profile can be accessed via your worker ID if you do not choose to opt out. If you would like to opt out of this feature, you may follow instructions available <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=16465241">here</a>.</p> </div> 
-		<button type="button" id="startButton" onclick="this.blur(); experiment.start();">Start</button> 
+		<p > <strong> DESCRIPTION: </strong> We are asking you to participate in a research study about language learning. In this study, we will present you with a variety of stimuli, including natural and artificial language samples, pictures of known or unknown objects, and/or movies of people talking. Sometimes some of the speech you will hear will be from a foreign or made-up language. Participation should take about five minutes.  </p>
+		<p > <strong> RISKS AND BENFITS: </strong>The risks to your participation in this online study are those associated with basic computer tasks, including boredom, fatigue, mild stress, or breach of confidentiality. The only benefit to you is the learning experience from participating in a research study.   </p>
+		<p > <strong> COMPENSATION:</strong> You will receive 17.5 cents for your participation. NOTE: This study contains comprehension checks to make sure that participants are paying attention.  As long as you read the instructions and complete the tasks, your HIT will be approved.  If you fail these checks, your HIT will be rejected.  </p>
+		<p > <strong> CONFIDENTIALITY: </strong> Your Mechanical Turk Worker ID will be used to distribute payment to you but will not be stored with the research data we collect from you.  Please be aware that your MTurk Worker ID can potentially be linked to information about you on your Amazon public profile page, depending on the settings you have for your Amazon profile.  We will not be accessing any personally identifying information about you that you may have put on your Amazon public profile page. </p>
+		<p > The research is being conducted with the goal of publication in academic journals and presentations at academic conferences. Any reports and presentations about the findings from this study will not include your name or any other information that could identify you. We may share the data we collect in this study with other researchers– again, we will not include information that could identify you. </p>
+		<p > <strong> SUBJECT’S RIGHTS: </strong> Your participation is voluntary.  You may stop participating at any time by closing the browser window or the program to withdraw from the study. </p>
+		<p > <strong> CONTACT: </strong>  If you have any questions, comments, or concerns please contact the Principal Investigator, Daniel Yurovsky at yurovsky@uchicago.edu.</p>
+		<p > For questions about your rights as a research participant, you may contact:</p>
+						<p> The Social & Behavioral Sciences Institutional Review Board </p>
+						<p> University of Chicago   </p>  
+						<p> Phone: (773) 834-7835 </p>
+						<p> E-mail: sbs-irb@uchicago.edu </p>
+		<p > <strong><i> Please indicate, in the box below, that you are at least 18 years old, have read and understand this consent form, and you agree to participate in this online research study. </strong></i></p>
+
+				<button type="button" id="startButton" onclick="this.blur(); experiment.start(); experiment.fadeIn('Image1', 'Image2');">Start</button> 
+		<p> * Timing and amount of payment to be determined. Participants will be paid at the rate of 2.5 cents/minute, as is the common standard. </p>
+
 	</div>
 </div>
 
@@ -30,28 +44,38 @@
 
 <!-- TRAINING TRIAL 1-->
 <div class="slide" id="instructions">
-	<p class="block-text">In this study, you will be asked to choose patterns which are similar. Please look at the example below. Select the grid on the bottom which is most similar to the grid on the top. </p> 
-	<center><div id="error"></div> </center>
+		<center><div id="error"></div></center>
+	<p class="block-text">In this study, you will be asked to choose patterns which are similar. Please look at the example below. After 3 seconds, two grids will appear. Select the grid on the bottom which is most similar to the grid on the top. </p> 
 	<!-- PLACE IN EXAMPLE PATTERNS AS IMAGES, ONE ON TOP AND TWO ON BOTTOM. MAKE SPACE FOR IMAGES TO BE PLACED-->
-	<img src="str_plots/grid2_6_3.jpeg" height=300 class = "centered">
-	<input type="image" src="str_plots/grid2_6_3.jpeg" class="bottom-right" height=300 onclick="experiment.checkInput('true');" />
-	<input type="image" src="str_plots/grid9_6_2.jpeg" class="bottom-left" height=300 onclick="experiment.checkInput('false');" />
+	<center><img src="str_plots/grid2_6_3.jpeg" height=300></center>
+	<input id = "Image1" type="image" src="str_plots/grid2_6_3.jpeg" class="bottom-right" height=300 onclick="experiment.checkInput('true');" />
+	<input id = "Image2" type="image" src="str_plots/grid9_6_2.jpeg" class="bottom-left" height=300 onclick="experiment.checkInput('false');" />
+
+
 </div>
 
 <!--EXPERIMENT INTRO-->
 <center>
 <div class="slide" id="expIntro">
-	<p class="block-text"> There will be XX trials. Feel free to take as many breaks while completing the task as necessary. Continue to choose the grid on the bottom which is most similar to the grid on top. </p>
+	<p class="block-text"> There will be 40 trials. Feel free to take as many breaks while completing the task as necessary. Continue to choose the grid on the bottom which is most similar to the grid on top. </p>
 	<button type="button" onclick="this.blur(); experiment.begin();">I'm Ready to Start!</button>
 </div>
 </center>
 
 <!--TRIAL DISPLAY-->
 <div class="slide" id="trial">
+	<div> <p class="block-text" style="position: relative"> </p>
 	<img class="centered" id = "target" height=300 alt="visual mask">
-	<input type = "image" class="bottom-right" id= "img1" height=300 alt="visual mask" onclick="experiment.storeData(); experiment.begin();">
-	<input type = "image" class="bottom-left"  id = "img2" height=300 alt="visual mask" onclick="experiment.storeData(); experiment.begin();">
 </div>
+	<input type = "image" class="bottom-right" id= "img1" style='display:none' height=300 alt="visual mask" onclick="experiment.storeData('img1'); experiment.begin(); experiment.update(); experiment.getTime('endTime');">
+	<input type = "image" class="bottom-left"  id = "img2" height=300 style='display:none' alt="visual mask" onclick="experiment.storeData('img2'); experiment.begin(); experiment.update();experiment.getTime('endTime');">
+<div id="Progress_Status"> 
+  <div id="myprogressBar"></div> 
+</div> 
+  <p> Progress </p>
+</div>
+
+
 
 
 <!--ENDING SLIDE-->
@@ -71,8 +95,18 @@
 
 <!--connects to javascript file which has actual experiment code on it. This line of info is very important and without it none of your functions will run. They are all written in a separate file for clarity and stuff. -->
 <script src="jquery-1.11.2.min.js"></script>
-<!-- UNIQUE TURKER REQUIREMENT, COMMENT OUT FOR DEBUGGING OR CHILD CONDITION -->
-<script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script> 
+
+<script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
+<script type="text/javascript">
+(function(){
+    var ut_id = "852689a50422115e8f51909029859f40";
+    if (UTWorkerLimitReached(ut_id)) {
+        document.getElementById('mturk_form').style.display = 'none';
+        document.getElementsByTagName('body')[0].innerHTML = "You have already completed the maximum number of HITs allowed by this requester. Please click 'Return HIT' to avoid any impact on your approval rating.";
+    }
+})();
+</script>
+
 <script src="structure.js"></script> 
 
 
