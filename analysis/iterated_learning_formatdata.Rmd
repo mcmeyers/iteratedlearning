@@ -53,7 +53,10 @@ dyad_rep <- read_csv("../data/dyad_rep.csv") %>%
   filter(is.na(thrown)==T)
 
 child_baseline <-read_csv("../data/child_baseline.csv") %>%
-  filter(is.na(thrown)==T)
+  filter(is.na(thrown)==T, is.na(unique_id)==F)
+
+child_dyad <- read_csv("../data/child_dyad.csv") %>%
+  filter(is.na(thrown)==T, is.na(unique_id)==F)
 ```
 
 ```{r ignore me, eval=F}
@@ -208,6 +211,7 @@ c_calculate_data <-c_data %>%
   spread(type,value) %>%
   mutate(accuracy = input == target, sub_id = as.character(sub_id)) %>%
   arrange(seed, generation) 
+write_feather(c_calculate_data, path="feathers/c_calculate_data.feather")
 
 c_spread_data <- c_data %>%
   gather(row, value, -(unique_id:timeUsed))%>%
@@ -297,6 +301,45 @@ t_spread_data_rep <- t_data_rep %>%
   mutate(trialDisplay = ifelse(trialCount == 3, 0.75, trialDisplay))
 ```
 
+#Format data dyad child
+```{r}
+c_dyad <- child_dyad%>%
+  select(-(available_onload:available_accepted), -sub_age) %>%
+  gather(display, array, -(unique_id:time1Used), -(trial2Count:time2Used),                              -(trial3Count:time3Used),-(trial4Count:time4Used), -(trial5Count:time5Used),                     -(trial6Count:time6Used),-(trial7Count:time7Used), -(trial8Count:time8Used),                     -(trial9Count:time9Used)) %>%
+  unique() %>%
+  separate(display, c("type", "trialCountArray"), -6) %>%
+  separate(trialCountArray, c("trialCount", "arrayCount"), 1) %>%
+  gather(trialDisplay, display, -(unique_id:time), -time1Used, -time2Used, -time3Used,-time4Used,       -time5Used, -time6Used, -time7Used, -time8Used, -time9Used,  -type,-trialCount, -array) %>%
+  separate(trialDisplay, c("type2", "tmp"), -7) %>%
+  separate(type2, c("tmp2", "trialCount2"), -1) %>%
+  filter(trialCount2 == trialCount) %>%
+  gather(trialTime, timeUsed, -(unique_id:time), -type, -trialCount, -display, -array) %>%
+  separate(trialTime, c("tmp", "trialCount3"), -5) %>%
+  separate(trialCount3, c("trialCount3", "tmp2"), 1) %>%
+  filter(trialCount == trialCount3) %>%
+  select(unique_id:time, trialCount, trialDisplay = display, timeUsed, type, array) %>%
+  spread(type, array) %>%
+  separate(data, input_labs, sep = " ") %>%
+  separate(target, target_labs, sep = " ") %>%
+  mutate_at(c(input_labs, target_labs, "sub_id", "generation", "seed", "trialCount", "trialDisplay", "timeUsed"), as.numeric) %>%
+  mutate(generation = ifelse(condition == "child", generation-0.5, generation))
+
+c_dyad_calculate_data <-c_dyad %>%
+  gather(row, value,-unique_id:-timeUsed)%>%
+  separate(row, c("type","row", "col")) %>%
+  spread(type,value) %>%
+  mutate(accuracy = input == target, sub_id = as.character(sub_id),
+         trialDisplay = ifelse(trialCount == 3, 0.75, trialDisplay)) %>%
+  arrange(seed, generation) 
+
+c_dyad_spread_data <- c_dyad %>%
+  gather(row, value, -(unique_id:timeUsed))%>%
+  separate(row, c("type","row", "col")) %>%
+  unite(ty_col, type, col) %>%
+  spread(ty_col, value) %>%
+  filter(is.na(row)==F) %>%
+  mutate(trialDisplay = ifelse(trialCount == 3, 0.75, trialDisplay))
+```
 #Calculate Complexity Measures
 Includes calculations for Algorithmic Complexity (BDM), Edge Length, Chunking, and Earth-Mover Distance
 #Baseline
@@ -348,7 +391,7 @@ a_bind_data <- a_bdm_data %>%
             edge_mean = mean(edge)) %>%
   bind_cols(.,a_emds)
 
-#write_feather(a_bind_data, path="feathers/a_bind_data.feather")
+write_feather(a_bind_data, path="feathers/a_bind_data.feather")
 ```
 #Kiddos Baseline
 ```{r}
@@ -363,7 +406,7 @@ c_target_data <- c_spread_data %>%
   mutate(sub_id = 0) %>%
   arrange(trialDisplay,row) %>%
   distinct(.$trialDisplay, .$row, .keep_all=TRUE)
- 
+
 c_target_store <- data.frame(bdm = bdm_function(c_target_data),
                            chunking = nPart_function(c_target_data),
                            edge = edge_function(c_target_data)) 
@@ -372,7 +415,6 @@ c_bdm_store <- data.frame(bdm = bdm_function(c_bdm_data),
                         edge = edge_function(c_bdm_data))
 
 c_emds <- c_spread_data %>%
-  filter(trialDisplay >=1)  %>%
   arrange(sub_id) %>%
   filter(trialCount > 3) %>%
   mutate(sub_id = ifelse(generation ==0, 0, sub_id)) %>%
@@ -397,13 +439,63 @@ c_bind_data <- c_bdm_data %>%
   group_by(sub_id,trialDisplay, trialCount, seed, generation)%>%
   summarise(bdm_mean = mean(bdm),
             chunking_mean = mean(chunking),
-            edge_mean = mean(edge)) %>%
-  bind_cols(.,c_emds)
+            edge_mean = mean(edge)) #%>%
+ # bind_cols(.,c_emds)
 
-#write_feather(c_bind_data, path="feathers/c_bind_data.feather")
-
+write_feather(c_bind_data, path="feathers/c_bind_data.feather")
 ```
 #Kiddos Dyad
+```{r}
+c_dyad_bdm_data <- c_dyad_spread_data %>%
+  filter(trialDisplay >=1, generation != 0) %>%
+  select(sub_id, generation,trialDisplay, trialCount, seed, row, input_0:input_7) %>%
+  arrange(sub_id,trialDisplay, row)
+
+c_dyad_target_data <- c_dyad_spread_data %>%
+  filter(trialDisplay >=1 & generation == 0)  %>%
+  select(sub_id, generation,trialDisplay, trialCount, seed, row, target_0 = input_0, target_1 = input_1, target_2 =input_2, target_3 = input_3, target_4 = input_4, target_5 = input_5, target_6 = input_6, target_7 =input_7) %>%
+  mutate(sub_id = 0) %>%
+  arrange(trialDisplay,row) %>%
+  distinct(.$trialDisplay, .$row, .keep_all=TRUE)
+
+c_dyad_target_store <- data.frame(bdm = bdm_function(c_dyad_target_data),
+                           chunking = nPart_function(c_dyad_target_data),
+                           edge = edge_function(c_dyad_target_data)) 
+c_dyad_bdm_store <- data.frame(bdm = bdm_function(c_dyad_bdm_data),
+                        chunking = nPart_function(c_dyad_bdm_data),
+                        edge = edge_function(c_dyad_bdm_data))
+
+c_dyad_emds <- c_dyad_spread_data %>%
+  arrange(sub_id) %>%
+  filter(trialCount > 3) %>%
+  mutate(sub_id = ifelse(generation ==0, 0, sub_id)) %>%
+  split(paste0(.$sub_id, .$trialDisplay, sep="_")) %>%
+  map(emd_helper) %>%
+  bind_rows() %>%
+  arrange(sub_id) %>%
+  select(emd) %>%
+  mutate(emd = ifelse(emd == "NaN", 0, emd))
+
+c_dyad_bind_targets <- c_dyad_target_data %>%
+  group_by(sub_id,trialDisplay, generation) %>%
+  summarise(.) %>%
+  bind_cols(c_dyad_target_store, .)
+
+c_dyad_bind_data <- c_dyad_bdm_data %>%
+  group_by(sub_id,trialDisplay, trialCount, seed, generation) %>%
+  summarise(.) %>%
+  bind_cols(c_dyad_bdm_store, .) %>%
+  bind_rows(. , c_dyad_bind_targets) %>%
+  mutate_all(as.numeric) %>%
+  group_by(sub_id,trialDisplay, trialCount, seed, generation)%>%
+  summarise(bdm_mean = mean(bdm),
+            chunking_mean = mean(chunking),
+            edge_mean = mean(edge)) #%>%
+ # bind_cols(.,c_emds)
+
+write_feather(c_dyad_bind_data, path="feathers/c_dyad_bind_data.feather")
+```
+
 #Baseline Replication
 ```{r}
 a_bdm_data_rep <- a_spread_data_rep %>%
@@ -453,7 +545,7 @@ a_bind_data_rep <- a_bdm_data_rep %>%
             edge_mean = mean(edge)) %>%
   bind_cols(.,a_emds_rep)
 
-#write_feather(a_bind_data_rep, path="feathers/a_bind_data_rep.feather")
+write_feather(a_bind_data_rep, path="feathers/a_bind_data_rep.feather")
 
 ```
 
@@ -469,7 +561,7 @@ t_target_data <- t_spread_data %>%
   select(sub_id, generation,trialDisplay, trialCount, seed, row, target_0 = input_0, target_1 = input_1, target_2 =input_2, target_3 = input_3, target_4 = input_4, target_5 = input_5, target_6 = input_6, target_7 =input_7) %>%
   mutate(sub_id = 0) %>%
   arrange(trialDisplay,row) %>%
-  unique()
+  distinct(.$trialDisplay, .$row, .keep_all=TRUE)
  
 t_target_store <- data.frame(bdm = bdm_function(t_target_data),
                            chunking = nPart_function(t_target_data),
@@ -507,7 +599,7 @@ t_bind_data <- t_bdm_data %>%
   ungroup() %>%
   arrange(generation)
 
-#write_feather(a_bind_data, path="feathers/a_bind_data.feather")
+write_feather(a_bind_data, path="feathers/t_bind_data.feather")
 
 ```
 
@@ -523,7 +615,7 @@ t_target_data_rep <- t_spread_data_rep %>%
   select(sub_id, generation,trialDisplay, trialCount, seed, row, target_0 = input_0, target_1 = input_1, target_2 =input_2, target_3 = input_3, target_4 = input_4, target_5 = input_5, target_6 = input_6, target_7 =input_7) %>%
   mutate(sub_id = 0) %>%
   arrange(trialDisplay,row) %>%
-  unique()
+  distinct(.$trialDisplay, .$row, .keep_all=TRUE)
  
 t_target_store_rep <- data.frame(bdm = bdm_function(t_target_data_rep),
                            chunking = nPart_function(t_target_data_rep),
@@ -561,7 +653,7 @@ t_bind_data_rep <- t_bdm_data_rep %>%
   ungroup() %>%
   arrange(generation)
 
-#write_feather(a_bind_data, path="feathers/a_bind_data.feather")
+write_feather(a_bind_data, path="feathers/t_bind_data_rep.feather")
 
 ```
 
@@ -573,6 +665,7 @@ all_data <- a_data %>%
   bind_rows(mutate(a_data_rep, type = "baseline_rep", condition = "adult")) %>%
   bind_rows(mutate(t_data_rep %>%  mutate(condition = if_else(floor(generation) != generation, "child", "adult")), type = "dyad_rep"))%>%
   bind_rows(mutate(c_data, type = "baseline", condition = "child")) %>%
+  bind_rows(mutate(c_dyad, type = "dyad", condition = "child")) %>%
   write_feather("feathers/all_data.feather")
   
 
@@ -582,6 +675,7 @@ all_calculate_data <- a_calculate_data %>%
   bind_rows(mutate(a_calculate_data_rep, type = "baseline_rep", condition = "adult"))%>%
   bind_rows(mutate(t_calculate_data_rep %>%  mutate(condition = if_else(floor(generation) != generation, "child", "adult")), type = "dyad_rep"))%>%
   bind_rows(mutate(c_calculate_data, type = "baseline", condition = "child")) %>%
+  bind_rows(mutate(c_dyad_calculate_data, type = "dyad", condition = "child")) %>%
   write_feather("feathers/all_calculate_data.feather")
 
 all_spread_data <- a_spread_data %>%
@@ -590,6 +684,7 @@ all_spread_data <- a_spread_data %>%
   bind_rows(mutate(a_spread_data_rep, type="baseline_rep", condition = "adult"))%>%
   bind_rows(mutate(t_spread_data_rep %>%  mutate(condition = if_else(floor(generation) != generation, "child", "adult")), type = "dyad_rep"))%>%
   bind_rows(mutate(c_spread_data, type = "baseline", condition = "child"))%>%
+  bind_rows(mutate(c_dyad_spread_data, type = "dyad", condition = "child"))%>%
   write_feather("feathers/all_spread_data.feather")
 
 #or, you can just bind the feathers
@@ -599,6 +694,7 @@ all_bind_data <- a_bind_data %>%
   bind_rows(mutate(a_bind_data_rep, type="baseline_rep")) %>%
   bind_rows(mutate(t_bind_data_rep %>%  mutate(condition = if_else(floor(generation) != generation, "child", "adult")), type = "dyad_rep")) %>%
   bind_rows(mutate(c_bind_data, type = "baseline", condition = "child")) %>%
+  bind_rows(mutate(c_dyad_bind_data, type = "dyad", condition = "child")) %>%
   write_feather("feathers/all_bind_data.feather")
 ```
 
