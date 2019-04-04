@@ -40,6 +40,7 @@ all_data <- read_feather("feathers/all_data.feather")
 all_spread_data <- read_feather("feathers/all_spread_data.feather")
 all_calculate_data <- read_feather("feathers/all_calculate_data.feather")
 all_bind_data <- read_feather("feathers/all_bind_data.feather")
+child_wthrown<-read_feather("feathers/c_calculate_data.feather")
 ```
 
 ```{r curve fitting}
@@ -193,8 +194,8 @@ a14_data2 <-all_calculate_data %>%
 Displays the actual grids that people made; printed them and saved (have to do for each individual seed separately)
 
 ```{r, eval=F, include=F}
-dyad14_data <- all_calculate_data %>%
-  filter(type == "dyad_rep", seed == 14) %>%
+dyad7_data <- all_calculate_data%>%
+  filter(type=="dyad", seed == 7) %>%
   mutate(fill = ifelse((input ==1 & target ==1), 1, ifelse(target ==1, 0.5, ifelse(input ==1, 0.75, ifelse(target != 0, input, 0)))),
          filltype = ifelse(accuracy == T, "both", ifelse(input == 1, "input", "target"))) %>%
   mutate(fill = ifelse(is.na(fill)==T, input, fill)) %>%
@@ -202,16 +203,16 @@ dyad14_data <- all_calculate_data %>%
 ```
 
 ```{r plot_grids, eval = F, include=F}
-pdf("dyad14.pdf", width = 10, height = 10)
-dyad14_data %>%
-  bind_rows(select(dyad14_data, generation, trialDisplay, row, col, input)) %>%
+pdf("dyad7.pdf", width = 10, height = 10)
+dyad7_data %>%
+  bind_rows(select(dyad7_data, generation, trialDisplay, row, col, input)) %>%
   mutate(input = factor(input), 
          generation = factor(generation, levels = unique(.$generation))) %>%
   mutate(row = 7 - as.numeric(row)) %>%
   ggplot(aes(x = col, y = row, fill = factor(fill))) +
   facet_grid(trialDisplay ~ generation) +
   geom_tile(color = "black") +
-  scale_fill_manual(values = c("0" = "white", "1" = "blue", "0.5" = "white", "0.75"="blue"), labels = c("none", "original", "new", "unchanged")) +
+  scale_fill_manual(values = c("0" = "white", "1" = "black", "0.5" = "red", "0.75"="blue"), labels = c("none", "original", "new", "unchanged")) +
   guides(fill=guide_legend(title="changed"))
 dev.off()
 ```
@@ -356,12 +357,12 @@ Percent accuracy over generations. It increases over gens 1-4 and then seems to 
 ```{r}
 acc_data <- trial_data %>%
  # filter(generation < 7) %>%
- # filter(type == "child_baseline") %>%
+  filter(type == "baseline" & condition =="child") %>%
   #filter( type != "baseline" & type != "dyad" & type == "dyad_rep" ) %>%
-  mutate(type=ifelse(type == "baseline_rep", "Experiment 2", "Experiment 1"))%>%
+ # mutate(type=ifelse(type == "baseline_rep", "Experiment 2", "Experiment 1"))%>%
  # mutate(type =  ifelse(type == "baseline_rep", "baseline", ifelse((condition == "child" & type=="baseline"), "child_baseline", ifelse(condition == "adult", "fixer","learner")))) %>%
   filter(trialCount > 3) %>%
-  mutate(generation = ifelse(condition == "dyad.learner", generation+0.5, generation)) %>%
+  #mutate(generation = ifelse(condition == "dyad.learner", generation+0.5, generation)) %>%
   group_by(generation, sub_id, type, condition) %>%
   summarise(accuracy = mean(accuracy)) %>%
   group_by(generation,type, condition) %>%
@@ -375,7 +376,7 @@ ggplot(acc_data, aes(x = generation, y = empirical_stat, ymin = ci_lower,
      geom_smooth( method = "lm", se = F, aes(group=type))+
   # geom_smooth( method = "lm", se = F, aes(group=type), position = position_dodge(.25))+
   ylab("accuracy") +
-  scale_x_continuous(breaks=seq(0,12), limits = c(0, 15)) +
+  scale_x_continuous(breaks=seq(0,6), limits = c(0, 7)) +
   theme_classic(base_size = 20) +
   theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
   geom_dl(method = list(dl.trans(x = x + .2), "last.points", cex = 1.5)) +
@@ -479,13 +480,15 @@ Edge length can be defined as a measure of how "crooked" a grid pattern is. It e
 Algorithmic complexity decreases linearly by generation. Kempe found a 30pt decrease in first 6 generations which is approximately the same seen here. When you divide by trial display you see a consistent trend with some variation.
 ```{r}
 complex<-all_bind_data%>%
-  filter(type == "dyad_rep") %>%
+  filter(type=="baseline" & condition=="child") %>%
+  mutate(condition = if_else(floor(generation) != generation, "child", "adult")) %>%
+ # filter(type == "dyad_rep") %>%
 #  filter( type == "baseline_rep" | (type=="baseline" & condition=="child"), generation < 7  ) %>%
   group_by(generation, condition) %>%
-  tidyboot_mean(bdm_mean) %>%
+ # group_by(generation) %>%
+  tidyboot_mean(bdm_mean)# %>%
  # mutate(condition = if_else(type == "baseline_rep", "Experiment 2", "Experiment 1"))
- mutate(condition = if_else(floor(generation) != generation, 
-                             "learner", "fixer")) #%>%
+# mutate(condition = if_else(floor(generation) != generation, "learner", "fixer")) %>%
 #  mutate(type = ifelse(type == "baseline_rep", "baseline", 
                      #  ifelse(type=="child_baseline", "child_baseline", 
                          #     ifelse(condition == "child", "learner", "fixer")))) %>%

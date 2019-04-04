@@ -100,7 +100,7 @@ bdm_function = function(m){
   k=1
   q=1
   for(i in 1:(nrow(m)/8)){
-    df = m[q:(q+7), 5:12] #CHANGE IF CHANGE INPUT COLUMNS
+    df = m[q:(q+7), 7:14] #CHANGE IF CHANGE INPUT COLUMNS
     data.matrix(df)
     x[k] = bdm(df)
     k = k +1
@@ -114,7 +114,7 @@ nPart_function = function(m){
   k=1
   q=1
   for(i in 1:(nrow(m)/8)){
-    df = m[q:(q+7), 5:12] #CHANGE IF CHANGE INPUT COLUMNS
+    df = m[q:(q+7), 7:14] #CHANGE IF CHANGE INPUT COLUMNS
     data.matrix(df)
     x[k] = nPart(df)
     k = k +1
@@ -128,7 +128,7 @@ edge_function = function(m){
   k=1
   q=1
   for(i in 1:(nrow(m)/8)){
-    df = m[q:(q+7), 5:12] #CHANGE IF CHANGE INPUT COLUMNS
+    df = m[q:(q+7), 7:14] #CHANGE IF CHANGE INPUT COLUMNS
     data.matrix(df)
     x[k] = edge(df)
     k = k +1
