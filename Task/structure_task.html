@@ -34,7 +34,7 @@
 						<p> E-mail: sbs-irb@uchicago.edu </p>
 		<p > <strong><i> Please indicate, in the box below, that you are at least 18 years old, have read and understand this consent form, and you agree to participate in this online research study. </strong></i></p>
 
-				<button type="button" id="startButton" onclick="this.blur(); experiment.start(); experiment.fadeIn('Image1', 'Image2');">Start</button> 
+				<button type="button" id="startButton" onclick="this.blur(); experiment.start();">Start</button> 
 		<p> * Timing and amount of payment to be determined. Participants will be paid at the rate of 2.5 cents/minute, as is the common standard. </p>
 
 	</div>
@@ -44,12 +44,20 @@
 
 <!-- TRAINING TRIAL 1-->
 <div class="slide" id="instructions">
-		<center><div id="error"></div></center>
-	<p class="block-text">In this study, you will be asked to choose patterns which are similar. Please look at the example below. After 3 seconds, two grids will appear. Select the grid on the bottom which is most similar to the grid on the top. </p> 
-	<!-- PLACE IN EXAMPLE PATTERNS AS IMAGES, ONE ON TOP AND TWO ON BOTTOM. MAKE SPACE FOR IMAGES TO BE PLACED-->
-	<center><img src="str_plots/grid2_6_3.jpeg" height=300></center>
-	<input id = "Image1" type="image" src="str_plots/grid2_6_3.jpeg" class="bottom-right" height=300 onclick="experiment.checkInput('true');" />
-	<input id = "Image2" type="image" src="str_plots/grid9_6_2.jpeg" class="bottom-left" height=300 onclick="experiment.checkInput('false');" />
+		<center><div id="error"></div>
+	<p class="block-text"> Please look at the example below. Select the pattern which is most <b>dissimilar</b> from the other two. </p> 
+	<!-- <input class = "ImageContainer" id = "Image1" type="image" src="str_plots/grid2_6_3.jpeg" height=200 style = 'float:left; margin-left:200px;' onclick="experiment.checkInput('true')"/>
+	<input class = "ImageContainer" id = "Image2" type="image" src="str_plots/grid9_6_2.jpeg"  height=200 style = 'float:left;  margin-top:200px; margin-left:-200px' onclick="experiment.checkInput('true')"/>
+	<input  class = "ImageContainer" id = "Image3" type="image" src="str_plots/grid9_6_2.jpeg"  height=200 style = 'float:left;  margin-top:400px; margin-left:-200px' onclick="experiment.checkInput('true')"/> </center> 
+
+	<input  class = "ImageContainer" id = "Image4" type="image" src="str_plots/grid2_6_3.jpeg" height=200 style = 'float:right; margin-right:200px;' onclick="experiment.checkInput('false')" />
+	<input class = "ImageContainer" id = "Image5" type="image" src="str_plots/grid9_6_2.jpeg"  height=200 style = 'float:right; margin-right:-200px; margin-top:200px;' onclick="experiment.checkInput('false')"/>
+	<input class = "ImageContainer" id = "Image6" type="image" src="str_plots/grid9_6_2.jpeg"  height=200 style = 'float:right;  margin-right:-200px; margin-top:400px;' onclick="experiment.checkInput('false')"/> </center> -->
+
+	<input class = "ImageContainer" style='float:left; margin-left: 200px' id = "Image1" type="image" src="str_plots/train3.jpeg" height=200 onclick="experiment.checkInput('true');" />
+	<input class = "ImageContainer"  id = "Image2" type="image" src="str_plots/train1.jpeg"  height=200 onclick="experiment.checkInput('false');" />
+	<input class = "ImageContainer" style='float:right; margin-right: 200px' id = "Image3" type="image" src="str_plots/train2.jpeg"  height=200 onclick="experiment.checkInput('false');" /> </center> 
+
 
 
 </div>
@@ -57,39 +65,44 @@
 <!--EXPERIMENT INTRO-->
 <center>
 <div class="slide" id="expIntro">
-	<p class="block-text"> There will be 40 trials. Feel free to take as many breaks while completing the task as necessary. Continue to choose the grid on the bottom which is most similar to the grid on top. </p>
+	<p class="block-text"> There will be 15 trials. Feel free to take as many breaks while completing the task as necessary. Continue to choose the grid which is most dissimilar from the other grids. </p>
 	<button type="button" onclick="this.blur(); experiment.begin();">I'm Ready to Start!</button>
 </div>
 </center>
 
 <!--TRIAL DISPLAY-->
 <div class="slide" id="trial">
-	<div> <p class="block-text" style="position: relative"> </p>
-	<img class="centered" id = "target" height=300 alt="visual mask">
-</div>
-	<input type = "image" class="bottom-right" id= "img1" style='display:none' height=300 alt="visual mask" onclick="experiment.storeData('img1'); experiment.begin(); experiment.update(); experiment.getTime('endTime');">
-	<input type = "image" class="bottom-left"  id = "img2" height=300 style='display:none' alt="visual mask" onclick="experiment.storeData('img2'); experiment.begin(); experiment.update();experiment.getTime('endTime');">
-<div id="Progress_Status"> 
+	<div id="Progress_Status"> 
   <div id="myprogressBar"></div> 
 </div> 
   <p> Progress </p>
+  <p id = "prompt"></p>
+  	<p id = "endMessage"></p>
+
+	<div> <p class="block-text" style="position: relative"> </p> <center>
+	<!--<image class = "ImageContainer" id = "Image1" type="image" src="str_plots/grid2_6_3.jpeg" height=200 style = 'float:left; margin-left:200px;' onclick="experiment.checkInput('true')"/>
+	<image class = "ImageContainer" id = "Image2" type="image" src="str_plots/grid9_6_2.jpeg"  height=200 style = 'float:left;  margin-top:200px; margin-left:-200px' onclick="experiment.checkInput('true')"/>
+	<image  class = "ImageContainer" id = "Image3" type="image" src="str_plots/grid9_6_2.jpeg"  height=200 style = 'float:left;  margin-top:400px; margin-left:-200px' onclick="experiment.checkInput('true')"/> </center> 
+
+	<image  class = "ImageContainer" id = "Image4" type="image" src="str_plots/grid2_6_3.jpeg" height=200 style = 'float:right; margin-right:200px;' onclick="experiment.checkInput('false')" />
+	<image class = "ImageContainer" id = "Image5" type="image" src="str_plots/grid9_6_2.jpeg"  height=200 style = 'float:right; margin-right:-200px; margin-top:200px;' onclick="experiment.checkInput('false')"/>
+	<image class = "ImageContainer" id = "Image6" type="image" src="str_plots/grid9_6_2.jpeg"  height=200 style = 'float:right;  margin-right:-200px; margin-top:400px;' onclick="experiment.checkInput('false')"/> </center> -->
+
+
+	<input class = "ImageContainer" type = "image" id= "img1"  height=200 style='display:none; float:left; margin-left:200px' alt="visual mask" onclick="experiment.storeData('img1'); experiment.begin(); experiment.update(); experiment.getTime('endTime');">
+	<input class = "ImageContainer" type = "image" id= "img2" height=200 style='display:none' alt="visual mask" onclick="experiment.storeData('img2'); experiment.begin(); experiment.update(); experiment.getTime('endTime');">
+	<input class = "ImageContainer" type = "image" id = "img3" height=200 style='display:none; float:right; margin-right:200px' alt="visual mask" onclick="experiment.storeData('img3'); experiment.begin(); experiment.update();experiment.getTime('endTime');"> </center>
+
+
 </div>
 
 
-
-
-<!--ENDING SLIDE-->
-<div class="slide" id="end">
-	<center>
-	<p class="block-text">Congrats, you're all finished! Thanks for contributing to science. <!--COMMENTS--NOT WORKING RNIf you have any comments about what you just did, please leave them in the box below. When you're ready to submit, just click "Done".--></p> 
-	<p id="result"></p>
-		<!--COMMENTS--NOT WORKING RN	<p class="block-text">
-			comments:<br>
-			<input type="text" id="comment" size=75>
-		</p> 
-	<button type="button" id="done" onclick="this.blur(); experiment.realEnd()">Done</button> -->
-	</center>
+<!--EXPERIMENT INTRO-->
+<center>
+<div class="slide" id="expEnd">
+	<p class="block-text">Congrats, you're all done! Thanks for contributing to science.</p>
 </div>
+</center>
 
 
 

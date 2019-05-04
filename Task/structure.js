@@ -1,8 +1,10 @@
-//This is the javascript file for the iterated learning study
-//Some of this code was taken from Claire Bergy and Long Ouyang
-//Madeline Meyers Iterated Learning Study
+//Madeline Meyers Structure Task
 
 // GENERAL FUNCTIONS 
+
+/*PROBLEMS 
+1. The ending slide text is not displaying??? why not?
+*/
 
 // Shows slides
 function showSlide(id) {
@@ -79,7 +81,7 @@ var experiment = {
   timestamp: getCurrentTime(), 
   seed: 1,
   trial: 1,
-  numTrials: 40, 
+  numTrials: 15, 
   Target: "",
   Chosen: "",
   same: "",
@@ -87,10 +89,18 @@ var experiment = {
   chain: 1,
   display: 1,
   trialDisplay: 1,
+  trialDisplay1: 1,
+  trialDisplay2: 1,
   rightSide: "",
+  diffPosition: "",
+  targetPosition: "",
   startTime: 0,
   endTime: 0,
   rt: 0,
+  target1: 1,
+  target2: 1,
+  colors: ["black", "red", "purple", "blue"],
+  color: "",
 
 
 
@@ -117,13 +127,17 @@ uniqueTurker: function(){
 },
 
   //choose target image
-  pickTarget: function() {
-    console.log("target")
-    experiment.trialDisplay = displayNum[Math.floor(Math.random()*randDisplay.length)];
+  pickTarget: function(position) {
+    experiment.targetPosition = position;
+    var trials = [1,2,3,4,5,6];
+    experiment.trialDisplay = shuffle(trials).pop();
+
     experiment.chain = shuffle(randDisplay[experiment.trialDisplay-1]).pop();
-    var Target = "grid" + experiment.chain + "_6_" + experiment.trialDisplay + ".jpeg";
-    console.log(Target);
-    return(Target);
+
+    experiment.target = "grid" + experiment.chain + "_6_" + experiment.trialDisplay + "_" + experiment.color + ".jpeg";
+
+    console.log("Target = " + experiment.target);
+    return(experiment.target);
   },
 
   //function DateDiff
@@ -134,25 +148,33 @@ uniqueTurker: function(){
   //you are getting undefined for some of the display #'s and don't understand why, try a different way of getting random number 
   
   pickSameChain: function(rightImg) {
-    experiment.rightSide = rightImg;
-    experiment.display = displayNum[Math.floor(Math.random()*randDisplay.length)];
+    experiment.samePosition = rightImg;
+     experiment.display = displayNum[Math.floor(Math.random()*randDisplay.length)]; 
     if(experiment.display == experiment.trialDisplay){
       experiment.display = experiment.display +1;
       if(experiment.display > 6){
         experiment.display = experiment.display -2; 
       }
-    }
+    } 
     var chain = experiment.chain;
-    experiment.same = "grid" + chain + "_6_" + experiment.display + ".jpeg";
+    experiment.same = "grid" + chain + "_6_" + experiment.display + "_" + experiment.color + ".jpeg";
     console.log("same =" + experiment.same);
     return(experiment.same);
   },
 
   //choose distractor image
-  pickDiffChain: function() {
-        console.log("diff_chain")
-    var display = experiment.display;
-    console.log("display " + display)
+  pickDiffChain: function(position) {
+    var trials = [1,2,3,4,5,6];
+
+    experiment.diffPosition = position;
+
+    for( var i = 0; i < trials.length; i++){ 
+      if ( trials[i] === experiment.display || trials[i]==experiment.trialDisplay) {
+        trials.splice(i, 1); 
+      }
+    }
+    
+    var display = shuffle(trials).pop();
     var chain = shuffle(randDisplay[display-1])[0];
     if(chain != experiment.chain){
     } else {
@@ -162,7 +184,7 @@ uniqueTurker: function(){
           chain = chain - 1; 
       }
     }
-    experiment.diff = "grid" + chain + "_6_" + display + ".jpeg";
+    experiment.diff = "grid" + chain + "_6_" + display + "_" + experiment.color + ".jpeg";
     console.log("diff =" + experiment.diff);
     return(experiment.diff);
   },
@@ -185,7 +207,7 @@ uniqueTurker: function(){
 
   update: function() { 
     var element = document.getElementById("myprogressBar");    
-    var width = experiment.trialCount * 2.5; 
+    var width = experiment.trialCount * (100/experiment.numTrials); 
    // var identity = setInterval(scene, 10); 
     //function scene() { 
       //if (width >= 100) { 
@@ -197,19 +219,11 @@ uniqueTurker: function(){
       //} 
     //}  
   }, 
-  //sends final data to turk
-  submit: function(){
-    console.log(experiment.data);
-    showSlide("end");
-    //submit data to mTurk 
-    setTimeout(function(){turk.submit(experiment)}, 3000);
-
-  },
 
   //stores data in arrays
   storeData: function(chosen){
     //RN, also have the data send round by round FOR TURK EXPERIMENTS just in case this google sheets stuff glitches during the study 
-    var dataforServer= experiment.unique_id + "," + experiment.date + "," + experiment.timestamp + "," + experiment.trialCount + "," + experiment.Target + "," + chosen  +","+ experiment.rightSide+ "," + experiment.same + "," + experiment.diff + ","+ experiment.startTime +","+ experiment.endTime+"\n"; 
+    var dataforServer= experiment.unique_id + "," + experiment.date + "," + experiment.timestamp + "," + experiment.trialCount + "," + experiment.target + "," + experiment.targetPosition + "," + chosen  +","+ experiment.rightSide+ "," + experiment.same + "," + experiment.diff + ","+ experiment.diffPosition+","+ experiment.startTime +","+ experiment.endTime+"\n"; 
     //use line below for writing backups to turk or server 
     $.post("https://callab.uchicago.edu/experiments/structure/datasave.php", {postresult_string : dataforServer});
     experiment.data.push(dataforServer);
@@ -217,14 +231,16 @@ uniqueTurker: function(){
     console.log(dataforServer);
   },
 
-  fadeIn: function(image1, image2){
+  fadeIn: function(image1, image2, image3){
     $('#'+image1).hide();
     $('#'+image2).hide();
+    $('#'+image3).hide();
     var timeOut = setTimeout(function() {
-      console.log('timein');
+     // console.log('timein');
       $('#'+image1).fadeIn();
       $('#'+image2).fadeIn();
-      }, 3000);
+      $('#'+image3).fadeIn();
+      }, 1000);
 
   },
 
@@ -244,13 +260,15 @@ uniqueTurker: function(){
   //STORE WHICH GRID WAS TRUE OR FALSE, MAKE ONCLICK STORE DATA
   begin: function(){
 
-    experiment.getTime('startTime');
+    experiment.color = shuffle(experiment.colors)[0];
 
-    experiment.fadeIn('img1','img2');
+    experiment.getTime('startTime');
 
     var Img1;
     var Img2;
-    var randSide;
+    var Img3;
+    var randSide1;
+    var randSide2;
     showSlide("trial");
     //disables scrolling
     document.ontouchmove=function(event){
@@ -258,40 +276,74 @@ uniqueTurker: function(){
     }
     //increases trial #
     experiment.trialCount ++;
-    var side = [1,0];
-    randSide = shuffle(side).pop();
-    console.log(randSide);
+    var side = [1,2,3];
+    randSide = shuffle(side).pop();    
+
+    //console.log(randSide);
 
     //if experiment is done
-    if(experiment.trialCount > experiment.numTrials){
-      experiment.submit();
+    if(experiment.trialCount == (experiment.numTrials+1)){
+      showSlide("expEnd");
+      setTimeout(function(){turk.submit(experiment)}, 3000);
     }
 
-    var targetImg = experiment.pickTarget();
-    experiment.Target = targetImg;
+
+   // var targetImg = experiment.pickTarget();
+   // experiment.Target = targetImg;
 
     if(randSide == 1){
-      if(experiment.trialCount == 10 || experiment.trialCount == 20 || experiment.trialCount == 30 || experiment.trialCount == 35){
-      Img1 = "grid2_6_3.jpeg";
-      targetImg = "grid2_6_3.jpeg";
-      Img2 = "grid9_6_2.jpeg";
+      if(experiment.trialCount == 2 || experiment.trialCount == 7 || experiment.trialCount == 12){
+       $('#prompt').html('<strong><center>Choose the one in the middle</strong></center>');
+        Img1 = "grid9_6_2.jpeg";
+        experiment.diff = Img1;
+        Img2 = "grid2_6_3.jpeg";
+        experiment.same = Img2;
+        Img3 = "grid2_6_3.jpeg";
+        experiment.target = Img3;
+      }else{
+        $('#prompt').html('<center><b>Which grid is not like the others?</b></center>');
+        Img3 = experiment.pickTarget('Img3');
+        Img1 = experiment.pickDiffChain('Img1');
+        Img2 = experiment.pickSameChain('Img2');
+      }
+    }if(randSide == 2){
+      if(experiment.trialCount == 2 || experiment.trialCount == 7 || experiment.trialCount == 12){
+       $('#prompt').html('<center><strong>Choose the one in the middle</strong></center>');
+        Img1 = "grid2_6_3.jpeg";
+        experiment.same = Img1;
+        Img2 = "grid9_6_2.jpeg";
+        experiment.diff = Img2;
+        Img3 = "grid2_6_3.jpeg";
+        experiment.target = Img3;
+      }else{
+        $('#prompt').html('<center><b>Which grid is not like the others?</b></center>');
+        Img3 = experiment.pickTarget('Img3'); 
+        Img1 = experiment.pickSameChain('Img1');
+        Img2 = experiment.pickDiffChain('Img2');
+      }
     }else{
-      Img1 = experiment.pickSameChain('Img1');
-      Img2 = experiment.pickDiffChain();
-    }} else {
-      if(experiment.trialCount == 10 || experiment.trialCount == 20 || experiment.trialCount == 30 || experiment.trialCount == 35){
+      if(experiment.trialCount == 2 || experiment.trialCount == 7 || experiment.trialCount == 12){
+      $('#prompt').html('<center><strong>Choose the one in the middle</strong></center>');
       Img1 = "grid2_6_3.jpeg";
-      targetImg = "grid2_6_3.jpeg";
-      Img2 = "grid9_6_2.jpeg";
+      experiment.same = Img1;
+      Img2 = "grid2_6_3.jpeg";
+      experiment.target = Img2;
+      Img3 = "grid9_6_2.jpeg";
+      experiment.diff = Img3;
     } else{
-      Img2 = experiment.pickSameChain('Img2');
-      Img1 = experiment.pickDiffChain();
+      $('#prompt').html('<center><b>Which grid is not like the others?</b></center>');
+      Img2 = experiment.pickTarget('Img2'); 
+      Img1 = experiment.pickSameChain('Img1');
+      Img3 = experiment.pickDiffChain('Img3');
     }}
 
-    document.getElementById("target").src="str_plots/"+targetImg;
     //setTimeout(function() {document.getElementById('imageID').style.display='none'}, 5*1000);
     document.getElementById("img1").src="str_plots/"+Img1;
     document.getElementById("img2").src="str_plots/"+Img2;
+    document.getElementById("img3").src="str_plots/"+Img3;
+        experiment.fadeIn('img1','img2','img3');
+
+
 
   },
 
@@ -300,7 +352,7 @@ uniqueTurker: function(){
       if(type == 'true'){
         showSlide("expIntro");
         } else {
-          $(error).html('<font color="red"><strong>Choose the grid on the bottom which is most similar to the grid on top.<strong></font>');
+          $(error).html('<font color="red"><strong>Choose the grid which is most dissimilar from the others.<strong></font>');
           return;
           } 
   },

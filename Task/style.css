@@ -18,11 +18,18 @@ body {
 
 }
 
+
 #Progress_Status { 
   width: 50%; 
   background-color: #ddd; 
 } 
-  
+
+.ImageContainer {
+ /*border-style: groove;
+ border-width: thick;
+ border-color: blue; */
+}
+
 #myprogressBar { 
   width: 1%; 
   height: 35px; 
