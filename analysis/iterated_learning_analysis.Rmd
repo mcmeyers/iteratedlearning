@@ -40,16 +40,54 @@ all_data <- read_feather("feathers/all_data.feather")
 all_spread_data <- read_feather("feathers/all_spread_data.feather")
 all_calculate_data <- read_feather("feathers/all_calculate_data.feather")
 all_bind_data <- read_feather("feathers/all_bind_data.feather")
-child_wthrown<-read_feather("feathers/c_calculate_data.feather")
+model_data <-read_feather("feathers/model_data.feather")
 ```
 
+```{r child_demographics}
+child<-read_csv("../data/child_baseline.csv") 
+
+child_tmp <- read_csv("../data/child_dyad.csv") %>%
+  filter(is.na(thrown)==T, is.na(sub_id)==F, condition == "child") %>%
+  mutate(sub_age = as.numeric(sub_age)) %>%
+  summarise(mean = mean(sub_age))
+  group_by(condition) %>%
+  summarise(n = n())
+
+
+child2 <- child %>%
+  filter(generation != 0, is.na(thrown)==T) %>%
+  summarise(mean = mean(sub_age))
+
+base_demographics <- read_csv("../data/ILL_child_demographics.csv") %>%
+  filter(condition != "pilot_base") %>%
+  group_by(condition) %>%
+  summarise(n = n())
+```
+
+*** COMPLEXITY MDOELS ***
 ```{r curve fitting}
+tmp2 <- all_bind_data %>%
+  filter( type == "dyad_child" | (type == "baseline" & condition == "child" ) ) %>%
+  mutate(person = ifelse((type == "dyad_child" & floor(generation) != generation) | type=="baseline", "producer", "editor")) %>%
+  mutate(condition = ifelse( type == "dyad_child", "Experiment 3b", "Experiment 3a")) %>%
+  mutate(sub_id = paste0(type, "_", condition, "_", sub_id)) %>%
+  filter(trialDisplay >=1) %>%
+  mutate(trialDisplay = as.factor(trialDisplay)) 
 
-linear <- lmer(bdm_mean ~ log(generation+1) + (1|sub_id) + (1|trialDisplay),
-                filter(all_bind_data, type == "baseline", condition == "adult"))
+#FIXED EFFECTS MODEL IS RANK DEFICIENT HERE
+lmer(bdm_mean ~ person * condition *  log(generation + 1) + trialCount+ (1|trialDisplay) + (trialCount|sub_id), data = tmp2) %>%
+  summary()
 
-exponential <- lmer(log(bdm_mean) ~ log(generation+1) + (1|sub_id) + (1|trialDisplay),
-                filter(all_bind_data, type == "baseline_rep", condition == "adult"))
+linear <- lmer(bdm_mean ~ condition + log(generation+1) + (1|sub_id) + (1|trialDisplay),
+                filter(all_bind_data, (type == "dyad_child" & floor(generation) == generation)))
+
+tmp <- all_bind_data %>%
+  filter(type == "dyad_child" | (type == "baseline_rep"), floor(generation)==generation ) %>%
+  mutate(condition = ifelse(type == "baseline_rep", "base (adult)", "editor (Exp.3a)"))
+         #                   ifelse(floor(generation) != generation, "producer (child)", "editor (adult)"))))
+#y= alpha
+exponential <- lmer(log(bdm_mean) ~ condition +log(generation+1) + (1|sub_id) + (1|trialDisplay),
+                filter(all_bind_data, (type == "baseline" & condition == "child")))
 
 log <- lmer(bdm_mean ~ log(generation+1) + (1|sub_id) + (1|trialDisplay),
                 filter(all_bind_data, type == "dyad", condition == "adult"))
@@ -83,7 +121,7 @@ linear <- lmer(bdm_mean ~ generation + (1|sub_id) + (1|trialDisplay),
                              generation >0 ))
 
 exp <- lmer(scale(log(bdm_mean)) ~ scale(log(generation)) + (1|sub_id) + (1|trialDisplay),
-               data = filter(all_bind_data, type == "dyad", condition == "adult",
+               data = filter(all_bind_data, type == "dyad_rep" | type == "baseline_rep", condition == "adult",
                              generation > 0))
 
 log <- lmer(bdm_mean ~ log(generation) + (1|sub_id) + (1|trialDisplay),
@@ -193,26 +231,37 @@ a14_data2 <-all_calculate_data %>%
 ## Descriptive
 Displays the actual grids that people made; printed them and saved (have to do for each individual seed separately)
 
+Make it so it displays what compared to CHILD, and then display targets too
 ```{r, eval=F, include=F}
-dyad7_data <- all_calculate_data%>%
-  filter(type=="dyad", seed == 7) %>%
-  mutate(fill = ifelse((input ==1 & target ==1), 1, ifelse(target ==1, 0.5, ifelse(input ==1, 0.75, ifelse(target != 0, input, 0)))),
+c1_data <- all_calculate_data %>%
+  filter(type=="dyad", seed == 11) %>%
+  arrange(trialDisplay, generation) %>%
+  mutate(child = lag(input, 64)) %>%
+  mutate(input=ifelse(condition=="child", target, input)) %>%
+  mutate(fill = ifelse(condition=="adult" & generation != 0, 
+                       ifelse((input ==1 & child ==1), 1, 
+                              ifelse(child ==1, 0.5, 
+                                     ifelse(input ==1, 0.75, 
+                                            ifelse(child != 0, input, 0)))), 
+                       ifelse(input ==1, 1, 0)), 
          filltype = ifelse(accuracy == T, "both", ifelse(input == 1, "input", "target"))) %>%
-  mutate(fill = ifelse(is.na(fill)==T, input, fill)) %>%
+  mutate(fill = ifelse(is.na(fill)==T, input, fill),
+         gridtype = paste0(ifelse(floor(generation)!= generation, generation +0.5, generation), sep= ":", ifelse(condition=="child", "t", "f"))) %>%
+  filter(generation != 0) %>%
   arrange(generation) 
 ```
 
 ```{r plot_grids, eval = F, include=F}
-pdf("dyad7.pdf", width = 10, height = 10)
-dyad7_data %>%
-  bind_rows(select(dyad7_data, generation, trialDisplay, row, col, input)) %>%
+pdf("11_fixer.pdf", width = 10, height = 10)
+c1_data %>%
+  bind_rows(select(c1_data, generation, trialDisplay, row, col, input)) %>%
   mutate(input = factor(input), 
          generation = factor(generation, levels = unique(.$generation))) %>%
   mutate(row = 7 - as.numeric(row)) %>%
   ggplot(aes(x = col, y = row, fill = factor(fill))) +
-  facet_grid(trialDisplay ~ generation) +
+  facet_grid(trialDisplay ~ gridtype) +
   geom_tile(color = "black") +
-  scale_fill_manual(values = c("0" = "white", "1" = "black", "0.5" = "red", "0.75"="blue"), labels = c("none", "original", "new", "unchanged")) +
+  scale_fill_manual(values = c("0" = "white", "1" = "black", "0.5" = "red", "0.75"="blue"), labels = c("none", "CHILD", "ADULT", "unchanged")) +
   guides(fill=guide_legend(title="changed"))
 dev.off()
 ```
@@ -234,7 +283,7 @@ nested_data <- all_calculate_data %>%
 plot_grid <- function(df) { 
   print(df$data[[1]])
   
-  jpeg_name <- paste0("grid", df$seed, "_", df$generation, "_", df$trialDisplay, ".jpeg")
+  jpeg_name <- paste0("grid", df$seed, "_", df$generation, "_", df$trialDisplay, "_blue.jpeg")
   print(jpeg_name)
   
   
@@ -245,7 +294,7 @@ plot_grid <- function(df) {
     geom_tile(color = "black") +
      theme(axis.line=element_blank(), axis.text.x=element_blank(),axis.text.y=element_blank(),  axis.ticks=element_blank(),axis.title.x=element_blank(),axis.title.y=element_blank(),
       legend.position="none") +
-       scale_fill_manual(values = c("0" = "white", "1" = "black")))
+       scale_fill_manual(values = c("0" = "white", "1" = "blue")))
    
   dev.off()
 }
@@ -306,13 +355,35 @@ trial_data <- all_calculate_data %>%
 
 model_data <- trial_data %>%
   group_by(type, condition, generation, seed, trialDisplay, trialCount, sub_id) %>%
-  summarise(accuracy=mean(accuracy)) %>%
-  write_feather("feathers/model_data.feather")
+  summarise(accuracy=mean(accuracy)) #%>%
+ #write_feather("feathers/model_data.feather")
 ```
 
 ```{r accuracy_models}
-linear <- lmer(accuracy ~ log(generation+1) + (1|sub_id) + (1|trialDisplay),
-                filter(model_data, type == "dyad_rep", condition == "child"))
+tmp <- model_data %>%
+  ungroup() %>%
+  filter( (type == "dyad") ) %>%
+  mutate(person = ifelse((type == "dyad" & floor(generation) != generation) | type=="baseline_rep", "producer", "editor")) %>%
+ # mutate(condition = ifelse(type == "dyad_rep", "Experiment 2b", "Experiment 2a")) %>%
+  mutate(sub_id = paste0(type, "_", condition, "_", sub_id)) %>%
+  filter(trialDisplay >=1) %>%
+  mutate(trialDisplay = as.factor(trialDisplay)) %>%
+  mutate(acc_num = floor(10 * accuracy), wrong_num = floor(10 - acc_num))
+                        
+  
+lmer(accuracy ~ person *  log(generation + 1) + trialCount + (1|trialDisplay) + (trialCount|sub_id), data = tmp) %>%
+  summary()
+
+
+  
+glmer(cbind(acc_num, wrong_num) ~ person * condition * log(generation + 1) + 
+        (1|trialDisplay) + (1|sub_id), data = tmp, family = "binomial",
+      control = glmerControl(optimizer = "bobyqa")) %>%
+  summary()
+
+
+linear <- lmer(accuracy ~ condition + log(generation+1) + (1|sub_id) + (1|trialDisplay), tmp)
+                filter(model_data, ((type == "dyad_child" & floor(generation) != generation))))
 
 exponential <- lmer(log(bdm_mean) ~ log(generation+1) + (1|sub_id) + (1|trialDisplay),
                 filter(all_bind_data, type == "baseline_rep", condition == "adult"))
@@ -321,9 +392,9 @@ log <- lmer(bdm_mean ~ log(generation+1) + (1|sub_id) + (1|trialDisplay),
                 filter(all_bind_data, type == "dyad", condition == "adult"))
 
 aov_data <- model_data %>%
-  filter(type == "dyad_rep")
+  filter(type == "dyad")
 
-aov_acc <- aov(accuracy ~ condition, data = aov_data)
+aov_acc <- aov(accuracy ~ condition, data = tmp)
 ```
 
 We don't see any practice effects within individuals. 
@@ -356,33 +427,43 @@ trial_data %>%
 Percent accuracy over generations. It increases over gens 1-4 and then seems to level off(?). This is similar to what we would expect but interesting in context with the consistent complexity findings below. 
 ```{r}
 acc_data <- trial_data %>%
- # filter(generation < 7) %>%
-  filter(type == "baseline" & condition =="child") %>%
-  #filter( type != "baseline" & type != "dyad" & type == "dyad_rep" ) %>%
- # mutate(type=ifelse(type == "baseline_rep", "Experiment 2", "Experiment 1"))%>%
+  filter((type=="baseline" & condition=="child") | type == "baseline_rep" | type == "dyad_rep" | type == "dyad_child" )%>%
+  #  filter((type == "baseline" & condition =="child") | (type=="dyad" & condition=="child" & generation < 4.5)) %>%
+ # filter( type == "baseline_rep" | type == "dyad_rep" ) %>%
+ # mutate(type=ifelse(type == "baseline", "baseline", "dyad"))%>%
+ # mutate(condition=ifelse(type=="baseline", "base (child)", ifelse(floor(generation) != generation, "learner (child)", "fixer (adult)"))) %>%
+#  mutate(condition = ifelse(type == "baseline_rep", "base (adult)", ifelse(condition=="child", "producer", "editor"))) %>%
+  mutate(condition = if_else((type=="baseline" & condition=="child"), "base (child)", ifelse((type=="baseline_rep"), "base (adult)", ifelse(type == "dyad_rep", ifelse(floor(generation) != generation, "producer (adult)", "editor (Exp2b)"), ifelse(floor(generation) != generation, "producer (child)", "editor (Exp3b)")))))%>%
+  filter(condition != "producer (adult)", condition != "producer (child)") %>%
+  mutate(generation=ifelse(floor(generation) != generation, generation+0.5, generation)) %>%
  # mutate(type =  ifelse(type == "baseline_rep", "baseline", ifelse((condition == "child" & type=="baseline"), "child_baseline", ifelse(condition == "adult", "fixer","learner")))) %>%
   filter(trialCount > 3) %>%
   #mutate(generation = ifelse(condition == "dyad.learner", generation+0.5, generation)) %>%
-  group_by(generation, sub_id, type, condition) %>%
+  group_by(generation, sub_id, condition, type) %>%
   summarise(accuracy = mean(accuracy)) %>%
   group_by(generation,type, condition) %>%
-  tidyboot_mean(accuracy) 
+  tidyboot_mean(accuracy)  %>%
+  filter(generation < 7)
 
-jpeg("exp1_2.jpeg", width = 6, height = 4, units = "in", res = 600)
+jpeg("ALL_acc_FINAL.jpeg", width = 6, height = 4, units = "in", res = 600)
 ggplot(acc_data, aes(x = generation, y = empirical_stat, ymin = ci_lower, 
-                     ymax = ci_upper, color = type, label = type)) +
-  geom_pointrange(position = position_dodge(.25))+
+                     ymax = ci_upper, color = condition, label = condition)) +
+  geom_pointrange(position = position_dodge(.25), size=0.7)+
   #geom_smooth( span = 0.9, se = F, aes(group=type))+
-     geom_smooth( method = "lm", se = F, aes(group=type))+
+     geom_smooth( method = "lm", se = F, aes(group=condition), size=1)+
   # geom_smooth( method = "lm", se = F, aes(group=type), position = position_dodge(.25))+
   ylab("accuracy") +
-  scale_x_continuous(breaks=seq(0,6), limits = c(0, 7)) +
+  scale_y_continuous(breaks=seq(0.3,0.9, 0.1), limits = c(0.2, 0.9)) +
+  scale_x_continuous(breaks=seq(1,6), limits = c(0.5, 8.2)) +
   theme_classic(base_size = 20) +
   theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
-  geom_dl(method = list(dl.trans(x = x + .2), "last.points", cex = 1.5)) +
-  scale_color_brewer(palette = "Dark2")
+  geom_dl(method = list(dl.trans(x = x+0.3), "last.bumpup", cex = 1.2)) +
+ # scale_color_brewer(palette = "Dark2")
+#  scale_color_manual(values=c( "#FFA319","#8A9045","#155F83"))
+  scale_color_manual(values = c("goldenrod","#FFA319","#8A9045", "green3"))
 dev.off()
 ```
+"#FFA319",
 
 ```{r}
 acc_data <- trial_data %>%
@@ -480,41 +561,48 @@ Edge length can be defined as a measure of how "crooked" a grid pattern is. It e
 Algorithmic complexity decreases linearly by generation. Kempe found a 30pt decrease in first 6 generations which is approximately the same seen here. When you divide by trial display you see a consistent trend with some variation.
 ```{r}
 complex<-all_bind_data%>%
-  filter(type=="baseline" & condition=="child") %>%
-  mutate(condition = if_else(floor(generation) != generation, "child", "adult")) %>%
+ # filter((type=="baseline" & condition=="child" ) | (type=="dyad" & condition == "child" & generation < 4.5)) %>%
+  filter((type=="baseline" & condition=="child")  | type == "dyad_child" )%>%
+ # mutate(condition = ifelse(type == "baseline_rep", "base (adult)", ifelse((type == "baseline" & condition == "child"), "base (child)", ifelse((type == "dyad_rep"), "fixer (adult)", ifelse((type =="dyad_child" & floor(generation)!=generation), "dyad (child)", "dyad (adult)" ))))) %>%
+  
+ # mutate(condition = ifelse(type == "baseline_rep", "base (adult)", ifelse(condition=="child", "producer", "editor")))%>%
+  mutate(condition = if_else((type=="baseline" & condition=="child"), "base (child)", ifelse((type=="baseline_rep"), "base (adult)", ifelse(type == "dyad_rep", ifelse(floor(generation) != generation, "producer (adult)", "editor (Exp2b)"), ifelse(floor(generation) != generation, "producer (child)", "editor (Exp3b)")))))%>%
+ # filter(condition != "producer (adult)", condition != "producer (child)") %>%
+ # mutate(condition = if_else((type=="baseline_rep"), "base (adult)", ifelse(floor(generation) != generation, "learner", "fixer"))) %>%
+ # filter(generation < 7, !(type=="dyad" & condition=="child")) %>%
+ # filter(generation <7)%>%
+  #filter(type=="baseline" | type =="baseline_rep" | typ) %>%
  # filter(type == "dyad_rep") %>%
 #  filter( type == "baseline_rep" | (type=="baseline" & condition=="child"), generation < 7  ) %>%
+ #  mutate(condition = ifelse(type == "baseline", "base (child)", ifelse(floor(generation) != generation, "producer (child)", "editor (adult)"))) %>%
   group_by(generation, condition) %>%
  # group_by(generation) %>%
-  tidyboot_mean(bdm_mean)# %>%
+  tidyboot_mean(bdm_mean) %>%
+  ungroup() %>%
+    mutate(generation = ifelse(floor(generation) != generation, generation+0.5, generation))# %>%
+#  filter(generation < 7)
+# %>%
  # mutate(condition = if_else(type == "baseline_rep", "Experiment 2", "Experiment 1"))
-# mutate(condition = if_else(floor(generation) != generation, "learner", "fixer")) %>%
 #  mutate(type = ifelse(type == "baseline_rep", "baseline", 
                      #  ifelse(type=="child_baseline", "child_baseline", 
                          #     ifelse(condition == "child", "learner", "fixer")))) %>%
 #  mutate(condition = factor(condition, levels = c("learner", "fixer", "initial")))
 
-jpeg("dyad_comp3.jpeg", width = 6, height = 4, units = "in", res = 600)
+jpeg("KID_comp_FINAL.jpeg", width = 6, height = 4, units = "in", res = 600)
 ggplot(complex, aes(x = generation, y = empirical_stat, ymin = ci_lower, 
-                     ymax = ci_upper, color = condition, label = condition)) +
- # geom_line(color="black")+
-  geom_pointrange(position = position_dodge(.25))+
-geom_smooth( span = 1.3, se = F, aes(group=condition))+
-
-  #  geom_smooth( method = "lm", se = F, aes(group=type))+
-  # geom_smooth( method = "lm", se = F, aes(group=type), position = position_dodge(.25))+
+                     ymax = ci_upper, color = condition, label =condition))+
+  geom_pointrange(position = position_dodge(.25), size=0.5)+
+  geom_smooth(span=1.5, se = F, aes(group=condition), size=0.8)+
   ylab("complexity") +
-  #scale_x_continuous(breaks=seq(0,12), limits = c(0, 15)) +
-  scale_x_continuous(breaks=seq(0,12), limits = c(0, 17)) +
- # scale_y_continuous( limits = c(205, 240)) +
+  scale_x_continuous(breaks=seq(0,6), limits = c(0, 9)) +
+  scale_y_continuous(breaks = c(160, 170, 180, 190, 200, 210, 220, 230, 240))+
   theme_classic(base_size = 20) +
   theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
-  geom_dl(method = list(dl.trans(x = x + 0.2), "last.points", cex = 1.5)) +
-  scale_color_manual(values=c("blue","dark green"))
-  # scale_color_brewer(palette = "Set1")
+  geom_dl(method = list(dl.trans(x = x + 0.3), "last.bumpup", cex = 1.2)) +
+  scale_color_manual(values=c("goldenrod","green3", "dodgerblue"))
 dev.off()
 ```
-
+, "#8A9045"
 ```{r complexity_graphs}
 t_bind_data %>%
   mutate(condition = if_else(floor(generation) != generation, "child", "adult")) %>%

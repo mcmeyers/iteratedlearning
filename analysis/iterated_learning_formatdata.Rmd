@@ -665,7 +665,7 @@ all_data <- a_data %>%
   bind_rows(mutate(a_data_rep, type = "baseline_rep", condition = "adult")) %>%
   bind_rows(mutate(t_data_rep %>%  mutate(condition = if_else(floor(generation) != generation, "child", "adult")), type = "dyad_rep"))%>%
   bind_rows(mutate(c_data, type = "baseline", condition = "child")) %>%
-  bind_rows(mutate(c_dyad, type = "dyad", condition = "child")) %>%
+  bind_rows(mutate(c_dyad, type = "dyad_child", condition = "child")) %>%
   write_feather("feathers/all_data.feather")
   
 
@@ -675,7 +675,7 @@ all_calculate_data <- a_calculate_data %>%
   bind_rows(mutate(a_calculate_data_rep, type = "baseline_rep", condition = "adult"))%>%
   bind_rows(mutate(t_calculate_data_rep %>%  mutate(condition = if_else(floor(generation) != generation, "child", "adult")), type = "dyad_rep"))%>%
   bind_rows(mutate(c_calculate_data, type = "baseline", condition = "child")) %>%
-  bind_rows(mutate(c_dyad_calculate_data, type = "dyad", condition = "child")) %>%
+  bind_rows(mutate(c_dyad_calculate_data, type = "dyad_child", condition = "child")) %>%
   write_feather("feathers/all_calculate_data.feather")
 
 all_spread_data <- a_spread_data %>%
@@ -684,7 +684,7 @@ all_spread_data <- a_spread_data %>%
   bind_rows(mutate(a_spread_data_rep, type="baseline_rep", condition = "adult"))%>%
   bind_rows(mutate(t_spread_data_rep %>%  mutate(condition = if_else(floor(generation) != generation, "child", "adult")), type = "dyad_rep"))%>%
   bind_rows(mutate(c_spread_data, type = "baseline", condition = "child"))%>%
-  bind_rows(mutate(c_dyad_spread_data, type = "dyad", condition = "child"))%>%
+  bind_rows(mutate(c_dyad_spread_data, type = "dyad_child", condition = "child"))%>%
   write_feather("feathers/all_spread_data.feather")
 
 #or, you can just bind the feathers
@@ -694,7 +694,7 @@ all_bind_data <- a_bind_data %>%
   bind_rows(mutate(a_bind_data_rep, type="baseline_rep")) %>%
   bind_rows(mutate(t_bind_data_rep %>%  mutate(condition = if_else(floor(generation) != generation, "child", "adult")), type = "dyad_rep")) %>%
   bind_rows(mutate(c_bind_data, type = "baseline", condition = "child")) %>%
-  bind_rows(mutate(c_dyad_bind_data, type = "dyad", condition = "child")) %>%
+  bind_rows(mutate(c_dyad_bind_data, type = "dyad_child", condition = "child")) %>%
   write_feather("feathers/all_bind_data.feather")
 ```
 
