@@ -1,0 +1,84 @@
+---
+title             : "Caregiver reconstruction of children’s errors: The preservation of complexity in patterned systems"
+shorttitle        : "caregiver reconstruction of structure"
+
+author: 
+  - name          : "First Author"
+    affiliation   : "1"
+    corresponding : yes    # Define only one corresponding author
+    address       : "Madeline Meyers"
+    email         : "mcmeyers@uchicago.edu"
+  - name          : "Daniel Yurovsky"
+    affiliation   : "1,2"
+
+affiliation:
+  - id            : "1"
+    institution   : "University of Chicago"
+  - id            : "2"
+    institution   : "Carnegie Mellon University"
+
+authornote: |
+  Add complete departmental affiliations for each author here. Each new line herein must be indented, like this line.
+
+  Enter author note here.
+
+abstract: |
+  Why do languages change? One possibility is they evolve in response to two competing pressures: (1) to be easily learned, and (2) to be effective for communication. In a number of domains, variation in the world’s natural languages appears to be accounted for by different but near-optimal tradeoffs between these two pressures. Models of these evolutionary processes have used transmission chain paradigms in which errors of learning by one agent become the language input for the subsequent generation. However, a critical feature of human language is that children do not learn in isolation. Rather, they learn in communicative interactions with caregivers who draw inferences from their errorful productions to their intended interests. In a set of iterated reproduction experiments with both children and adults, we show that this supportive context can have a powerful stabilizing role in the development of artificial patterned systems, allowing them to achieve higher levels of complexity than they would by vertical transmission alone. Yet, the systems retain equivalent transmission accuracies—they are equally easy to transmit to the new generation. Thus, the caregiver plays a dual role as both a teacher and a protector of the patterned system as whole, facilitating its evolution to an optimal balance of learnability and communicability
+  
+keywords          : "keywords"
+wordcount         : "X"
+
+bibliography      : ["iterated.bib"]
+
+floatsintext      : yes
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+linenumbers       : yes
+mask              : no
+draft             : no
+
+documentclass     : "apa6"
+classoption       : "man"
+output            : papaja::apa6_pdf
+---
+
+```{r setup, include = FALSE}
+library("papaja")
+```
+
+```{r analysis-preferences}
+# Seed for random number generation
+set.seed(42)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+```
+
+The languages we speak today are not the same as the ones we spoke 300 years ago. Nor are they the same as the ones we spoke 500, 1000, or 2000 years ago. Why do languages change, aside from acquiring new vocabulary? One working theory is that they evolve to adapt to two dynamic competing pressures: (1) to be easily learned and transmitted, and (2) to be effective for communication [@kirby2015].
+
+# Methods
+We report how we determined our sample size, all data exclusions (if any), all manipulations, and all measures in the study. <!-- 21-word solution (Simmons, Nelson & Simonsohn, 2012; retrieved from http://ssrn.com/abstract=2160588) -->
+
+## Participants
+
+## Material
+
+## Procedure
+
+## Data analysis
+
+
+# Results
+
+# Discussion
+
+
+\newpage
+
+# References
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+
+<div id = "refs"></div>
+\endgroup

@@ -74,3 +74,7 @@ papers/cogsci/ill_cogsci2019_cache/latex/baseline_accuracy_f8ccec02b2110fe5debe5
 papers/cogsci/ill_cogsci2019_cache/latex/baseline_bothAccuracy_fae96e833ee44a56e6fcb559d1b03c08.RData
 papers/cogsci/ill_cogsci2019_cache/latex/baseline_bothAccuracy_fae96e833ee44a56e6fcb559d1b03c08.rdb
 papers/cogsci/ill_cogsci2019_cache/latex/baseline_bothAccuracy_fae96e833ee44a56e6fcb559d1b03c08.rdx
+
+papers/journal/iterated_journal.Rmd
+papers/journal/iterated_journal.log
+papers/journal/iterated_journal.tex
