@@ -20,9 +20,9 @@
 	<div style="text-align: center ">
 		<img src="images/logo.gif" height=100 alt="uchicago logo">	
 		<p id="notAccepted" style="font-size:40px"></p>
-		<p > <strong> DESCRIPTION: </strong> We are asking you to participate in a research study about language learning. In this study, we will present you with a variety of stimuli, including natural and artificial language samples, pictures of known or unknown objects, and/or movies of people talking. Sometimes some of the speech you will hear will be from a foreign or made-up language. Participation should take about five minutes.  </p>
+		<p > <strong> DESCRIPTION: </strong> We are asking you to participate in a research study about language learning. In this study, we will present you with a variety of stimuli, including natural and artificial language samples, pictures of known or unknown objects, and/or movies of people talking. Sometimes some of the speech you will hear will be from a foreign or made-up language. Participation should take less than five minutes.  </p>
 		<p > <strong> RISKS AND BENFITS: </strong>The risks to your participation in this online study are those associated with basic computer tasks, including boredom, fatigue, mild stress, or breach of confidentiality. The only benefit to you is the learning experience from participating in a research study.   </p>
-		<p > <strong> COMPENSATION:</strong> You will receive 17.5 cents for your participation. NOTE: This study contains comprehension checks to make sure that participants are paying attention.  As long as you read the instructions and complete the tasks, your HIT will be approved.  If you fail these checks, your HIT will be rejected.  </p>
+		<p > <strong> COMPENSATION:</strong> You will receive 13 cents for your participation. NOTE: This study contains comprehension checks to make sure that participants are paying attention.  As long as you read the instructions and complete the tasks, your HIT will be approved.  If you fail these checks, your HIT will be rejected.  </p>
 		<p > <strong> CONFIDENTIALITY: </strong> Your Mechanical Turk Worker ID will be used to distribute payment to you but will not be stored with the research data we collect from you.  Please be aware that your MTurk Worker ID can potentially be linked to information about you on your Amazon public profile page, depending on the settings you have for your Amazon profile.  We will not be accessing any personally identifying information about you that you may have put on your Amazon public profile page. </p>
 		<p > The research is being conducted with the goal of publication in academic journals and presentations at academic conferences. Any reports and presentations about the findings from this study will not include your name or any other information that could identify you. We may share the data we collect in this study with other researchers– again, we will not include information that could identify you. </p>
 		<p > <strong> SUBJECT’S RIGHTS: </strong> Your participation is voluntary.  You may stop participating at any time by closing the browser window or the program to withdraw from the study. </p>
@@ -65,7 +65,7 @@
 <!--EXPERIMENT INTRO-->
 <center>
 <div class="slide" id="expIntro">
-	<p class="block-text"> There will be 15 trials. Feel free to take as many breaks while completing the task as necessary. Continue to choose the grid which is most dissimilar from the other grids. </p>
+	<p class="block-text"> There will be 15 trials. Feel free to take as many breaks while completing the task as necessary. Continue to choose the grid which is most dissimilar from the other grids. There will be a few attention checks throughout the study, so pay attention to the instructions on each trial.</p>
 	<button type="button" onclick="this.blur(); experiment.begin();">I'm Ready to Start!</button>
 </div>
 </center>
@@ -108,7 +108,6 @@
 
 <!--connects to javascript file which has actual experiment code on it. This line of info is very important and without it none of your functions will run. They are all written in a separate file for clarity and stuff. -->
 <script src="jquery-1.11.2.min.js"></script>
-
 <script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
 <script type="text/javascript">
 (function(){
@@ -119,7 +118,6 @@
     }
 })();
 </script>
-
 <script src="structure.js"></script> 
 
 

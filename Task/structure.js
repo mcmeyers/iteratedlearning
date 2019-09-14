@@ -293,7 +293,7 @@ uniqueTurker: function(){
 
     if(randSide == 1){
       if(experiment.trialCount == 2 || experiment.trialCount == 7 || experiment.trialCount == 12){
-       $('#prompt').html('<strong><center>Choose the one in the middle</strong></center>');
+       $('#prompt').html('<strong><center>CHOOSE THE ONE IN THE MIDDLE</strong></center>');
         Img1 = "grid9_6_2.jpeg";
         experiment.diff = Img1;
         Img2 = "grid2_6_3.jpeg";
@@ -308,7 +308,7 @@ uniqueTurker: function(){
       }
     }if(randSide == 2){
       if(experiment.trialCount == 2 || experiment.trialCount == 7 || experiment.trialCount == 12){
-       $('#prompt').html('<center><strong>Choose the one in the middle</strong></center>');
+       $('#prompt').html('<center><strong>CHOOSE THE ONE IN THE MIDDLE</strong></center>');
         Img1 = "grid2_6_3.jpeg";
         experiment.same = Img1;
         Img2 = "grid9_6_2.jpeg";
@@ -323,7 +323,7 @@ uniqueTurker: function(){
       }
     }else{
       if(experiment.trialCount == 2 || experiment.trialCount == 7 || experiment.trialCount == 12){
-      $('#prompt').html('<center><strong>Choose the one in the middle</strong></center>');
+      $('#prompt').html('<center><strong>CHOOSE THE ONE IN THE MIDDLE</strong></center>');
       Img1 = "grid2_6_3.jpeg";
       experiment.same = Img1;
       Img2 = "grid2_6_3.jpeg";
