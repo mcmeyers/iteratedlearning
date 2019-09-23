@@ -137,7 +137,8 @@ Our primary measures of interest were reproduction accuracy and pattern complexi
 Complexity served as a proxy for expressiveness. The ideal mechanism for measuring complexity is still contested, therefore, we followed @kempe2015 in using several metrics: algorithmic complexity, chunking, and edge length. Algorithmic complexity was calculated using the Block Decomposition Method, a measure of Kolmogorov-Chaitin Complexity applied to 2-dimensional patterns [@feldman2006; @zenil2014]. This measure computes the length of the shortest Turing machine program required to produce the observed pattern. The shorter the program, the simpler the pattern. Chunking is the number of groups of colored blocks which share an edge. The more groups of blocks, the easier the pattern is to transmit, and the lower its complexity. Edge length is the total perimeter of the colored blocks and is similar to chunking. Implementation of these metrics was adapted from code provided by @gauvrit2017. While algorithmic complexity was our primary dependent variable of interest, chunking and edge length served as additional measures to check the reliability of the Block Decomposition Method.
 
 ## Results 
-```{r e1aaccplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "displays the transmission accuracy results from Experiment 1a. Error bars represent 90% confidence intervals."}
+```{r e1aaccplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "displays the transmission accuracy results from Experiment 1a. Error bars represent nintey-percent confidence intervals.", cache = T}
+
 acc_data <- trial_data %>%
   filter( type == "baseline", condition == "adult" ) %>%
   mutate(condition = if_else((type=="baseline" & condition=="adult"), "base (adult)", ifelse((type=="baseline_rep"), "base (adult)",   ifelse(type == "dyad_rep", ifelse(floor(generation) != generation, "producer (adult)", "editor (adult)"), ifelse(floor(generation)   != generation, "producer (child)", "editor (adult)")))))%>%
@@ -161,7 +162,7 @@ ggplot(acc_data, aes(x = generation, y = empirical_stat, ymin = ci_lower,
   scale_color_manual(values=c( "#FFA319","#8A9045","#155F83"))
 ```
 
-```{r e1abdmcplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "displays the algorithmic complexity results for Experiment 1a. Error bars represent 90% confidence intervals.", cache = T }
+```{r e1abdmcplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "displays the algorithmic complexity results for Experiment 1a. Error bars represent nintey-percent confidence intervals.", cache = T }
 
 complex<-all_bind_data %>%
   filter(type=="baseline") %>%
@@ -246,7 +247,7 @@ A primary participant was designated as a “producer” and completed the same 
 As in Experiments 1a and 1b, our primary measures of analysis were accuracy and complexity. Transmission accuracy was calculated as the proportion of 10 targets placed correctly, while complexity was measured using the Block Decomposition Method of algorithmic complexity [@zenil2014], as well as measures of chunking and edge length, as in Experiment 1a [@gauvrit2017]. 
 
 ## Results 
-```{r e1baccplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "displays the results for transmission accuracies from Experiment 1b. Error bars represent 90% confidence intervals.", cache = T }
+```{r e1baccplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "displays the results for transmission accuracies from Experiment 1b. Error bars represent nintey-percent confidence intervals.", cache = T }
 
 acc_data <- trial_data %>%
   filter( type == "dyad") %>%
@@ -271,7 +272,7 @@ ggplot(acc_data, aes(x = generation, y = empirical_stat, ymin = ci_lower,
   scale_color_manual(values=c( "#8A9045","#155F83"))
 ```
 
-```{r e1bbdmplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "shows the results of Experiment 1b for algorithmic complexity. Example patterns produced by participants at generations 0 (initial, randomly-generated pattern), 6, and 12 (resultant pattern) are shown.", cache = T }
+```{r e1bbdmplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 3, fig.width = 3.4, num.cols.cap=1, fig.cap = "shows the results of Experiment 1b for algorithmic complexity. Example patterns produced by participants at generations 0 (initial, randomly-generated pattern), 6, and 12 (resultant pattern) are shown.", cache = T }
 complex<-all_bind_data %>%
   filter(type=="dyad") %>%
   mutate(condition = ifelse(condition=="adult", "editor (adult)", "producer (adult)")) %>%
@@ -349,8 +350,8 @@ Participants were 519 adults recruited on Amazon Mechanical Turk. Approximately 
 ### Design and Procedure
 The task in Experiment 2a was identical to Experiment 1a. Participants were told to reproduce patterns on a grid, and their responses were passed to the next subject in the transmission chain. They completed one training, three practice, and six experimental trials. 
 
-## Results -- ADD GRAPHS
-```{r exp2accplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "shows the results from Experiment 2a for transmission accuracy. Error bars represent 90% confidence intervals."}
+## Results 
+```{r exp2aaccplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "shows the results from Experiment 2a for transmission accuracy. Error bars represent nintey-percent confidence intervals."}
 acc_data <- trial_data %>%
   filter( type == "baseline_rep", condition == "adult" ) %>%
   mutate(condition = if_else((type=="baseline" & condition=="adult"), "base (adult)", ifelse((type=="baseline_rep"), "base (adult)",   ifelse(type == "dyad_rep", ifelse(floor(generation) != generation, "producer (adult)", "editor (adult)"), ifelse(floor(generation)   != generation, "producer (child)", "editor (adult)")))))%>%
@@ -374,9 +375,26 @@ ggplot(acc_data, aes(x = generation, y = empirical_stat, ymin = ci_lower,
   scale_color_manual(values=c( "#8A9045","#155F83"))
 ```
 
-```{r exp2abdmplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2.5, fig.width = 7, num.cols.cap=1, fig.cap = "shows the results of Experiment 2a for algorithmic complexity. Example patterns produced by participants at generations 0 (initial, randomly-generated pattern), 6, and 12 (resultant pattern) are shown.", fig.show='hold', cache = T}
-img <- png::readPNG("figs/exp2abdmplot.png")
-grid::grid.raster(img)
+```{r exp2abdmplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2.5, fig.width = 3.4, num.cols.cap=1, fig.cap = "shows the results of Experiment 2a for algorithmic complexity. Example patterns produced by participants at generations 0 (initial, randomly-generated pattern), 6, and 12 (resultant pattern) are shown.", fig.show='hold', cache = T}
+complex<-all_bind_data %>%
+  filter(type=="baseline_rep") %>%
+  mutate(condition = "base (adult)") %>%
+  group_by(generation, condition) %>%
+  tidyboot_mean(bdm_mean) %>%
+  ungroup() %>%
+  mutate(generation = ifelse(floor(generation) != generation, generation+0.5, generation))
+
+ggplot(complex, aes(x = generation, y = empirical_stat, ymin = ci_lower, 
+                    ymax = ci_upper, color = condition, label =condition))+
+  geom_pointrange(position = position_dodge(.25), size=0.4)+
+  geom_smooth(span=1.5, se = F, aes(group=condition), size=0.5)+
+  ylab("complexity") +
+  scale_y_continuous(breaks = c(160, 170, 180, 190, 200, 210, 220, 230, 240), limits = c(160,240))+
+  scale_x_continuous(breaks=seq(0,12), limits = c(0, 16.5)) +
+  theme_classic(base_size = 13) +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
+  geom_dl(method = list(dl.trans(x = x + 0.3), "last.bumpup", cex = 0.8)) +
+  scale_color_manual(values=c( "#FFA319","#8A9045","#155F83"))
 ```
 
 ```{r exp2a models}
@@ -437,8 +455,8 @@ Participants in Experiment 2b were 1031 adults recruited on Amazon Mechanical Tu
 ### Design and Procedure
 The procedure in this task replicated that of Experiment 1b. As before, one participant was designated as a “producer”, who completed the standard iterated reproduction task. This participant was told to re-create patterns on a blank grid to match a target they had seen displayed for ten seconds. After the completion of one training, three practice, and six experimental trials, the producer’s data was passed to a second, “editing” participant. This participant was told to “fix” the producer’s patterns to match the same target, which they had also seen displayed for ten seconds. The editor’s edits were passed as the target for the subsequent generation. Together, the producer and editor occupied one “generation”.  
 
-## Analysis and Results -- ADD PLOTS
-```{r exp2baccplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "displays the results for transmission accuracies from Experiment 1b. Error bars represent 90% confidence intervals.", cache = T}
+## Analysis and Results 
+```{r exp2baccplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "displays the results for transmission accuracies from Experiment 1b. Error bars represent nintey-percent confidence intervals.", cache = T}
 acc_data <- trial_data %>%
   filter( type == "dyad_rep") %>%
   mutate(condition = if_else((type=="baseline" & condition=="adult"), "base (adult)", ifelse((type=="baseline_rep"), "base (adult)",   ifelse(type == "dyad_rep", ifelse(floor(generation) != generation, "producer (adult)", "editor (adult)"), ifelse(floor(generation)   != generation, "producer (child)", "editor (adult)")))))%>%
@@ -462,7 +480,7 @@ ggplot(acc_data, aes(x = generation, y = empirical_stat, ymin = ci_lower,
   scale_color_manual(values=c( "#8A9045","#155F83"))
 ```
 
-```{r exp2bbdmplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "displays the algorithmic complexity results for Experiment 1a. Error bars represent 90% confidence intervals.", cache = T}
+```{r exp2bbdmplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "displays the algorithmic complexity results for Experiment 1a. Error bars represent nintey-percent confidence intervals.", cache = T}
 complex<-all_bind_data %>%
   filter(type=="dyad_rep") %>%
   mutate(condition = ifelse(condition=="adult", "editor (adult)", "producer (adult)")) %>%
@@ -526,8 +544,51 @@ As in previous experiments, the data were analyzed for transmission accuracy and
 \ref{fig:exp2bbdmplot} shows the relationship between the complexity of editors’ and producers’ patterns.  In each generation, the producer decreased the complexity of the pattern, and the editor was able to compensate for some of this loss by re-introducing complexity into the grid patterns. As in Experiment 2a, we fit an exponential function to this data. There was no significant effect of trial number in this model. There was., however, a main effect of generation, with both the editors’ and producers’ patterns decreasing in complexity over generations ($\beta_{log(generation)}$ = `r e2b_bdm_effects %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e2b_bdm_effects %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p < `r e2b_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`). Additionally, the producers had significantly lower levels of complexity compared to the editors ($\beta_{producer}$ = `r e2b_bdm_effects %>% filter(term == "conditionchild") %>% pull(estimate) %>% round(3)`, t = `r e2b_acc_effects %>% filter(term == "conditionchild") %>% pull(statistic) %>% round(3)`, p < `r e2b_bdm_effects %>% filter(term == "conditionchild") %>% pull(p.value) %>% printp`). 
 
 ## Experiment 2 Results
-```{r exp2 graphs}
+```{r exp2accplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "shows the results from Experiment 2a for transmission accuracy. Error bars represent nintey-percent confidence intervals."}
+acc_data <- trial_data %>%
+  filter( type == "baseline_rep" | type == "dyad_rep") %>%
+  mutate(condition = if_else((type=="baseline" & condition=="adult"), "base (adult)", ifelse((type=="baseline_rep"), "base (adult)",   ifelse(type == "dyad_rep", ifelse(floor(generation) != generation, "producer (adult)", "editor (adult)"), ifelse(floor(generation)   != generation, "producer (child)", "editor (adult)")))))%>%
+  mutate(generation=ifelse(floor(generation) != generation, generation+0.5, generation)) %>%
+  filter(trialCount > 3) %>%
+  group_by(generation, sub_id, condition, type) %>%
+  summarise(accuracy = mean(accuracy)) %>%
+  group_by(generation,type, condition) %>%
+  tidyboot_mean(accuracy) 
 
+ggplot(acc_data, aes(x = generation, y = empirical_stat, ymin = ci_lower, 
+                     ymax = ci_upper, color = condition, label = condition)) +
+  geom_pointrange(position = position_dodge(.25), size=0.4)+
+  geom_smooth( method = "lm", se = F, aes(group=condition), size=0.5)+
+  scale_y_continuous(breaks=seq(0.3,0.9, 0.1), limits = c(0.2, 0.9)) +
+  scale_x_continuous(breaks=seq(0,12), limits = c(0, 16.5)) +
+  theme_classic(base_size = 13) +
+  ylab("accuracy") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
+  geom_dl(method = list(dl.trans(x = x+0.1, y = y-0.2), "last.bumpup", cex = 0.8)) +
+  #scale_color_manual(values=c( "#8A9045","#155F83"))
+  scale_color_brewer()
+```
+
+```{r exp2bdmplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2.5, fig.width = 3.4, num.cols.cap=1, fig.cap = "shows the results of Experiment 2a for algorithmic complexity. Example patterns produced by participants at generations 0 (initial, randomly-generated pattern), 6, and 12 (resultant pattern) are shown.", fig.show='hold', cache = T}
+complex<-all_bind_data %>%
+  filter(type=="baseline_rep" | type == "dyad_rep") %>%
+    mutate(condition = if_else((type=="baseline" & condition=="adult"), "base (adult)", ifelse((type=="baseline_rep"), "base (adult)",   ifelse(type == "dyad_rep", ifelse(floor(generation) != generation, "producer (adult)", "editor (adult)"), ifelse(floor(generation)   != generation, "producer (child)", "editor (adult)"))))) %>%
+  group_by(generation, condition) %>%
+  tidyboot_mean(bdm_mean) %>%
+  ungroup() %>%
+  mutate(generation = ifelse(floor(generation) != generation, generation+0.5, generation))
+
+ggplot(complex, aes(x = generation, y = empirical_stat, ymin = ci_lower, 
+                    ymax = ci_upper, color = condition, label =condition))+
+  geom_pointrange(position = position_dodge(.25), size=0.4)+
+  geom_smooth(span=1.5, se = F, aes(group=condition), size=0.5)+
+  ylab("complexity") +
+  scale_y_continuous(breaks = c(160, 170, 180, 190, 200, 210, 220, 230, 240), limits = c(160,240))+
+  scale_x_continuous(breaks=seq(0,12), limits = c(0, 16.5)) +
+  theme_classic(base_size = 13) +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
+  geom_dl(method = list(dl.trans(x = x + 0.3), "last.bumpup", cex = 0.8)) +
+  scale_color_manual(values=c( "#FFA319","#8A9045","#155F83"))
 ```
 
 ```{r exp2 models}
@@ -566,9 +627,9 @@ e2_edge_effects <- e2_edge %>%
   tidy() %>%
   select(term, estimate, statistic, p.value)
 ```
-Figure 11 shows the combined accuracy results of Experiments 2a and 2b. We fit a linear mixed--effects model predicting condition (baseline adult, producer, or editor) from accuracy, log(generation), and trial number, including random effects of subject and initial grid. There were significant main effects of generation and condition, where accuracy increased over generations ($\beta_{log(generation)}$ = `r e2_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e2_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p < `r e2_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`). Producers had significantly lower transmission accuracies compared to the other groups ($\beta_{producer}$ = `r e2_acc_effects %>% filter(term == "conditionchild") %>% pull(estimate) %>% round(3)`, t = `r e2_acc_effects %>% filter(term == "conditionchild") %>% pull(statistic) %>% round(3)`, p < `r e2_acc_effects %>% filter(term == "conditionchild") %>% pull(p.value) %>% printp`). Producers did not show significantly smaller increases in accuracy over generations ($\beta_{producer*log(generation)}$  = `r e2_acc_effects %>% filter(term == "conditionchild:log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e2_acc_effects %>% filter(term == "conditionchild:log(generation + 1)") %>% pull(statistic) %>% round(3)`, p < `r e2_acc_effects %>% filter(term == "conditionchild:log(generation + 1)") %>% pull(p.value) %>% printp`).  Trial number was not a significant predictor in this model ($\beta_{trial}$ =`r e2_acc_effects %>% filter(term == "trialCount") %>% pull(estimate) %>% round(3)`, t = `r e2_acc_effects %>% filter(term == "trialCount") %>% pull(statistic) %>% round(3)`, p `r e2_acc_effects %>% filter(term == "trialCount") %>% pull(p.value) %>% printp`).
+\ref{fig:exp2accplot} shows the combined accuracy results of Experiments 2a and 2b. We fit a linear mixed--effects model predicting condition (baseline adult, producer, or editor) from accuracy, log(generation), and trial number, including random effects of subject and initial grid. There were significant main effects of generation and condition, where accuracy increased over generations ($\beta_{log(generation)}$ = `r e2_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e2_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p < `r e2_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`). Producers had significantly lower transmission accuracies compared to the other groups ($\beta_{producer}$ = `r e2_acc_effects %>% filter(term == "conditionchild") %>% pull(estimate) %>% round(3)`, t = `r e2_acc_effects %>% filter(term == "conditionchild") %>% pull(statistic) %>% round(3)`, p < `r e2_acc_effects %>% filter(term == "conditionchild") %>% pull(p.value) %>% printp`). Producers did not show significantly smaller increases in accuracy over generations ($\beta_{producer*log(generation)}$  = `r e2_acc_effects %>% filter(term == "conditionchild:log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e2_acc_effects %>% filter(term == "conditionchild:log(generation + 1)") %>% pull(statistic) %>% round(3)`, p < `r e2_acc_effects %>% filter(term == "conditionchild:log(generation + 1)") %>% pull(p.value) %>% printp`).  Trial number was not a significant predictor in this model ($\beta_{trial}$ =`r e2_acc_effects %>% filter(term == "trialCount") %>% pull(estimate) %>% round(3)`, t = `r e2_acc_effects %>% filter(term == "trialCount") %>% pull(statistic) %>% round(3)`, p `r e2_acc_effects %>% filter(term == "trialCount") %>% pull(p.value) %>% printp`).
 
-Figure X shows the combined complexity results for Experiments 2a and 2b. As in previous experiments, we fit an exponential function to this data. Algorithmic complexity of the patterns decreased over generations ($\beta_{log(generation)}$ = `r e2_bdm_effects %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e2_bdm_effects %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p < `r e2_bdm_effects %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`). 
+\ref{fig:exp2bdmplot} shows the combined complexity results for Experiments 2a and 2b. As in previous experiments, we fit an exponential function to this data. Algorithmic complexity of the patterns decreased over generations ($\beta_{log(generation)}$ = `r e2_bdm_effects %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e2_bdm_effects %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p < `r e2_bdm_effects %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`). 
 
 **D ON T UNDERSTAND **
 Notably, editors and producers had significantly higher levels of algorithmic complexity across generations compared to the adult baseline condition from Experiment 2a ($\beta_{editor}$ = 0.049, t = 9.618, p < 0.001; $\beta_{producer}$ = 0.028, t = 5.509, p < .001).  There was no significant effect of trial number in this model.
@@ -589,7 +650,7 @@ This experiment is identical to Experiment 1a, in that it is meant to gauge a ba
 
 The results of this experiment will inform us of whether iterated learning studies can equate child learners with adult learners--do children respond the same way to stimuli as adults? Do their iterated reproductions show similar trends as adults?  
 
-### Data Collection (can definitely be cut a lot)
+### Data Collection (can definitely be cut a lot) UPDATE!!
 Data collection is in progress for this experiment and will likely be completed by the end of Summer 2019. Therefore, reported results are incomplete and not finalized. Data for experiments 3a and 3b were collected simultaneously from August 2018-June 2019. Participants completed the task at one of three locations: The Museum of Science and Industry (MSI), Chicago; the University of Chicago campus, and a private school in Chicago. The majority of data was collected at the MSI. Data collection at all three locations followed similar procedures. All experimenters were trained by the first author to follow a script, and all experimenters were IRB-approved and trained to collect data at all locations.
 
 At the MSI, experimenters from the Communication and Learning Lab arranged a table next to a popular exhibit for children under ten years old. A sign advertised available studies for the target age range, 6-8 years old. Interested families approached the experimenters at the table, who informed them of the general study procedures (a short, 8-minute iPad task), and obtained written consent. Many families also completed an optional demographics sheet, which included questions about caregiver education levels and the languages the child hears at home. After written consent was provided by a parent or legal guardian, and verbal consent was obtained from the child, children went with one of the experimenters to a nearby bench. The experimenter introduced the child to the task, explaining that they would be playing a memory game. Children were given headphones in order to hear the various audio cues throughout the task. The experimenter aided the child in the first training trial, demonstrating how “stickers” (colored blocks) could be placed or removed by tapping on the screen. Additional guidance was given during the first three practice trials if necessary, for example, if the child did not understand that they needed to place exactly 10 stickers down on each trial, or if they did not understand the reproduction element of the task. After the training and practice trials were complete, the experimenter ceased verbal contact with the child, except if the child wanted to end the study. If the child asked the experimenter a question, or expressed frustration about the difficulty of the task, the experimenter replied, “Just do your best.” After completion of the study, children received their choice of one or two stickers as compensation. 
@@ -612,9 +673,52 @@ The task for this experiment was identical to experiments 1a and 2a. Participant
 As in previous experiments, the patterns produced by participants were analyzed using a measure of accuracy as well as multiple measures of complexity. Accuracy was measured by the number of blocks (out of ten) placed in exactly the same position as in the target pattern. Our primary measure of complexity was calculated using the Block Decomposition Method (see page X for a detailed explanation of this method). Chunking and edge length were used as additional measures of complexity. 
 
 ## Results 
-```{r exp3a graphs}
+```{r exp3aaccplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "shows the results from Experiment 3a for transmission accuracy. Error bars represent nintey-percent confidence intervals."}
+acc_data <- trial_data %>%
+  filter( type == "baseline" & condition == "child") %>%
+  mutate(condition = "base (child)")%>%
+  mutate(generation=ifelse(floor(generation) != generation, generation+0.5, generation)) %>%
+  filter(trialCount > 3) %>%
+  group_by(generation, sub_id, condition, type) %>%
+  summarise(accuracy = mean(accuracy)) %>%
+  group_by(generation,type, condition) %>%
+  tidyboot_mean(accuracy) 
 
+ggplot(acc_data, aes(x = generation, y = empirical_stat, ymin = ci_lower, 
+                     ymax = ci_upper, color = condition, label = condition)) +
+  geom_pointrange(position = position_dodge(.25), size=0.4)+
+  geom_smooth( method = "lm", se = F, aes(group=condition), size=0.5)+
+  scale_y_continuous(breaks=seq(0.3,0.9, 0.1), limits = c(0.2, 0.9)) +
+  scale_x_continuous(breaks=seq(0,6), limits = c(0, 9)) +
+  theme_classic(base_size = 13) +
+  ylab("accuracy") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
+  geom_dl(method = list(dl.trans(x = x+0.1, y = y-0.2), "last.bumpup", cex = 0.8)) +
+  scale_color_manual(values=c( "#8A9045","#155F83"))
 ```
+
+```{r exp3abdmplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2.5, fig.width = 3.4, num.cols.cap=1, fig.cap = "shows the results of Experiment 3a for algorithmic complexity.", fig.show='hold', cache = T}
+complex<-all_bind_data %>%
+  filter(type=="baseline" & condition == "child") %>%
+  mutate(condition = "base (child)") %>%
+  group_by(generation, condition) %>%
+  tidyboot_mean(bdm_mean) %>%
+  ungroup() %>%
+  mutate(generation = ifelse(floor(generation) != generation, generation+0.5, generation))
+
+ggplot(complex, aes(x = generation, y = empirical_stat, ymin = ci_lower, 
+                    ymax = ci_upper, color = condition, label =condition))+
+  geom_pointrange(position = position_dodge(.25), size=0.4)+
+  geom_smooth(span=1.5, se = F, aes(group=condition), size=0.5)+
+  ylab("complexity") +
+  scale_y_continuous(breaks = c(160, 170, 180, 190, 200, 210, 220, 230, 240), limits = c(160,240))+
+  scale_x_continuous(breaks=seq(0,6), limits = c(0, 9)) +
+  theme_classic(base_size = 13) +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
+  geom_dl(method = list(dl.trans(x = x + 0.3), "last.bumpup", cex = 0.8)) +
+  scale_color_manual(values=c( "#FFA319","#8A9045","#155F83"))
+```
+
 
 ```{r exp3a models}
 e3a_acc <- model_data %>%
@@ -656,9 +760,9 @@ e3a_edge_effects <- e3a_edge %>%
   select(term, estimate, statistic, p.value)
 ```
 
-For sample patterns produced by children in the study, see Appendix Figure X. As in previous conditions, we fit a linear mixed-effects model to the data, predicting transmission accuracy from log(generation), including random effects from subject and initial grid. Results for accuracy are shown in Figure 13. Transmission accuracies increased significantly over generations ($\beta_{log(generation)}$ = `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p = < `r e2_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`).
+For sample patterns produced by children in the study, see Appendix Figure X. As in previous conditions, we fit a linear mixed-effects model to the data, predicting transmission accuracy from log(generation), including random effects from subject and initial grid. Results for accuracy are shown in \ref{fig:exp3aaccplot}. Transmission accuracies increased significantly over generations ($\beta_{log(generation)}$ = `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p = < `r e2_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`).
 
-Figure TMP shows the results for algorithmic complexity. Again, we fit a linear mixed-effects model, this time predicting algorithmic complexity from log(generation). As in previous experiments, the results from algorithmic complexity were in line with the additional measures of complexity. Algorithmic complexity decreased significantly over generations ($\beta_{log(generation)}$ = `r e3a_bdm_effects %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e3a_bdm_effects %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p = < `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`). Trial number was not a significant predictor in any model. 
+\ref{fig:exp3abdmplot} shows the results for algorithmic complexity. Again, we fit a linear mixed-effects model, this time predicting algorithmic complexity from log(generation). As in previous experiments, the results from algorithmic complexity were in line with the additional measures of complexity. Algorithmic complexity decreased significantly over generations ($\beta_{log(generation)}$ = `r e3a_bdm_effects %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e3a_bdm_effects %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p = < `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`). Trial number was not a significant predictor in any model. 
 
 # Experiment 3b: Adult--Child Dyad
 This experiment investigates whether introducing a secondary participant alters the patterned system’s evolution. This experiment uses the same paradigm as Experiments 1b and 2b, with one participant designated as a “producer” and another as an “editor”. Notably, in this experiment, children are designated as “producers” and adults are designated as “editors”. Thus, this condition is the closest step towards to the goal of understanding the impact of caregiver-child language correction in the language evolution process. 
@@ -666,85 +770,310 @@ This experiment investigates whether introducing a secondary participant alters 
 ### Data Collection
 Data collection with children was identical to Experiment 3a. Participants were recruited, and data were collected at one of three locations: The Museum of Science and Industry, the University of Chicago, or a local private school. 
 
-### Participants
+### Participants UPDATE
 Participants consisted of 103 children ages 6-8 ($\mu$ = 6.84 years; 45% male) and 123 adults. 76 participants completed the task at the Museum of Science and Industry, Chicago, and 18 children completed the task on the University of Chicago campus. A small number of participants’ data (n=9) were collected at a private school in Chicago. All adults completed the task online on Amazon Mechanical Turk. 6 children were removed from the dataset due to failure to select ten blocks on all experimental trials, or failure to meet accuracy requirements on two out of three practice trials. 27 adults were removed from the dataset due to failure to select ten blocks on all experimental trials or failure to meet accuracy requirements. 
 
 ### Design and Procedure
 Because children were designated as producers in this dyad task, the task procedure was identical to that of Experiment 3a. Adults, who were designated to be “editors”, completed the task online on Amazon Mechanical Turk. Therefore, their procedure was identical to that of the editors in Experiments 1b and 2b. As in Experiment 1b, we chose to complete the task with twenty diffusion chains, transmitted over six generations. This choice was made after observing the results of @kempe2015, and additionally due to time constraints on collecting data with children.   
 
-## Results -- FIX
-```{r exp3b graphs}
+## Results 
+```{r exp3baccplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "shows the results from Experiment 3b for transmission accuracy. Error bars represent nintey-percent confidence intervals."}
+acc_data <- trial_data %>%
+  filter( type == "dyad_child") %>%
+  mutate(condition = ifelse(floor(generation)!= generation, "producer (child)", "editor (adult)"))%>%
+  mutate(generation=ifelse(floor(generation) != generation, generation+0.5, generation)) %>%
+  filter(trialCount > 3) %>%
+  group_by(generation, sub_id, condition, type) %>%
+  summarise(accuracy = mean(accuracy)) %>%
+  group_by(generation,type, condition) %>%
+  tidyboot_mean(accuracy) 
 
+ggplot(acc_data, aes(x = generation, y = empirical_stat, ymin = ci_lower, 
+                     ymax = ci_upper, color = condition, label = condition)) +
+  geom_pointrange(position = position_dodge(.25), size=0.4)+
+  geom_smooth( method = "lm", se = F, aes(group=condition), size=0.5)+
+  scale_y_continuous(breaks=seq(0.3,0.9, 0.1), limits = c(0.2, 0.9)) +
+  scale_x_continuous(breaks=seq(0,6), limits = c(0, 9)) +
+  theme_classic(base_size = 13) +
+  ylab("accuracy") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
+  geom_dl(method = list(dl.trans(x = x+0.1, y = y-0.2), "last.bumpup", cex = 0.8)) +
+  scale_color_manual(values=c( "#8A9045","#155F83"))
 ```
-## FIX THERES A PROBLEM WITH THE CONDITION LEVELS/DATA 
-```{r exp3b models, eval = F}
-e3b_acc <- model_data %>%
-  filter(type == "dyad_child", 
-         #condition %in% c("adult", "child"),
-         trialCount > 3) %>%
+
+```{r exp3bbdmplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2.5, fig.width = 3.4, num.cols.cap=1, fig.cap = "shows the results of Experiment 3b for algorithmic complexity.", fig.show='hold', cache = T}
+complex<-all_bind_data %>%
+  filter( type == "dyad_child") %>%
+  mutate(condition = ifelse(floor(generation)!= generation, "producer (child)", "editor (adult)"))%>%
+  group_by(generation, condition) %>%
+  tidyboot_mean(bdm_mean) %>%
+  ungroup() %>%
+  mutate(generation = ifelse(floor(generation) != generation, generation+0.5, generation))
+
+ggplot(complex, aes(x = generation, y = empirical_stat, ymin = ci_lower, 
+                    ymax = ci_upper, color = condition, label =condition))+
+  geom_pointrange(position = position_dodge(.25), size=0.4)+
+  geom_smooth(span=1.5, se = F, aes(group=condition), size=0.5)+
+  ylab("complexity") +
+  scale_y_continuous(breaks = c(160, 170, 180, 190, 200, 210, 220, 230, 240), limits = c(160,240))+
+  scale_x_continuous(breaks=seq(0,6), limits = c(0, 9)) +
+  theme_classic(base_size = 13) +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
+  geom_dl(method = list(dl.trans(x = x + 0.3), "last.bumpup", cex = 0.8)) +
+  scale_color_manual(values=c( "#FFA319","#8A9045","#155F83"))
+```
+
+```{r fix data}
+model_data_fix <- model_data %>%
+  filter(type == "dyad_child") %>%
+  mutate(condition = ifelse(floor(generation) != generation, "child", "adult"))
+
+all_bind_data_fix <- all_bind_data %>%
+  filter(type == "dyad_child") %>%
+  mutate(condition = ifelse(floor(generation) != generation, "child", "adult"))
+```
+
+```{r exp3b models}
+e3b_acc <- model_data_fix %>%
+  filter(type == "dyad_child", trialCount > 3) %>%
   lmer(accuracy ~ condition * log(generation+1) + trialCount + (1|trialDisplay) + (trialCount|sub_id), data = .)
 
-e3b_bdm <-all_bind_data %>%
-   filter(type == "dyad_child", 
-          #condition %in% c("adult", "child"), 
-          trialCount > 3) %>%
+e3b_bdm <-all_bind_data_fix %>%
+   filter(type == "dyad_child", trialCount > 3) %>%
   lmer(bdm_mean ~ condition * log(generation+1) + trialCount + (1|trialDisplay) + (trialCount|sub_id), data = .)
 
-e3b_chunk <-all_bind_data %>%
-   filter(type == "dyad_child", 
-          #condition %in% c("adult", "child"),
-          trialCount > 3) %>%
+e3b_chunk <-all_bind_data_fix %>%
+   filter(type == "dyad_child",  trialCount > 3) %>%
   lmer(chunking_mean ~ condition * log(generation+1) + trialCount + (1|trialDisplay) + (trialCount|sub_id), data = .)
 
-e3b_edge <-all_bind_data %>%
-   filter(type == "dyad_child", 
-          #condition %in% c("adult", "child"),
-          trialCount > 3) %>%
+e3b_edge <-all_bind_data_fix %>%
+   filter(type == "dyad_child", trialCount > 3) %>%
   lmer(edge_mean ~ condition * log(generation+1) + trialCount + (1|trialDisplay) + (trialCount|sub_id), data = .)
 ```
 
-```{r exp3b coefficients, eval = F}
-e3b_acc_effects <- e3b_acc %>%
+```{r exp3b coefficients}
+e3b_acc_effect <- e3b_acc %>%
   tidy() %>%
-  filter(term == "log(generation + 1)") %>%
   select(term, estimate, statistic, p.value)
 
-e3b_bdm_effects <- e3b_bdm %>%
+e3b_bdm_effect <- e3b_bdm %>%
   tidy() %>%
-  filter(term == "log(generation + 1)") %>%
   select(term, estimate, statistic, p.value)
 
-e3b_chunk_effects <- e3b_chunk %>%
+e3b_chunk_effect <- e3b_chunk %>%
   tidy() %>%
-  filter(term == "log(generation + 1)") %>%
   select(term, estimate, statistic, p.value)
 
-e3b_edge_effects <- e3b_edge %>%
+e3b_edge_effect <- e3b_edge %>%
   tidy() %>%
-  filter(term == "log(generation + 1)") %>%
   select(term, estimate, statistic, p.value)
 ```
-# PUT IN WRONG GUYS HERE 
-Figure 15 shows the transmission accuracy results by editors and producers in Experiment 3b. We fit a linear mixed-effects model predicting accuracy from group and log(generation) and trial number and controlling for random effects of subject and initial grid. There was no main effect of generation, meaning that the patterns did not become significantly easier to produce over transmission generations (in line with findings from Exp. 2b) ($\beta_{log(generation)}$ = `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p = `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`). There was a significant main effect of condition, with child producers having lower transmission accuracies than adult editors FIXXXX ($\beta_{producers}$ = `r e3a_acc_effects %>% filter(term == "log(generation + 1") %>% pull(estimate) %>% round(3)`, t = `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, p < `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`). 
-## LEFT OFF HERE
-Figure 16 shows the relationship between the complexity of adult editors’ and child producers’ patterns. In each generation, the producer decreased the complexity of the pattern, and the editor was able to compensate for some of this loss by re-introducing complexity. As in previous experiments, we fit a linear mixed-effects model to this data to predict complexity from group, generation and trial number, and random intercepts for participant and initial grid (e.g. complexity - condition + generation + trial + (trial|subject) + (1|initialGrid). Only results from the measure of algorithmic complexity are reported, however, trends were consistent across edge length and chunking. There was a marginally-significant main effect of log(generation), with patterns decreasing over transmissions ($\beta_{log(generation)}$ = -8.144, t = -1.901, p = 0.059). There was also a marginally-significant difference between the algorithmic complexities of producers and editors ($\beta_{producer}$ = -12.686, t = -1.741, p =.083). There were no significant effects of trial number in either complexity or accuracy models.
+\ref{fig:exp3baccplot} shows the transmission accuracy results by editors and producers in Experiment 3b. We fit a linear mixed-effects model predicting accuracy from group and log(generation) and trial number and controlling for random effects of subject and initial grid. There was no main effect of generation, meaning that the patterns did not become significantly easier to produce over transmission generations (in line with findings from Exp. 2b) ($\beta_{log(generation)}$ = `r e3b_acc_effect %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e3b_acc_effect %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p = `r e3b_acc_effect %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`). There was a significant main effect of condition, with child producers having lower transmission accuracies than adult editors ($\beta_{producers}$ = `r e3b_acc_effect %>% filter(term == "conditionchild") %>% pull(estimate) %>% round(3)`, t = `r e3b_acc_effect %>% filter(term == "conditionchild") %>% pull(estimate) %>% round(3)`, p < `r e3b_acc_effect %>% filter(term == "conditionchild") %>% pull(p.value) %>% printp`). 
 
-## Experiment 3 Results -- FIX
-Figure 17 shows the combined accuracy results of Experiments 3a and 3b. We fit a linear mixed-effects model predicting condition (child baseline, child producer, or adult editor) from accuracy and generation, including random effects of subject and initial grid. There was a main effect of generation, with all conditions showing increases in transmission accuracies over generations ($\beta_{log(generation)}$ = 0.216, t = 4.710, p < .001). Editors also had higher transmission accuracies than baseline children or producers ($\beta_{editor}$ = 0.437, t = 4.700, p < .001). However, both producers and editors showed significant and marginally-significant interaction effects, where their transmission accuracies increased less over generations compared with the baseline children 
-($\beta_{editor*log(generation)}$ = -0.143, t = -1.950, p = .0053; $\beta_{producer*log(generation)}$ = -0.173, t = -2.950, p = .0035).
+\ref{fig:exp3bbdmplot} shows the relationship between the complexity of adult editors’ and child producers’ patterns. In each generation, the producer decreased the complexity of the pattern, and the editor was able to compensate for some of this loss by re-introducing complexity. As in previous experiments, we fit a linear mixed-effects model to this data to predict complexity from group, generation and trial number, and random intercepts for participant and initial grid (e.g. complexity - condition + generation + trial + (trial|subject) + (1|initialGrid). Only results from the measure of algorithmic complexity are reported, however, trends were consistent across edge length and chunking. There was a marginally-significant main effect of log(generation), with patterns decreasing over transmissions ($\beta_{log(generation)}$ = `r e3b_bdm_effect %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e3b_bdm_effect %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p = `r e3b_bdm_effect %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`). There was also a marginally-significant difference between the algorithmic complexities of producers and editors ($\beta_{producer}$ = `r e3b_bdm_effect %>% filter(term == "conditionchild") %>% pull(estimate) %>% round(3)`, t = `r e3b_bdm_effect %>% filter(term == "conditionchild") %>% pull(statistic) %>% round(3)`, p =`r e3b_bdm_effect %>% filter(term == "conditionchild") %>% pull(p.value) %>% printp`). There were no significant effects of trial number in either complexity or accuracy models.
 
-Figure 12 shows the combined complexity results for Experiments 3a and 3b.  As in previous experiments, there was a main effect of generation, where complexity decreased significantly across generations ($\beta_{log(generation)}$ = -35.220, t = -3.461, p < .001). However, the complexity of editors’ patterns decreased less over generations compared to producers or baseline children ($\beta_{editor*log(generation)}$ = 27.933, t = 4.330, p < .001). There were no significant effects of trial order in either the accuracy or complexity models.
+## Experiment 3 Results
+```{r exp3accplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "shows the combined results from Experiment 3 for transmission accuracy. Error bars represent nintey-percent confidence intervals."}
+acc_data <- trial_data %>%
+  filter( type == "dyad_child" | (type == "baseline" & condition == "child")) %>%
+  mutate(condition = ifelse(type == "dyad_child" & floor(generation)!= generation, "producer (child)", ifelse(type == "baseline", "base (child)", "editor (adult)")))%>%
+  mutate(generation=ifelse(floor(generation) != generation, generation+0.5, generation)) %>%
+  filter(trialCount > 3) %>%
+  group_by(generation, sub_id, condition, type) %>%
+  summarise(accuracy = mean(accuracy)) %>%
+  group_by(generation,type, condition) %>%
+  tidyboot_mean(accuracy) 
+
+ggplot(acc_data, aes(x = generation, y = empirical_stat, ymin = ci_lower, 
+                     ymax = ci_upper, color = condition, label = condition)) +
+  geom_pointrange(position = position_dodge(.25), size=0.4)+
+  geom_smooth( method = "lm", se = F, aes(group=condition), size=0.5)+
+  scale_y_continuous(breaks=seq(0.3,0.9, 0.1), limits = c(0.2, 0.9)) +
+  scale_x_continuous(breaks=seq(0,6), limits = c(0, 9)) +
+  theme_classic(base_size = 13) +
+  ylab("accuracy") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
+  geom_dl(method = list(dl.trans(x = x+0.1, y = y-0.2), "last.bumpup", cex = 0.8)) +
+  scale_color_manual(values=c( "#FFA319","#8A9045","#155F83"))
+```
+
+```{r exp3bdmplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2.5, fig.width = 3.4, num.cols.cap=1, fig.cap = "shows the combined results of Experiment 3 for algorithmic complexity.", fig.show='hold', cache = T}
+complex<-all_bind_data %>%
+  filter( type == "dyad_child" | (type == "baseline" & condition == "child")) %>%
+  mutate(condition = ifelse(type == "dyad_child" & floor(generation)!= generation, "producer (child)", ifelse(type == "baseline", "base (child)", "editor (adult)")))%>%
+  group_by(generation, condition) %>%
+  tidyboot_mean(bdm_mean) %>%
+  ungroup() %>%
+  mutate(generation = ifelse(floor(generation) != generation, generation+0.5, generation))
+
+ggplot(complex, aes(x = generation, y = empirical_stat, ymin = ci_lower, 
+                    ymax = ci_upper, color = condition, label =condition))+
+  geom_pointrange(position = position_dodge(.25), size=0.4)+
+  geom_smooth(span=1.5, se = F, aes(group=condition), size=0.5)+
+  ylab("complexity") +
+  scale_y_continuous(breaks = c(160, 170, 180, 190, 200, 210, 220, 230, 240), limits = c(160,240))+
+  scale_x_continuous(breaks=seq(0,6), limits = c(0, 9)) +
+  theme_classic(base_size = 13) +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
+  geom_dl(method = list(dl.trans(x = x + 0.3), "last.bumpup", cex = 0.8)) +
+  scale_color_manual(values=c( "#FFA319","#8A9045","#155F83"))
+```
+
+```{r exp3 models}
+e3_acc <- model_data %>%
+  filter(type == "dyad_child" | (type == "baseline" & condition == "child") , trialCount > 3) %>%
+  mutate(condition = ifelse(floor(generation) != generation, "child", "adult")) %>%
+  lmer(accuracy ~ condition * log(generation+1) + trialCount + (1|trialDisplay) + (trialCount|sub_id), data = .)
+
+e3_bdm <-all_bind_data %>%
+  filter(type == "dyad_child"| (type == "baseline" & condition == "child"), trialCount > 3) %>%
+  mutate(condition = ifelse(floor(generation) != generation, "child", "adult")) %>%
+  lmer(bdm_mean ~ condition * log(generation+1) + trialCount + (1|trialDisplay) + (trialCount|sub_id), data = .)
+
+e3_chunk <-all_bind_data %>%
+  filter(type == "dyad_child"| (type == "baseline" & condition == "child"),  trialCount > 3) %>%
+  mutate(condition = ifelse(floor(generation) != generation, "child", "adult")) %>%
+  lmer(chunking_mean ~ condition * log(generation+1) + trialCount + (1|trialDisplay) + (trialCount|sub_id), data = .)
+
+e3_edge <-all_bind_data %>%
+  filter(type == "dyad_child"| (type == "baseline" & condition == "child"), trialCount > 3) %>%
+  mutate(condition = ifelse(floor(generation) != generation, "child", "adult")) %>%
+  lmer(edge_mean ~ condition * log(generation+1) + trialCount + (1|trialDisplay) + (trialCount|sub_id), data = .)
+```
+
+```{r exp3 coefficients2}
+e3_acc_effect <- e3_acc %>%
+  tidy() %>%
+  select(term, estimate, statistic, p.value)
+
+e3_bdm_effect <- e3_bdm %>%
+  tidy() %>%
+  select(term, estimate, statistic, p.value)
+
+e3_chunk_effect <- e3_chunk %>%
+  tidy() %>%
+  select(term, estimate, statistic, p.value)
+
+e3_edge_effect <- e3_edge %>%
+  tidy() %>%
+  select(term, estimate, statistic, p.value)
+```
+\ref{fig:exp3accplot} shows the combined accuracy results of Experiments 3a and 3b. We fit a linear mixed-effects model predicting condition (child baseline, child producer, or adult editor) from accuracy and generation, including random effects of subject and initial grid. There was a main effect of generation, with all conditions showing increases in transmission accuracies over generations ($\beta_{log(generation)}$ = `r e3_acc_effect %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e3_acc_effect %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p `r e3_acc_effect %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`). Baseline children and producers also had lower transmission accuracies than editors ($\beta_{child}$ = `r e3_acc_effect %>% filter(term == "conditionchild") %>% pull(estimate) %>% round(3)`, t = `r e3_acc_effect %>% filter(term == "conditionchild") %>% pull(statistic) %>% round(3)`, p `r e3_acc_effect %>% filter(term == "conditionchild") %>% pull(p.value) %>% printp`). [is there another comparison to put in here??]
+\ref{fig:exp3bdmplot} shows the combined complexity results for Experiments 3a and 3b.  As in previous experiments, there was a main effect of generation, where complexity decreased significantly across generations ($\beta_{log(generation)}$ = `r e3_bdm_effect %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e3_bdm_effect %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p `r e3_bdm_effect %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`). However, the complexity of producers' and baseline children's patterns decreased more over generations compared to editors ($\beta_{child*log(generation)}$ = `r e3_bdm_effect %>% filter(term == "conditionchild:log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e3_bdm_effect %>% filter(term == "conditionchild:log(generation + 1)") %>% pull(statistic) %>% round(3)`, p `r e3_bdm_effect %>% filter(term == "conditionchild:log(generation + 1)") %>% pull(p.value) %>% printp`). There were no significant effects of trial order in either the accuracy or complexity models. [need to print stats?]
 
 ## Experiment 3 Discussion
-The results of Experiments 3a and 3b continue to push the diffusion chain paradigm further towards modeling true processes of language-learning, this time modeling language-learning by children--those who are the best language-learners. Although data collection is only 50% complete, in Experiment 3a, as in Experiment 1a, we see a dramatic linear decrease in algorithmic complexity over generations, coupled with a linear increase in transmission accuracy. This reflects the effects of the learnability pressure, which, as hypothesized, is especially strong in children. It also replicates the findings of @kempe2015.
+The results of Experiments 3a and 3b continue to push the diffusion chain paradigm further towards modeling true processes of language-learning, this time modeling language-learning by children--those who are the best language-learners. In Experiment 3a, as in Experiment 1a, we see a dramatic linear decrease in algorithmic complexity over generations, coupled with a linear increase in transmission accuracy. This reflects the effects of the learnability pressure, which, as hypothesized, is especially strong in children. It also replicates the findings of @kempe2015.
 
 In Experiment 3b, we see similar trends as were expected. Editors (adults) and producers (children) had significantly different reproduction accuracies, with editors being better at re-creating the target, just as they were in Experiment 2b. However, unlike in Experiment 2b or 1b, the reproduction accuracies of producers increased over generations. Thus, children were becoming better at reproducing the grid patterns over time, perhaps pointing to features of the grids which were facilitating easier transmission. Baseline children (Experiment 3a) had significantly higher transmission accuracies than child producers (Exp. 3b). However, the trends shown are somewhat different from those seen in Exps. 1b and 2b, with the child producer and baseline conditions being more similar than the adult baseline and producer conditions. Adult editors had significantly higher levels of complexity compared to baseline children. Thus, the addition of an adult editor--analogous to a parent or caregiver--allowed a significantly higher level of complexity to be retained in the language. 
 
-## Experiment 2--3 Results -- FIX
-In order to compare between Experiments 2 and 3, we subset the data from Experiment 2 to only the first six generations. Figure 19 displays the comparison between transmission accuracies 
-across Experiments 2 and 3. To compare across experiments, we fit a linear mixed effects model of the form lmer(accuracy -- person x condition x log(generation+1) + trial + (1|initialGrid) + (trialCount|subject). We found main effects for Experiments 3a & 3b (child--involved experiments), editors, and generation. Baseline children and producers in Experiment 3b had lower percent accuracies ($\beta_{child}$ = -0.326, t = -4.030, p < .001). Editors (Experiments 2b and 3b) had significantly higher accuracies ($\beta_{editor}$ = 0.231, t = 4.823, p < .001). Overall, percent accuracies increased across generations ($\beta_{log(generation)}$ = 0.088, t = 6.436, p < .001). Additionally, adult editors in Experiment 3b and children in the baseline condition had accuracies which increased more over generations, although the editors’ accuracies in both experiments increased less than the baseline conditions over generations ($\beta_{child*log(generation)}$ = 0.118, t = 2.124, p = .034; $\beta_{editor*log(generation)}$ = -0.0894, t = -2.978, p = .00298).
+## Experiment 2--3 Results [WHAT KIND OF COMPARISONS DO WE WANT TO MAKE HERE? EXP 2 VS 3, OR MORE FINE-GRAINED ADULTS V KIDS? THESE PLOTS ARE A LOT, WHAT TO DISPLAY AND WHAT TO NOT (eg maybe just editors and baseline?)] [LOOK OVER MODEL RESULTS AND WRITING TO MAKE SURE INCLUDE THINGS THAT ARE ACCURATE & IMPORTANT, RN PLUG & CHUG]
+```{r allaccplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "shows the combined results from Experiments 2 and 3 for transmission accuracy. Error bars represent nintey-percent confidence intervals."}
+acc_data <- trial_data %>%
+  filter( type == "dyad_child" | (type == "baseline" & condition == "child") | type == "baseline_rep" | type == "dyad_rep") %>%
+  mutate(person = ifelse((type == "baseline_rep" | type == "dyad_rep"), "adult", "child/adult")) %>%
+  mutate(condition = ifelse((type == "baseline_rep" | (type == "baseline" & condition == "child")), "baseline", ifelse( floor(generation) != generation, "producer", "editor"))) %>%
+  mutate(generation=ifelse(floor(generation) != generation, generation+0.5, generation)) %>%
+  filter(trialCount > 3) %>%
+  group_by(generation, sub_id, condition, person, type) %>%
+  summarise(accuracy = mean(accuracy)) %>%
+  group_by(generation,type, condition, person) %>%
+  tidyboot_mean(accuracy) %>%
+  filter(generation < 7)
+  
+## THIS PLOT IS A LOT, put legend!
+ggplot(acc_data, aes(x = generation, y = empirical_stat, ymin = ci_lower, 
+                     ymax = ci_upper, color = condition, label = condition, linetype = person, shape = person)) +
+  geom_pointrange(position = position_dodge(.25), size=0.4)+
+  geom_smooth( method = "lm", se = F, aes(group=interaction(person,condition)), size=0.5)+
+  scale_y_continuous(breaks=seq(0.3,0.9, 0.1), limits = c(0.2, 0.9)) +
+  scale_x_continuous(breaks=seq(0,6), limits = c(0, 9)) +
+  theme_classic(base_size = 13) +
+  ylab("accuracy") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
+  geom_dl(method = list(dl.trans(x = x+0.1, y = y-0.2), "last.bumpup", cex = 0.8)) +
+  scale_color_manual(values=c( "#FFA319","#8A9045","#155F83"))
+```
 
-Figure 20 shows the comparison between Experiments 2 and 3 for algorithmic complexity. As with accuracy, we fit a mixed-effects linear model predicting algorithmic complexity from experiment and condition, fitting effects for display order, initial grid and subject. There was a main effect of generation, with all patterns simplifying over transmissions ($\beta_{log(generation)}$ = -8.944, t = -9.161, p < .001). There was an additional significant main effect of display order, with participants producing slightly more complex patterns later in the task ($\beta$ = 0.426, t = 2.425, p = .016). There was no main effect of whether the participant was an editor (Experiments 2b, 3b) or whether they were in the baseline condition ($\beta_{editor}$ = 2.472, t = 0.724, p= 0.469). There were multiple interaction effects, whereby the editors in Experiment 3b (child-adult dyad) had lower complexity values than those in Experiment 2b ($\beta_{child*editor}$ = -23.715, t = -3.013, p = .003). While participants in Experiments 3a and 3b had complexity values which decreased more over transmission generations compared with Experiments 2a and 2b ($\beta_{child*log(generation)}$ = -26.520, t = -6.647, p < .001), the editors in Experiment 3b (child-adult dyad) decreased significantly less over generations compared to the children in the baseline condition ($\beta_{child*editor*log(generation)}$ = 23.847, t = 4.319, p < .001). 
+```{r allbdmplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2.5, fig.width = 3.4, num.cols.cap=1, fig.cap = "shows the combined results of Experiment 3 for algorithmic complexity.", fig.show='hold', cache = T}
+complex<-all_bind_data %>%
+  filter( type == "dyad_child" | (type == "baseline" & condition == "child") | type == "baseline_rep" | type == "dyad_rep") %>%
+  mutate(person = ifelse((type == "baseline_rep" | type == "dyad_rep"), "adult", "child/adult")) %>%
+  mutate(condition = ifelse((type == "baseline_rep" | (type == "baseline" & condition == "child")), "baseline", ifelse( floor(generation) != generation, "producer", "editor"))) %>%
+  mutate(generation=ifelse(floor(generation) != generation, generation+0.5, generation)) %>%
+  filter(trialCount > 3) %>%
+  group_by(generation, sub_id, condition, person, type) %>%
+  summarise(bdm = mean(bdm_mean)) %>%
+  group_by(generation,type, condition, person) %>%
+  tidyboot_mean(bdm) %>%
+  filter(generation < 7)
+
+ggplot(complex, aes(x = generation, y = empirical_stat, ymin = ci_lower, 
+                    ymax = ci_upper, color = condition, label =condition, linetype = person, shape = person))+
+  geom_pointrange(position = position_dodge(.25), size=0.4)+
+  geom_smooth(span=1.5, se = F, aes(group=interaction(person, condition)), size=0.5)+
+  ylab("complexity") +
+  scale_y_continuous(breaks = c(160, 170, 180, 190, 200, 210, 220, 230, 240), limits = c(160,240))+
+  scale_x_continuous(breaks=seq(0,6), limits = c(0, 9)) +
+  theme_classic(base_size = 13) +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
+  geom_dl(method = list(dl.trans(x = x + 0.3), "last.bumpup", cex = 0.8)) +
+  scale_color_manual(values=c( "#FFA319","#8A9045","#155F83"))
+```
+
+```{r fix data2}
+model_data_fix2 <- model_data %>%
+  filter(type == "dyad_child" | (type == "baseline" & condition == "child") | type == "baseline_rep" | type == "dyad_rep") %>%
+  mutate(person = ifelse((type == "baseline_rep" | type == "dyad_rep"), "adult", "child/adult")) %>%
+  mutate(condition = ifelse((type == "baseline_rep" | (type == "baseline" & condition == "child")), "baseline", ifelse( floor(generation) != generation, "producer", "editor")))
+
+all_bind_data_fix2 <- all_bind_data %>%
+  filter( type == "dyad_child" | (type == "baseline" & condition == "child") | type == "baseline_rep" | type == "dyad_rep") %>%
+  mutate(person = ifelse((type == "baseline_rep" | type == "dyad_rep"), "adult", "child/adult")) %>%
+  mutate(condition = ifelse((type == "baseline_rep" | (type == "baseline" & condition == "child")), "baseline", ifelse( floor(generation) != generation, "producer", "editor")))
+```
+
+
+```{r all models}
+all_acc <- model_data_fix2 %>%
+  filter(trialCount > 3) %>%
+  lmer(accuracy ~ condition * person * log(generation+1) + trialCount + (1|trialDisplay) + (trialCount|sub_id), data = .)
+
+all_bdm <-all_bind_data_fix2 %>%
+   filter(trialCount > 3) %>%
+  lmer(bdm_mean ~ condition * person * log(generation+1) + trialCount + (1|trialDisplay) + (trialCount|sub_id), data = .)
+
+all_chunk <-all_bind_data_fix2 %>%
+   filter(trialCount > 3) %>%
+  lmer(chunking_mean ~ condition * person * log(generation+1) + trialCount + (1|trialDisplay) + (trialCount|sub_id), data = .)
+
+all_edge <-all_bind_data_fix2 %>%
+   filter(trialCount > 3) %>%
+  lmer(edge_mean ~ condition * person * log(generation+1) + trialCount + (1|trialDisplay) + (trialCount|sub_id), data = .)
+```
+
+```{r exp3 coefficients}
+all_acc_effect <- all_acc %>%
+  tidy() %>%
+  select(term, estimate, statistic, p.value)
+
+all_bdm_effect <- all_bdm %>%
+  tidy() %>%
+  select(term, estimate, statistic, p.value)
+
+all_chunk_effect <- all_chunk %>%
+  tidy() %>%
+  select(term, estimate, statistic, p.value)
+
+all_edge_effect <- all_edge %>%
+  tidy() %>%
+  select(term, estimate, statistic, p.value)
+```
+In order to compare between Experiments 2 and 3, we subset the data from Experiment 2 to only the first six generations. \ref{fig:allaccplot} displays the comparison between transmission accuracies across Experiments 2 and 3. To compare across experiments, we fit a linear mixed effects model of the form *FORMAT ME* lmer(accuracy -- person x condition x log(generation+1) + trial + (1|initialGrid) + (trialCount|subject). We found main effects for Experiments 3a & 3b (child--involved experiments), editors, and generation. Baseline children and producers in Experiment 3b had lower percent accuracies ($\beta_{child}$ = `r all_acc_effect %>% filter(term == "personchild/adult") %>% pull(estimate) %>% round(3)`, t =`r all_acc_effect %>% filter(term == "personchild/adult") %>% pull(statistic) %>% round(3)` , p `r all_acc_effect %>% filter(term == "personchild/adult") %>% pull(p.value) %>% printp`). Editors (Experiments 2b and 3b) had significantly higher accuracies ($\beta_{editor}$ = `r all_acc_effect %>% filter(term == "conditioneditor") %>% pull(estimate) %>% round(3)`, t = `r all_acc_effect %>% filter(term == "conditioneditor") %>% pull(statistic) %>% round(3)`, p `r all_acc_effect %>% filter(term == "conditioneditor") %>% pull(p.value) %>% printp`). Overall, percent accuracies increased across generations ($\beta_{log(generation)}$ = `r all_acc_effect %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r all_acc_effect %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p `r all_acc_effect %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`). 
+
+REWRITE, THIS IS WEIRD AND THERES A LOT OF INTERACTIONS TO LOOK OVER, MIGHT BE DIFF FROM WHAT WRITTEN HERE, DEPENDS WHAT YOU WANT TO REPORT
+Additionally, adult editors in Experiment 3b and children in the baseline condition had accuracies which increased more over generations, although the editors’ accuracies in both experiments increased less than the baseline conditions over generations ($\beta_{child*log(generation)}$ = `r all_acc_effect %>% filter(term == "personchild/adult:log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r all_acc_effect %>% filter(term == "personchild/adult:log(generation + 1)") %>% pull(statistic) %>% round(3)`, p `r all_acc_effect %>% filter(term == "personchild/adult:log(generation + 1)") %>% pull(p.value) %>% printp`; $\beta_{editor*log(generation)}$ = `r all_acc_effect %>% filter(term == "personchild/adult") %>% pull(estimate) %>% round(3)`, t = -2.978, p = .00298).
+
+\ref{fig:allbdmplot} shows the comparison between Experiments 2 and 3 for algorithmic complexity. As with accuracy, we fit a mixed-effects linear model predicting algorithmic complexity from experiment and condition, fitting effects for display order, initial grid and subject. There was a main effect of generation, with all patterns simplifying over transmissions ($\beta_{log(generation)}$ = `r all_bdm_effect %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r all_bdm_effect %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p `r all_bdm_effect %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`). There was no main effect of whether the participant was an editor (Experiments 2b, 3b) or whether they were in the baseline condition (NEED REPORT?)($\beta_{editor}$ = 2.472, t = 0.724, p= 0.469). There were multiple interaction effects, whereby the editors in Experiment 3b (child-adult dyad) had INSERT HERE. While participants in Experiments 3a and 3b had complexity values which decreased more over transmission generations compared with Experiments 2a and 2b ($\beta_{child*log(generation)}$ = `r all_bdm_effect %>% filter(term == "personchild/adult:log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r all_bdm_effect %>% filter(term == "personchild/adult:log(generation + 1)") %>% pull(statistic) %>% round(3)`, p `r all_bdm_effect %>% filter(term == "personchild/adult:log(generation + 1)") %>% pull(p.value) %>% printp`), the editors in Experiment 3b (child-adult dyad) decreased significantly less over generations compared to the children in the baseline condition ($\beta_{child*editor*log(generation)}$ = `r all_bdm_effect %>% filter(term == "conditioneditor:personchild/adult:log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r all_bdm_effect %>% filter(term == "conditioneditor:personchild/adult:log(generation + 1)") %>% pull(statistic) %>% round(3)`, p `r all_bdm_effect %>% filter(term == "conditioneditor:personchild/adult:log(generation + 1)") %>% pull(p.value) %>% printp`). 
 
 # General Discussion
 In Experiments 1a and 2a, patterns produced by adults over transmission generations in an iterated reproduction task simplified rapidly and dramatically, reflecting the strong transmissibility pressure in memory-based tasks related to early language learning. With children ages 6-8, we see a similarly rapid, dramatic, and linear decrease in complexity of patterned systems over generations. These findings replicated those of @kempe2015: when transmitting an artificial patterned system, complexity was lost. 
@@ -753,7 +1082,7 @@ Editors in Experiment 1b, 2b, and 3b represented caregivers -- they were more ac
 
 Despite the use of a non-linguistic task, we were able to measure change in a culturally-transmitted, reproduced symbol system. When an element of horizontal transmission more closely resembling the relationship between caregivers and children is introduced into the typical diffusion chain paradigm, a greater level of complexity is retained in an evolving “language”, as adults are able to re-introduce and protect against oversimplification. 
 
-# General Discussion (second one; integrate and remove qual analysis stuff)
+# General Discussion (second one; integrate)
 In a number of iterated reproduction studies with both children and adults, we show the impact of introducing an element of horizontal transmission into the iterated reproduction paradigm. Additionally, we show similar, yet slightly different findings for adults and children, pointing to the importance of involving those who are the most frequent--and best--language-learners in studies meant to model language evolution. 
 
 Both adults and children show similar trends in baseline tasks. Experiments 1a, 2a, and 3a, describe how both children and adults show increases in the learnability and decreases in the expressiveness of randomly-generated patterned systems. However, when a secondary participant is introduced, it is pivotal whether they are a child or a child-like adult. Results show that, in child-adult dyads (Exp. 3b), adults are able to reintroduce complexity to the point where adults were on their own (to the level of Exp. 2a).  Editors in this task were able to prevent the language from oversimplification by children. Similarly, real caregivers do not resort to taking children’s simplified utterances literally but infer complexity into their productions. Additionally, we see from Experiment 4 that children and adults may not be able to be equated in iterated reproduction tasks, as they are perhaps not simply more errorful-adults, but they make different types of errors during these reproduction tasks. Thus, children and adults could have different patterned-system priors, which may relate to the different strategies and skills they bring to the early language-learning process. 
@@ -769,7 +1098,7 @@ We do not learn language as passive listeners, who absorb a proportion of the li
 \vspace{1em} \fbox{\parbox[b][][c]{7.3cm}{\centering All experiments were pre-registered on Open Science Framework, and all data and code will be made available through GitHub after de-anonymization. \ }}
 
 # Acknowledgements
-This work was funded by a James McDonnell Foundation Scholar Award to DY as well as an Earl R. Franklin Fellowship Award and a PRISM Research Grant to MM. 
+This work was funded by a James McDonnell Foundation Scholar Award to DY as well as an Earl R. Franklin Fellowship Award and a PRISM Research Grant to MM at the University of Chicago. 
 
 
 \newpage
