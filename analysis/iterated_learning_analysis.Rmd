@@ -356,8 +356,8 @@ trial_data <- all_calculate_data %>%
 
 model_data <- trial_data %>%
   group_by(type, condition, generation, seed, trialDisplay, trialCount, sub_id) %>%
-  summarise(accuracy=mean(accuracy)) #%>%
- #write_feather("feathers/model_data.feather")
+  summarise(accuracy=mean(accuracy)) %>%
+ write_feather("feathers/model_data.feather")
 ```
 
 ```{r accuracy_models}

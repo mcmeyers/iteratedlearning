@@ -75,12 +75,19 @@ set.seed(42)
 knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 ```
 
-```{r read_data}
+```{r read_data, results = 'hide', cache = T, warning = FALSE}
 all_data <- read_feather("feathers/all_data.feather")
 all_spread_data <- read_feather("feathers/all_spread_data.feather")
 all_calculate_data <- read_feather("feathers/all_calculate_data.feather")
 all_bind_data <- read_feather("feathers/all_bind_data.feather")
 model_data <-read_feather("feathers/model_data.feather")
+child_baseline_demographics <- data.frame(read_csv("feathers/ILL_child_demographics_baseline.csv")) %>%
+  filter(condition != "pilot_base") %>%
+  mutate(age = as.numeric(age),
+         gender = as.numeric(gender)) 
+child_dyad_demographics <- data.frame(read_csv("feathers/ILL_child_demographics_dyad.csv")) %>%
+  mutate(age = as.numeric(age),
+         gender = as.numeric(gender))
 
 trial_data <- all_calculate_data %>%
  filter(generation != 0) %>% #takes out initial generations 
@@ -450,12 +457,8 @@ The procedure was similar at the University campus. Participants were recruited 
 
 At the local private school, consent forms were distributed to a single class prior to data collection. Those children who returned signed consent forms participated in the study. Children completed the study in a quiet room, and received stickers for their participation. 
 
-### Participants UPDATEEEEEE MEEEEEE START EDITING HERE 
-```{r exp3 participants}
-
-```
-
-Participants consisted of 89 children ages 6-8 ($\mu$ = 6.92 years; 54% male). 83 children completed the task at the Museum of Science and Industry, Chicago, and 2 participants completed the task on the University of Chicago campus. A small number of participants’ data (n=4) were collected at a private school in Chicago. 29 children were removed from the data set due to failure to complete the task, failure to select ten blocks on all experimental trials, or failure to meet accuracy requirements on the practice trials. These participants were removed from the transmission chains, and their re-creations were not passed to the subsequent participant. This results in a total sample size of 60 participants ($\mu$ = 6.95 years; 53% male) which makes up 50% of our goal of 120 participants. 
+### Participants EDIT FROM HERE! (data is updated)
+Participants consisted of `r nrow(child_baseline_demographics)` children ages 6-8 ($\mu$ = `r mean(child_baseline_demographics$age, na.rm=TRUE) %>% round(2)` years; `r (mean(child_baseline_demographics$gender, na.rm=TRUE)-1) %>% round(2)*100`% female). 145 children completed the task at the Museum of Science and Industry, Chicago, and 5 participants completed the task on the University campus. A small number of participants’ data (n=4) were collected at a private school in Chicago. 34 children were removed from the data set due to failure to complete the task, failure to select ten blocks on all experimental trials, or failure to meet accuracy requirements on the practice trials. These participants were removed from the transmission chains, and their re-creations were not passed to the subsequent participant. This results in a total sample size of `r nrow(filter(child_baseline_demographics, incl==1))` participants ($\mu$ = `r mean(filter(child_baseline_demographics, incl==1)$age, na.rm=TRUE) %>% round(2)` years; `r (mean(filter(child_baseline_demographics, incl==1)$gender, na.rm=TRUE)-1) %>% round(2)*100`% female).
 
 ### Design and Procedure
 The task for this experiment was identical to experiments 1a. Participants were in one of 20 chains, each of which contained 6 generations. 
@@ -463,14 +466,14 @@ The task for this experiment was identical to experiments 1a. Participants were 
 ### Analysis
 As in previous experiments, the patterns produced by participants were analyzed using a measure of accuracy as well as multiple measures of complexity. Accuracy was measured by the percentage of blocks (out of ten) placed in exactly the same position as in the target pattern. Our primary measure of complexity was calculated using the Block Decomposition Method. Chunking and edge length were used as additional measures of complexity. 
 
-## Results UPDATEEE NOT UPDATED DATA
+## Results 
 ```{r exp3aaccplot, fig.env = "figure", fig.align='center', set.cap.width=T, fig.height = 2, fig.width = 3.4, num.cols.cap=1, fig.cap = "shows the results from Experiment 3a for transmission accuracy. Error bars represent nintey-percent confidence intervals."}
 acc_data <- trial_data %>%
   filter( type == "baseline" & condition == "child") %>%
   mutate(condition = "base (child)")%>%
   mutate(generation=ifelse(floor(generation) != generation, generation+0.5, generation)) %>%
   filter(trialCount > 3) %>%
-  group_by(generation, sub_id, condition, type) %>%
+  group_by(generation, unique_id, condition, type) %>%
   summarise(accuracy = mean(accuracy)) %>%
   group_by(generation,type, condition) %>%
   tidyboot_mean(accuracy) 
@@ -551,9 +554,9 @@ e3a_edge_effects <- e3a_edge %>%
   select(term, estimate, statistic, p.value)
 ```
 
-For sample patterns produced by children in the study, see Appendix Figure X. As in previous conditions, we fit a linear mixed-effects model to the data, predicting transmission accuracy from log(generation), including random effects from subject and initial grid. Results for accuracy are shown in \ref{fig:exp3aaccplot}. Transmission accuracies increased significantly over generations ($\beta_{log(generation)}$ = `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p = < `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`).
+For sample patterns produced by children in the study, see Appendix Figure X. As in previous conditions, we fit a linear mixed-effects model to the data, predicting transmission accuracy from log(generation), including random effects from subject and initial grid. Results for accuracy are shown in \ref{fig:exp3aaccplot}. Transmission accuracies increased significantly over generations ($\beta_{log(generation)}$ = `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`).
 
-\ref{fig:exp3abdmplot} shows the results for algorithmic complexity. Again, we fit a linear mixed-effects model, this time predicting algorithmic complexity from log(generation). As in previous experiments, the results from algorithmic complexity were in line with the additional measures of complexity. Algorithmic complexity decreased significantly over generations ($\beta_{log(generation)}$ = `r e3a_bdm_effects %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e3a_bdm_effects %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p = < `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`). Trial number was not a significant predictor in any model. 
+\ref{fig:exp3abdmplot} shows the results for algorithmic complexity. Again, we fit a linear mixed-effects model, this time predicting algorithmic complexity from log(generation). As in previous experiments, the results from algorithmic complexity were in line with the additional measures of complexity. Algorithmic complexity decreased significantly over generations ($\beta_{log(generation)}$ = `r e3a_bdm_effects %>% filter(term == "log(generation + 1)") %>% pull(estimate) %>% round(3)`, t = `r e3a_bdm_effects %>% filter(term == "log(generation + 1)") %>% pull(statistic) %>% round(3)`, p `r e3a_acc_effects %>% filter(term == "log(generation + 1)") %>% pull(p.value) %>% printp`). Trial number was not a significant predictor in any model. 
 
 # Experiment 3b: Adult--Child Dyad
 This experiment investigates whether introducing a secondary participant alters the patterned system’s evolution. This experiment uses the same paradigm as Experiments 1b and 2b, with one participant designated as a “producer” and another as an “editor”. Notably, in this experiment, children are designated as “producers” and adults are designated as “editors”. Thus, this condition is the closest step towards to the goal of understanding the impact of caregiver-child language correction in the language evolution process. 
@@ -561,8 +564,8 @@ This experiment investigates whether introducing a secondary participant alters 
 ### Data Collection
 Data collection with children was identical to Experiment 3a. Participants were recruited, and data were collected at one of three locations: The Museum of Science and Industry, the University of Chicago, or a local private school. 
 
-### Participants UPDATE
-Participants consisted of 103 children ages 6-8 ($\mu$ = 6.84 years; 45% male) and 123 adults. 76 participants completed the task at the Museum of Science and Industry, Chicago, and 18 children completed the task on the University of Chicago campus. A small number of participants’ data (n=9) were collected at a private school in Chicago. All adults completed the task online on Amazon Mechanical Turk. 6 children were removed from the dataset due to failure to select ten blocks on all experimental trials, or failure to meet accuracy requirements on two out of three practice trials. 27 adults were removed from the dataset due to failure to select ten blocks on all experimental trials or failure to meet accuracy requirements. 
+### Participants (kids are updated)
+Participants consisted of `r nrow(child_dyad_demographics)` children ages 6-8 ($\mu$ = `r mean(child_dyad_demographics$age, na.rm=TRUE) %>% round(2)` years; `r (mean(child_dyad_demographics$gender, na.rm=TRUE)-1) %>% round(2)*100`% female) and ??? adults. 101 participants completed the task at the sceince museum and 26 children completed the task on the University campus. A small number of participants’ data (n=9) were collected at a private school. All adults completed the task online on Amazon Mechanical Turk. 16 children were removed from the dataset due to failure to select ten blocks on all experimental trials, or failure to meet accuracy requirements on two out of three practice trials. XXX adults were removed from the dataset due to failure to select ten blocks on all experimental trials or failure to meet accuracy requirements. This results in a total sample size of 120 children ($\mu$ = `r mean(filter(child_baseline_demographics, incl==1)$age, na.rm=TRUE) %>% round(2)` years; `r (mean(filter(child_baseline_demographics, incl==1)$gender, na.rm=TRUE)-1) %>% round(2)*100`% female) and 120 adults.
 
 ### Design and Procedure
 Because children were designated as producers in this dyad task, the task procedure was identical to that of Experiment 3a. Adults, who were designated to be “editors”, completed the task online on Amazon Mechanical Turk. Therefore, their procedure was identical to that of the editors in Experiments 1b and 2b. As in Experiment 1b, we chose to complete the task with twenty diffusion chains, transmitted over six generations. This choice was made after observing the results of @kempe2015, and additionally due to time constraints on collecting data with children.   
@@ -574,7 +577,7 @@ acc_data <- trial_data %>%
   mutate(condition = ifelse(floor(generation)!= generation, "producer (child)", "editor (adult)"))%>%
   mutate(generation=ifelse(floor(generation) != generation, generation+0.5, generation)) %>%
   filter(trialCount > 3) %>%
-  group_by(generation, sub_id, condition, type) %>%
+  group_by(generation, unique_id, condition, type) %>%
   summarise(accuracy = mean(accuracy)) %>%
   group_by(generation,type, condition) %>%
   tidyboot_mean(accuracy) 

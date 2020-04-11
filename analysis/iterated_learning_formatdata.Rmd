@@ -53,10 +53,10 @@ dyad_rep <- read_csv("../data/dyad_rep.csv") %>%
   filter(is.na(thrown)==T)
 
 child_baseline <-read_csv("../data/child_baseline.csv") %>%
-  filter(is.na(thrown)==T, is.na(unique_id)==F)
+  filter(is.na(thrown)==T, is.na(unique_id)==F, seed != 0)
 
 child_dyad <- read_csv("../data/child_dyad.csv") %>%
-  filter(is.na(thrown)==T, is.na(unique_id)==F)
+  filter(is.na(thrown)==T, is.na(unique_id)==F, seed != 0)
 ```
 
 ```{r ignore me, eval=F}
@@ -70,7 +70,7 @@ thrown <- read_csv("../data/dyad_rep.csv") %>%
   write_feather("feathers/thrown_ids.feather")
 ```
 
-```{r ignore me, eval=F}
+```{r ignore, eval=F}
 all_data <- read_feather(("feathers/all_data.feather")) %>%
   left_join(thrown, by="unique_id") %>% 
   filter(is.na(sub_id.y)) %>%
@@ -687,7 +687,6 @@ all_spread_data <- a_spread_data %>%
   bind_rows(mutate(c_dyad_spread_data, type = "dyad_child", condition = "child"))%>%
   write_feather("feathers/all_spread_data.feather")
 
-#or, you can just bind the feathers
 all_bind_data <- a_bind_data %>%
   mutate(type = "baseline") %>%
   bind_rows(mutate(t_bind_data %>%  mutate(condition = if_else(floor(generation) != generation, "child", "adult")), type="dyad")) %>%
